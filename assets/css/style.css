@@ -13,11 +13,11 @@
 
   /* Background texture */
   /* from assets/css/ to assets/images/ */
-  --texture-url: url("/micahmuir/assets/images/bgd_texture.png");
+  --texture-url: url("/assets/images/bgd_texture.png");
   --texture-fallback: #d2b48c;
   --texture-size: auto;
 
-  --paper-url: url("/micahmuir/assets/images/cardstock.png");
+  --paper-url: url("/assets/images/cardstock.png");
   --paper-scale: 512px 512px; /* adjust grain size if you want it bigger/smaller */
 
   /* Layout */
@@ -94,7 +94,7 @@ h2::after {
   z-index: 1000;
   margin: 0 auto;
   padding: 1em;
-  background-image: url("/micahmuir/assets/images/cardstock.png");
+  background-image: url("/assets/images/cardstock.png");
   background-color: #492f2e;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   border-radius: 0 0 4px 4px;
@@ -369,7 +369,7 @@ h2::after {
   margin: 2em auto;
   text-align: center;
   padding: 0.5em 1em;
-  background-image: url("/micahmuir/assets/images/cardstock.png");
+  background-image: url("/assets/images/cardstock.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -419,7 +419,7 @@ h2::after {
   animation: fadeSlideUp 0.8s ease forwards;
   flex: 0 0 auto;
   margin-top: 0.5rem;
-  background-image: url("/micahmuir/assets/images/cardstock.png");
+  background-image: url("/assets/images/cardstock.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
