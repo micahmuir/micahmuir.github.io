@@ -699,7 +699,7 @@ time {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  background-color: rgba(255,255,255,0.92);
+  background-color: rgba(244, 17, 17, 0.92);
   background-blend-mode: overlay;
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
   border-radius: 10px;

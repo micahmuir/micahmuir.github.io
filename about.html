@@ -12,45 +12,52 @@
   <style>
     body {
       font-family: 'Open Sans', sans-serif;
-      max-width: 900px;
-      margin: 2em auto;
+      max-width: 700px;
+      margin: 5em auto 5em auto;
+      padding-left: 5vw;
+      padding-right: 5vw;
       line-height: 1.6;
       color: var(--text-color, #333);
     }
 
     header {
-      margin-bottom: em;
+      margin-bottom: 0em;
       text-align: center;
     }
-
-
-
 
     .page-title {
       margin: 0;
       font-size: 2.5rem;
     }
 
-   
-
+  
     .columns-container {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: stretch;
       gap: 2rem;
-      margin-bottom: 2em;
+      margin-bottom: 1em;
     }
 
+    .column.image {
+      width: 100%;
+      margin: 0;
+    }
     .column img {
-      max-width: 280px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      width: 10%;
+      max-width: 100%;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      display: block;
+      margin: 0 auto 0 auto;
+      object-fit: cover;
     }
 
     .bio {
-      max-width: 700px;
-      margin: 0 auto;
-      font-size: 1.05rem;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      font-size: 1.5rem;
     }
 
     .bio p {
