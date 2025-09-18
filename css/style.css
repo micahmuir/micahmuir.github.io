@@ -454,6 +454,11 @@ h2::after {
  display: block;
   font-size: 1.18rem;
 }
+@media (max-width: 600px) {
+  #resume .job-block {
+    font-size: 1.35rem;
+  }
+}
 
 #resume .job-block h2 {
   width: 100%;
