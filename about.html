@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About – Micah  Thomas</title>
+  <title>About – Micah Thomas</title>
 
   <!-- Fonts & External CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
@@ -44,12 +44,11 @@
       margin: 0;
     }
     .column img {
-      width: 10%;
       max-width: 100%;
       border-radius: 50%;
       box-shadow: 0 4px 16px rgba(0,0,0,0.18);
       display: block;
-      margin: 0 auto 0 auto;
+      margin: 0 auto;
       object-fit: cover;
     }
 
@@ -84,18 +83,10 @@
   <li><a href="about.html">About</a></li>
     </ul>
   </nav>
-  <div id="space" style="height:80px;"></div>
+  <!-- Removed #space div; use CSS margin or padding for spacing if needed -->
+
   <div class="paper-panel">
   <article class="page">
-  <script>
-    (function(){
-      const links = document.querySelectorAll('.nav-links a');
-      const currentPath = window.location.pathname;
-      links.forEach(link => {
-        if (link.getAttribute('href') === currentPath) link.classList.add('active');
-      });
-    })();
-  </script>
 
     <!-- Header -->
     <header>
@@ -113,20 +104,28 @@
       </div>
 
       <div class="bio">
-        <p>
-          Hi there, and welcome to my pages! My name is Micah. I'm a mechanical engineer, artist and tinkerer based in Portland Oregon.
-          These pages are intended to serve as an expansion of my professional resume, as well as a place to share some of my personal projects and experiments. 
-        </p>
+<h1></h1>
+<h1></h1>
+<h1>About Me</h1>
+<p>Hi there, and welcome to my page! My name is Micah. I&#39;m an engineer, artist, and tinker currently based in Portland, Oregon.  </p>
+<p>I was born in South Africa, and lived in Singapore, Scotland, and California before settling back in PDX area.  </p>
+<p>Moving around all the time as a kid definitely shaped my desire to bridge techniques and disciplines when it comes to the maker arts. In college, I couldn&#39;t decide whether to pursue fine art or get an engineering degree, so I did both. I believe all things are connected whether we like it or not, and there&#39;s beauty in the overlap of science, art, and human emotion. Data doesn&#39;t have to live and die in a table. My goal is to leverage engineering to make better art, and vice versa.  </p>
+<p>These pages are intended to serve as an expansion of my professional resume, as well as a platform to share the things I work on in my spare time.</p>
 
-        <p>
-    
-       
-        </p>
       </div>
     </div>
   </article>
   </div>
 
+  <script>
+    (function(){
+      const links = document.querySelectorAll('.nav-links a');
+      const currentPath = window.location.pathname;
+      links.forEach(link => {
+        if (link.getAttribute('href') === currentPath) link.classList.add('active');
+      });
+    })();
+  </script>
   <script src="/micahmuir/assets/js/main.js"></script>
 </body>
 </html>

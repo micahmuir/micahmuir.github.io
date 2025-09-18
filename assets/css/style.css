@@ -25,7 +25,7 @@
 
    --link: #b2987c;
   --link-hover: #1d1d1d;
-  --link-visited: #5a1300;
+  --link-visited: #da2f00;
 }
 
 /* =======================================================================================
@@ -88,49 +88,77 @@ h2::after {
 /* =======================================================================================
    NAVBAR
 ======================================================================================= */
+
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
   margin: 0 auto;
-  padding: 1em;
+  padding: 1em 0;
   background-image: url("/assets/images/cardstock.png");
   background-color: #492f2e;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   border-radius: 0 0 4px 4px;
 }
 
+
 .navbar > .nav-links {
   max-width: var(--page-max);
   margin: 0 auto;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5em;
+  padding: 0;
 }
+
 
 .nav-links {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5em;
 }
+
 
 .nav-links li {
   display: inline-block;
-  margin: 0 15px;
+  margin: 0;
 }
+
 
 .nav-links a {
-  color: #616161;
-  font-weight: bold;
-  font-size: 1rem;
-  transition: color 0.2s ease;
+  color: #404040;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+  padding: 0.5em 1.2em;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
   text-decoration: none;
+  background: transparent;
+  display: inline-block;
 }
 
-.nav-links a:hover { color: #949494; }
+
+.nav-links a:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+}
+
 
 .nav-links a.active {
-  color: #000000;
+  color: #fff;
+  background: #3d2c1e;
   border-radius: 8px;
-  text-shadow: 0 0 10px #ffffff, 0 0 10px #000000;
+  text-shadow: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  border: 2px solid #ffc400;
 }
 
 /* ===== Global Polaroid Base ===== */
@@ -265,7 +293,7 @@ h2::after {
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
-  background: #fff;
+  background: #f52626;
   border: 1px solid rgba(0,0,0,.12);
   border-radius: 10px;
   padding: 0; /* Removed padding to ensure content fills the card */
@@ -407,6 +435,11 @@ h2::after {
   z-index: 0;
 }
 
+#resume .job-block p {
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
 /* Job cards */
 #resume .job-block {
   border-radius: 4px;
@@ -424,24 +457,44 @@ h2::after {
   background-repeat: no-repeat;
   background-position: center;
   background-color: rgba(93, 0, 255, 0.85);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
  display: block;
+}
+
+#resume .job-block h1 {
+  width: 100%;
+  letter-spacing: 0.035em;
+  text-align: center;
+  font-weight: bold;
+  position: relative;
+}
+
+#resume .job-block h1::after {
+  content: '';
+  display: block;
+  margin: 0.5em auto 0 auto;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(90deg, #434343 0%, #464646 100%);
+  border-radius: 2px;
 }
 
 #resume .job-block h2 {
   width: 100%;
   letter-spacing: 0.035em;
-  text-align: center;
+  text-align: left;
   font-weight: bold;
+  line-height: 0.8;
 }
 
-#resume h2::after {
-  content: '';
-  display: block;
+#resume .job-block h3 {
   width: 100%;
-  height: 2px;
-  margin: 1em 0;
-  background-color: #524949;
+  letter-spacing: 0.035em;
+  text-align: left;
+  font-weight: bold;
+  line-height: 0.8;
 }
+
 
 /* Video embeds */
 #resume .video-container {
@@ -452,7 +505,7 @@ h2::after {
   height: 0;
   overflow: hidden;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.979);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 #resume .video-container iframe {
@@ -662,17 +715,23 @@ time {
 
 /* New cardstock card style for index */
 .card.cardstock {
+  border-radius: 4px;
+  padding: 2em;
+  width: 100%;
+  flex: 1 1 auto;
+  margin-bottom: 0.75rem;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s ease forwards;
+  flex: 0 0 auto;
+  margin-top: 0.5rem;
   background-image: url("/assets/images/cardstock.png");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  background-color: rgba(255,255,255,0.92);
-  background-blend-mode: overlay;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  border-radius: 10px;
-  padding: 1.5em;
-  min-height: 220px;
-  display: flex;
+  background-color: rgba(93, 0, 255, 0.85);
+   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+ display: block;
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
@@ -767,7 +826,7 @@ body#projects-detail { background: transparent !important; }
 /* Polaroid-style thumbs (single-photo look; no double shadows) */
 #projects-detail .gallery-item {
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 5px;
   background: #fff;                             /* paper */
   border: 1px solid rgba(0,0,0,.12);
   padding: .6rem .6rem 1.2rem;                  /* thicker bottom like a polaroid */
