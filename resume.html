@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Current Resume</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+ <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Shadows+Into+Light&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+</head>
+
+<body id="resume">
+
+  <nav class="navbar">
+    <ul class="nav-links">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="resume.html">Resume</a></li>
+  <li><a href="personal_projects.html">Projects</a></li>
+  <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <script>
+    const links = document.querySelectorAll('.nav-links a');
+    const currentPath = window.location.pathname;
+  
+    links.forEach(link => {
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('active');
+      }
+    });
+  </script>
+
+main {
+  margin-top: 200px;
+}
+  <div class="timeline-line"></div>
+
+
+
+  <div class="timeline-marker">Present</div>
+
+
+  <div class="job-block">
+    <h2>Mechanical Design Engineer</h2>
+    <p><em> <a href="https://lab0.com/" target="_blank" rel="noopener">Lab0</a></em><br>Ridgefield, WA</p>
+    <ul>
+      <li>Worked with small team (&lt; 25) developing and deploying a robotic full system solution for unpacking, transporting, and palletizing inbound product</li>
+  <li> <a href="professional_projects/combiner.html" target="_blank" rel="noopener"> Designed, procured, and installed 4m x 4m x 4m steel superstructure</a> for dual 4-axis palletizing system</li>
+  <li>Designed and deployed a fully printable <a href="professional_projects/gripper.html" target="_blank" rel="noopener">vacuum suction</a> end effector for 6-axis pick/place operations of 25 kg payloads</li>
+      <li>Designed and implemented a 7 camera scanning tunnel for inbound and outbound product classification /li>
+    </ul>
+    <div class="video-container">
+      <iframe allowfullscreen src="https://www.youtube.com/embed/zUW0-jVlsAw"></iframe>
+    </div>
+   
+    </div>
+  </div>
+
+  <div class="timeline-marker">Oct 2023</div>
+
+  <div class="job-block">
+    <h2>Mechanical Design Engineer</h2>
+    <p><em><a href=https://sherpa-design.com/" target="_blank" rel="noopener">Sherpa Design</a> </em><br>Portland, OR</p>
+    <ul>
+      <li>Built GUIs for resource-constrained sensor fusion in multidisciplinary team</li>
+      <li>Developed <a href="https://projectveet.com/" target="_blank" rel="noopener">ultralight physical hardware</a>  for VR/AR wearables, with particular attention to time-of-flight integration</li>
+      <li>Designed and prototyped 3000 PSI CNC 3D printed support removal washer</li>
+    </ul>
+  </div>
+
+  <div class="timeline-marker">Sept 2022</div>
+
+  <div class="job-block">
+    <h2>Design Engineer</h2>
+    <p><em>Plover Inc</em><br>Portland, OR</p>
+    <ul>
+      <li>Worked with a team of 6 to deploy the world's most environmentally friendly, efficient, 5 axis robotic car wash</li>
+      <li>Developed and implemented chemical/water resistant LED displays with positive-pressure control electronics for moisture resistance</li>
+      <li>Designed and installed 30’ x 15’ washdown rated superstructure and XY axis</li>
+    </ul>
+    <div class="video-container">
+      <iframe allowfullscreen src="https://www.youtube.com/embed/PZerhJ8tfgo"></iframe>
+    </div>
+  </div>
+
+  <div class="timeline-marker">Nov 2020</div>
+
+  <div class="job-block">
+    <h2>Shop Engineer</h2>
+    <p><em>333 LLC</em><br>Hood River, OR</p>
+    <ul>
+      <li>Retrofitted vintage CNC plasma table with an af modern, modular motion control system </li>
+      <li>Designed engineering assemblies and fabrication drawings for residential structure and metal art sculptures</li>
+    </ul>
+  </div>
+
+  <div class="timeline-marker">Apr 2020</div>
+
+  <div class="job-block">
+    <h2>Mechanical Engineering Intern</h2>
+    <p><em>Trillium Engineering LLC</em><br>Summer 2016 & 2017<br>Hood River, OR</p>
+    <ul>
+      <li>Assisted in design, testing, and assembly of high-performance drone mounted stabilized imaging systems</li>
+      <li>Experience utilizing laboratory optical instrumentation tools</li>
+      <li>Familiarity with image acquisition and processing at visible and infrared wavelengths</li>
+    </ul>
+  </div>
+
+
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

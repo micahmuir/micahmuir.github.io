@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Project Gallery — Timelapse Camera</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Site-wide CSS (applies the cardboard texture via <html> background, tokens, navbar, etc.) -->
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <!-- Open Sans (optional—kept for consistency) -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+
+<body id="projects-detail">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../resume.html">Resume</a></li>
+      <li><a href="../personal_projects.html">Projects</a></li>
+      <li><a href="../about.html">About</a></li>
+    </ul>
+  </nav>
+
+  <!-- highlight current nav link -->
+  <script>
+    (function(){
+      const links = document.querySelectorAll('.nav-links a');
+      const currentPath = window.location.pathname;
+      links.forEach(link => {
+        if (link.getAttribute('href') === currentPath) link.classList.add('active');
+      });
+    })();
+  </script>
+
+  <div class="page">
+    <!-- Cardstock intro panel (title + paragraph on one paper sheet) -->
+    <section class="paper-panel">
+      <h1 class="page-title">Photography</h1>
+      <p>
+        One of the first engineering/art crossovers I came across. I got my first camera when I was 10 years old, and immediately fell in love.
+        The feeling of millions of photons colliding and energizing buckets on a microscopically tiny city of diodes that spits out a cloud a colors
+        that organizes to freeze a moment of tell a story... well, it fed both sides of my brain in one meal.
+      </p>
+    </section>
+
+    <!-- Gallery -->
+    <div class="gallery" id="gallery">
+      <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/hawk.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+        <img src="../assets/images/photography/hawk.jpg" alt="Hawk">
+      </div>
+
+    
+      <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/mira_forest.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+    <img src="../assets/images/photography/mira_forest.jpg" alt="Hawk">
+      </div>
+
+ 
+      <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/bearskull.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+    <img src="../assets/images/photography/bearskull.jpg" alt="Hawk">
+      </div>
+
+      <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/cloudspotting.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+    <img src="../assets/images/photography/cloudspotting.jpg" alt="Hawk">
+      </div>
+
+           <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/drycreek.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+        <img src="../assets/images/photography/drycreek.jpg" alt="Hawk">
+      </div>
+
+            <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/heavycloud.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+          <img src="../assets/images/photography/heavycloud.jpg" alt="Hawk">
+      </div>
+
+            <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/ice_cathedral.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+          <img src="../assets/images/photography/ice_cathedral.jpg" alt="Hawk">
+      </div>
+
+        <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/volcano.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+      <img src="../assets/images/photography/volcano.jpg" alt="Hawk">
+      </div>
+
+         <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/lightning.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+      <img src="../assets/images/photography/lightning.jpg" alt="Hawk">
+      </div>
+
+        <div class="gallery-item"
+           data-type="img"
+           data-src="../assets/images/photography/icy_tamanawas.jpg"
+           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
+      <img src="../assets/images/photography/icy_tamanawas.jpg" alt="Hawk">
+      </div>
+
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+      <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+      <span class="lightbox-nav lightbox-prev" onclick="prevLightbox()">&#10094;</span>
+      <div class="lightbox-content" id="lightboxContent"></div>
+      <span class="lightbox-nav lightbox-next" onclick="nextLightbox()">&#10095;</span>
+    </div>
+  </div>
+
+  <!-- Lightbox scripts (same as your other project page) -->
+  <script>
+    const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
+    let currentIndex = 0;
+
+    function openLightbox(type, src, caption) {
+      const contentEl = document.getElementById('lightboxContent');
+      contentEl.classList.remove('show');
+
+      setTimeout(() => {
+        const html = (type === 'img')
+          ? `<div style="display:flex;flex-direction:column;align-items:center;">
+               <img src="${src}" alt="">
+               <div class="lightbox-caption">${caption||''}</div>
+             </div>`
+          : `<div class="video-wrapper">
+               <iframe src="${src}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+             </div>
+             <div class="lightbox-caption">${caption||''}</div>`;
+
+        contentEl.innerHTML = html;
+        requestAnimationFrame(() => contentEl.classList.add('show'));
+      }, 150);
+
+      const lightbox = document.getElementById('lightbox');
+      lightbox.classList.add('show');
+      lightbox.style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      lightbox.classList.remove('show');
+      setTimeout(() => {
+        lightbox.style.display = 'none';
+        document.getElementById('lightboxContent').innerHTML = '';
+      }, 250);
+    }
+
+    function showLightbox(index) {
+      const item = galleryItems[index];
+      openLightbox(item.dataset.type, item.dataset.src, item.dataset.caption);
+      currentIndex = index;
+    }
+    function nextLightbox() {
+      currentIndex = (currentIndex + 1) % galleryItems.length;
+      showLightbox(currentIndex);
+    }
+    function prevLightbox() {
+      currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
+      showLightbox(currentIndex);
+    }
+
+    galleryItems.forEach((item, index) => {
+      item.addEventListener('click', () => showLightbox(index));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const lightbox = document.getElementById('lightbox');
+      if (!lightbox.classList.contains('show')) return;
+      if (e.key === 'ArrowRight') nextLightbox();
+      if (e.key === 'ArrowLeft')  prevLightbox();
+      if (e.key === 'Escape')     closeLightbox();
+    });
+
+    // Swipe support
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+    document.addEventListener('touchend',   e => { touchEndX   = e.changedTouches[0].screenX; handleSwipe(); }, {passive:true});
+    function handleSwipe(){
+      const lightbox = document.getElementById('lightbox');
+      if (!lightbox || !lightbox.classList.contains('show')) return;
+      if (touchEndX < touchStartX - 50) nextLightbox();
+      if (touchEndX > touchStartX + 50) prevLightbox();
+    }
+  </script>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

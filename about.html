@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About – Micah  Thomas</title>
+
+  <!-- Fonts & External CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      max-width: 900px;
+      margin: 2em auto;
+      line-height: 1.6;
+      color: var(--text-color, #333);
+    }
+
+    header {
+      margin-bottom: em;
+      text-align: center;
+    }
+
+
+
+
+    .page-title {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+
+   
+
+    .columns-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2em;
+    }
+
+    .column img {
+      max-width: 280px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .bio {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 1.05rem;
+    }
+
+    .bio p {
+      margin-bottom: 1.2em;
+    }
+
+    .paper-panel {
+      background: rgba(255, 255, 255, 0.8);
+      background-image: url("/micahmuir/assets/images/cardstock.png");
+      padding: 4em;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <ul class="nav-links">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="resume.html">Resume</a></li>
+  <li><a href="personal_projects.html">Projects</a></li>
+  <li><a href="about.html">About</a></li>
+    </ul>
+  </nav>
+  <div id="space" style="height:80px;"></div>
+  <div class="paper-panel">
+  <article class="page">
+  <script>
+    (function(){
+      const links = document.querySelectorAll('.nav-links a');
+      const currentPath = window.location.pathname;
+      links.forEach(link => {
+        if (link.getAttribute('href') === currentPath) link.classList.add('active');
+      });
+    })();
+  </script>
+
+    <!-- Header -->
+    <header>
+      <h1 class="page-title">Micah Muir Thomas</h1>
+    </header>
+
+    <!-- Image + Bio -->
+    <div class="columns-container">
+      <div class="column image">
+        <figure>
+          <a href="/assets/images/headshot.jpg" target="_blank" rel="noopener">
+            <img alt="Headshot of Micah Muir Thomas" src="/assets/images/headshot.jpg" />
+          </a>
+        </figure>
+      </div>
+
+      <div class="bio">
+        <p>
+          I exist at the intersection of many worlds. I was born in South Africa and grew up in
+          Oregon, Singapore, Scotland, and California. My heritage reflects a mix of cultures—
+          my mother is Caucasian, my father was half Black and half Japanese, and my grandmother
+          was unconstitutionally interned at Heart Mountain during WWII.
+        </p>
+
+        <p>
+          In school, I was “the artistic kid,” but I was equally driven by a deep scientific curiosity
+          about how both I and the world worked. I earned a degree in Mechanical Engineering with a
+          minor in Studio Art from Santa Clara University. Since then, I’ve worked in robotics,
+          product design, and art.
+        </p>
+
+        <p>
+          I am currently a mechanical engineer at Lab0, developing a robotic full-system solution
+          for unpacking, transporting, and palletizing inbound product. My projects have ranged
+          from autonomous vision systems, to large-scale robotic structures, to interactive
+          art installations. Across all of these, my curiosity and eclectic interests allow
+          my work and art to inform one another.
+        </p>
+
+        <p>
+          I learned to code not as an end in itself, but as a way to leverage engineering to create
+          a kind of magic. Years of frugal innovation have taught me to redefine what’s possible
+          with limited resources, blending practicality with imagination.
+        </p>
+
+        <p>
+          You can see more of the smaller projects I keep busy with in the
+          <a href="/micahmuir/personal_projects.html">Personal Projects</a> section.
+        </p>
+      </div>
+    </div>
+  </article>
+  </div>
+
+  <script src="/micahmuir/assets/js/main.js"></script>
+</body>
+</html>
