@@ -5,12 +5,12 @@
   <meta charset="utf-8" />
   <title>Current Resume</title>
   <link rel="stylesheet" href="/assets/css/style.css" />
- <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Shadows+Into+Light&family=Permanent+Marker&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
 </head>
 
 <body id="resume">
 
+  <!-- Navbar -->
   <nav class="navbar">
     <ul class="nav-links">
   <li><a href="index.html">Home</a></li>
@@ -20,19 +20,17 @@
     </ul>
   </nav>
 
+  <!-- highlight current nav link -->
   <script>
-    const links = document.querySelectorAll('.nav-links a');
-    const currentPath = window.location.pathname;
-  
-    links.forEach(link => {
-      if (link.getAttribute('href') === currentPath) {
-        link.classList.add('active');
-      }
-    });
+    (function(){
+      const links = document.querySelectorAll('.nav-links a');
+      const currentPath = window.location.pathname;
+      links.forEach(link => {
+        if (link.getAttribute('href') === currentPath) link.classList.add('active');
+      });
+    })();
   </script>
 
-main {
-  margin-top: 200px;
 }
   <div class="timeline-line"></div>
 
