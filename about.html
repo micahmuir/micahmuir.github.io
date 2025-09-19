@@ -33,10 +33,36 @@
   
     .columns-container {
       display: flex;
-      flex-direction: column;
-      align-items: stretch;
+      flex-direction: row;
+      align-items: flex-start;
       gap: 2rem;
       margin-bottom: 1em;
+      flex-wrap: wrap;
+    }
+    .column.image {
+      flex: 0 1 220px;
+      max-width: 260px;
+      min-width: 120px;
+      margin: 0;
+    }
+    .bio {
+      flex: 1 1 200px;
+      min-width: 160px;
+      max-width: 100%;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .columns-container {
+        gap: 1rem;
+      }
+      .column.image {
+        flex-basis: 100px;
+        max-width: 120px;
+      }
+      .bio {
+        font-size: 1.1rem;
+      }
     }
 
     .column.image {
@@ -106,11 +132,13 @@
       <div class="bio">
 <h1></h1>
 <h1></h1>
-<h1>About Me</h1>
-<p>Hi there, and welcome to my page! My name is Micah. I&#39;m an engineer, artist, and tinker currently based in Portland, Oregon.  </p>
+
+<p>Hi there, and welcome to my page! My name is Micah. I&#39;m an engineer, artist, and tinkerer currently based in Portland, Oregon.  </p>
 <p>I was born in South Africa, and lived in Singapore, Scotland, and California before settling back in PDX area.  </p>
-<p>Moving around all the time as a kid definitely shaped my desire to bridge techniques and disciplines when it comes to the maker arts. In college, I couldn&#39;t decide whether to pursue fine art or get an engineering degree, so I did both. I believe all things are connected whether we like it or not, and there&#39;s beauty in the overlap of science, art, and human emotion. Data doesn&#39;t have to live and die in a table. My goal is to leverage engineering to make better art, and vice versa.  </p>
-<p>These pages are intended to serve as an expansion of my professional resume, as well as a platform to share the things I work on in my spare time.</p>
+<p>Moving around all the time as a kid definitely shaped my desire to bridge techniques and disciplines when it comes to the maker arts. In college, I couldn&#39;t decide whether to pursue fine art or get an engineering degree, so I did both. Professionally, I design and integrate hardware for robotic systems. In and outside of work, I believe all things are connected whether we like it or not, and there&#39;s beauty in the overlap of science, art, and human emotion. Data doesn&#39;t have to live and die in a table. My goal is to leverage engineering to make better art, and vice versa.  </p>
+<p>These pages are intended to serve as an expansion of my professional resume, as well as a platform to share the things I work on in my spare time.  </p>
+<p>Thanks for stopping by ~</p>
+<h1></h1>
 
       </div>
     </div>
