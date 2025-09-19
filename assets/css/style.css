@@ -1,3 +1,13 @@
+/* Global cardstock panel for all pages */
+.paper-panel {
+  background: rgba(255, 255, 255, 0.8);
+  background-image: url("/assets/images/cardstock.png");
+  background-repeat: repeat;
+  background-size: 512px 512px;
+  padding: 2cap;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
 #homepage .page-title {
   margin-bottom: 2.5em;
 }
@@ -54,13 +64,13 @@ body { background: transparent; }
 
 /* Generic page container */
  .page {
-  max-width: 550px;
+  max-width: 900px;
   min-width: 0;
   margin: 2em auto;
-  padding-left: clamp(1em, 5vw, 3em);
-  padding-right: clamp(1em, 5vw, 3em);
-  padding-top: 1em;
-  padding-bottom: 1em;
+  padding-left: clamp(4em, 15vw, 8em);
+  padding-right: clamp(4em, 15vw, 8em);
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
 }
 /* Simple spacing helper used under fixed navbar */
 #space { height: 50px; }
@@ -817,10 +827,11 @@ body#projects-detail { background: transparent !important; }
 /* Gallery grid (scoped so it won't clash with your projects index styles) */
 #projects-detail .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1.25rem;
   margin: 1rem 0 0;
   padding: 0;
+  align-items: start;
 }
 
 /* Polaroid-style thumbs (single-photo look; no double shadows) */
@@ -833,6 +844,8 @@ body#projects-detail { background: transparent !important; }
   box-shadow: 0 10px 22px rgba(0,0,0,.18);
   transition: transform .15s ease, box-shadow .15s ease;
   text-align: center;
+  width: 100%;
+  height: auto;
 }
 #projects-detail .gallery-item:hover {
   transform: translateY(-2px);
@@ -845,6 +858,7 @@ body#projects-detail { background: transparent !important; }
   display: block;
   border-radius: 6px;
   box-shadow: inset 0 6px 14px rgba(0,0,0,.12);
+  aspect-ratio: auto;
 }
 
 /* Lightbox (scoped) */

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+		<style>
+			.page {
+				max-width: 900px;
+				margin: 2em auto;
+				padding-left: clamp(4em, 15vw, 8em);
+				padding-right: clamp(4em, 15vw, 8em);
+			}
+			.paper-panel {
+				max-width: 900px;
+				margin-left: auto;
+				margin-right: auto;
+				padding-left: clamp(2em, 8vw, 5em);
+				padding-right: clamp(2em, 8vw, 5em);
+			}
+		</style>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Rabbit Project</title>
+	<link rel="stylesheet" href="../../assets/css/style.css" />
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+	<nav class="navbar">
+		<ul class="nav-links">
+			<li><a href="../../index.html">Home</a></li>
+			<li><a href="../../resume.html">Resume</a></li>
+			<li><a href="../../personal_projects.html">Projects</a></li>
+			<li><a href="../../about.html">About</a></li>
+		</ul>
+	</nav>
+		<div class="page">
+			<div class="paper-panel">
+				<h1 class="page-title">RABBIT</h1>
+				<table class="simple-table">
+					<tbody>
+						<tr><td>Global Shutter Camera FOV</td><td></td></tr>
+						<tr><td>IP Address</td><td></td></tr>
+					</tbody>
+				</table>
+				<h1>Motivation</h1>
+				<p>A year and a half ago, I had a vision of two dancers on a darkened stage, moving together in a call-response fashion. When moving synchronously, beams of light flared out across space to connect them, but only when they mirrored each other within a certain threshold. I didn’t know how I was going to achieve this exactly, but I knew it wasn’t impossible.</p>
+				<h1>Requirements</h1>
+				<p>This project was borne out of need for a low cost, high-ish performance network camera solution for my interactive spatial projects. I needed a generalized method and hardware to locate a human in 3D space and perform pose estimation.<br><br>It needed to do the following:</p>
+				<ul>
+					<li>Provide real-time depth imaging alongside simultaneous “regular” imaging</li>
+					<li>Be relatively small</li>
+					<li>Send imaging data across CAT5/6 network cables as fast as I possible can.</li>
+					<li>Leverage a much more powerful central computer to perform GPU calculation</li>
+				</ul>
+				<h1>Hardware Build</h1>
+				<h3>Computer Choice</h3>
+				<h3>Camera Choice</h3>
+				<h3>Global vs Rolling</h3>
+				<h1>Software Build</h1>
+				<p>Enter touchdesigner. Although intended as a tool for live entertainment and visuals, I quickly discovered its power as a sort of connective “glue” between the hardware nodes for this project.<br><br>Yes, I can use it to make pretty pictures, but I can ALSO use it to accept ...</p>
+			</div>
+		</div>
+	<script>
+		(function(){
+			const links = document.querySelectorAll('.nav-links a');
+			const currentPath = window.location.pathname;
+			links.forEach(link => {
+				if (link.getAttribute('href') === currentPath) link.classList.add('active');
+			});
+		})();
+	</script>
+</body>
+</html>
