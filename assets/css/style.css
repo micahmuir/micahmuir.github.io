@@ -934,18 +934,7 @@ body#projects-detail { background: transparent !important; }
   padding-right: 2em;
 }
 
-.card-content nav {
-  width: 100%;
-  max-width: 100%;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  box-sizing: border-box;
-}
-.card-content nav > div {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
+
 
 /* Personal Projects: Small polaroid tile grid */
 #projects .card-container {
