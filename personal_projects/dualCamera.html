@@ -36,7 +36,10 @@
     <section class="paper-panel">
       <h1 class="page-title">Infrared Camera Platform</h1>
       <p>
-        This is a spinoff project from my general purpose imaging platform
+        (more information to come soon) This device is a dual-camera platform for experimenting with time of flight imagery. I used a raspberry pi 5 with both camera ports
+        sporting an Arducam ToF sensor to see if it could work. Since these cameras are continuous wave modulation type, crosstalk is a major issue. I learned (after a lot of monkeying around with drivers and firmware updates)
+        that if one camera is set to a higher modulation frequency, we can record simultaneous depth images without too much distortion. This is good enough for touchdesigner pixel pushing, but it's utility for mapping remains to be seen.
+        
       </p>
     </section>
 
@@ -55,37 +58,7 @@
            data-caption="A particle system interaction using a leap motion device. I instanced the joint locations to become attractors to a basic simulation.">
         <img src="https://i.ytimg.com/vi/8Lr2bAI5sjk/maxresdefault.jpg" alt="Companion Stairlight video">
       </div>
- 
- 
-    
-      <div class="gallery-item" data-type="video" data-src="https://www.youtube.com/embed/tef3gADUe9g"
-           data-caption="Another lidar UV projection mapping experiment">
-        <img src="https://i.ytimg.com/vi/tef3gADUe9g/maxresdefault.jpg" alt="Companion Stairlight video">
-      </div>
 
-         <div class="gallery-item" data-type="video" data-src="https://www.youtube.com/embed/j_7EeqCTrwI"
-           data-caption="This was semi-successful experiment to see if I could 3D print a Chladni plate functional enough to achieve resonance.
-           It worked better than I expected, however not as well as some of the extr-rigid steel plates normally used in these demonstrations. Still, Touchdesigner was used to map the dials of a midi keyboard to the driving frequency of the current through a solenoid, who's field acted on the tiny magnet glued to the center of the somewhat wobbly plate.
-           Still, resonance was achieved at a number af harmonics. It proves that I could build an interactive exhibit where some sensor input could visibly change the salt patterns for a viewer.">
-        <img src="https://i.ytimg.com/vi/j_7EeqCTrwI/maxresdefault.jpg" alt="Companion Stairlight video">
-      </div>
-   
-
-         <div class="gallery-item" data-type="video" data-src="https://www.youtube.com/embed/ytpllJccHts"
-           data-caption="Live ToF camera depth map is captured by a Raspberry Pi and sent over UDP to Touchdesigner, where the depth information is used to create a number of masks that are projected back onto the physical scene.">
-        <img src="https://i.ytimg.com/vi/ytpllJccHts/maxresdefault.jpg" alt="Companion Stairlight video">
-      </div>
-    
-
-      <div class="gallery-item" data-type="video" data-src="https://www.youtube.com/embed/NGeER6sxBN8"
-           data-caption="Another view of the live action ToF depth mapping and projection setup.">
-        <img src="https://i.ytimg.com/vi/NGeER6sxBN8/maxresdefault.jpg" alt="Companion Stairlight video">
-      </div>
-
-      <div class="gallery-item" data-type="video" data-src="https://www.youtube.com/embed/C5aKc9JWSPw"
-           data-caption="I built this prototype luminaire out of 32x64 P2.5 HUB75 panels, with a Teensy 4.1 and a LED smartshield interfacing with the panels. Graphic output from Touchdesigner was streamed to the teensy via Ethernet, and displayed on the lumaire at a high framerate. ">
-        <img src="https://i.ytimg.com/vi/C5aKc9JWSPw/maxresdefault.jpg" alt="Companion Stairlight video">
-      </div>
 
 
     </div>

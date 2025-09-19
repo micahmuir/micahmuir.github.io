@@ -10,6 +10,15 @@
   <link rel="stylesheet" href="/assets/css/style.css" />
 
   <style>
+    .column.image figure {
+      margin-top: -4.5em;
+      margin-bottom: 0;
+      padding: 0;
+    }
+    .column.image {
+      margin-top: 0;
+      padding-top: 0;
+    }
     body {
       font-family: 'Open Sans', sans-serif;
       max-width: 700px;
@@ -31,62 +40,49 @@
     }
 
   
+
     .columns-container {
       display: flex;
-      flex-direction: row;
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: center;
       gap: 2rem;
       margin-bottom: 1em;
-      flex-wrap: wrap;
     }
-    .column.image {
-      flex: 0 1 220px;
-      max-width: 260px;
-      min-width: 120px;
-      margin: 0;
-    }
-    .bio {
-      flex: 1 1 200px;
-      min-width: 160px;
-      max-width: 100%;
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    @media (max-width: 600px) {
-      .columns-container {
-        gap: 1rem;
-      }
-      .column.image {
-        flex-basis: 100px;
-        max-width: 120px;
-      }
-      .bio {
-        font-size: 1.1rem;
-      }
-    }
-
     .column.image {
       width: 100%;
+      display: flex;
+      justify-content: center;
       margin: 0;
     }
     .column img {
-      max-width: 100%;
+      width: 100%;
+      max-width: 320px;
+      min-width: 180px;
+      height: auto;
       border-radius: 50%;
       box-shadow: 0 4px 16px rgba(0,0,0,0.18);
       display: block;
       margin: 0 auto;
       object-fit: cover;
     }
-
     .bio {
       width: 100%;
-      max-width: 100%;
-      margin: 0;
+      max-width: 700px;
+      margin: 0 auto;
       font-size: 1.5rem;
+      text-align: left;
     }
-
     .bio p {
       margin-bottom: 1.2em;
+    }
+    @media (max-width: 600px) {
+      .column img {
+        max-width: 80vw;
+        min-width: 120px;
+      }
+      .bio {
+        font-size: 1.1rem;
+      }
     }
 
     .paper-panel {
