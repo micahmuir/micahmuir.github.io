@@ -1,125 +1,332 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <title>Current Resume</title>
-  <link rel="stylesheet" href="/assets/css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    .timeline {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    
+    .timeline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      position: relative;
+    }
+    
+    .timeline-date-marker {
+      flex-shrink: 0;
+      width: 120px;
+      text-align: right;
+      position: relative;
+      padding-right: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+      min-height: 40px;
+    }
+    
+    .timeline-date-marker::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--text-medium);
+      border: 3px solid var(--bg-light);
+      border-radius: 50%;
+      right: -9px;
+      top: 14px;
+      z-index: 2;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      width: 3px;
+      background: linear-gradient(to bottom, 
+        var(--secondary-color) 0%, 
+        var(--primary-color) 50%, 
+        var(--text-medium) 100%);
+      top: 20px;
+      bottom: 20px;
+      left: 114px;
+      border-radius: 2px;
+      z-index: 1;
+      opacity: 0.8;
+      box-shadow: 0 0 4px rgba(52, 152, 219, 0.2);
+    }
+    
+    .timeline-content {
+      flex: 1;
+      background: var(--bg-light);
+      background-image: var(--texture-primary);
+      background-size: 250px 250px;
+      padding: 2.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-medium);
+      position: relative;
+      transition: all var(--transition-medium);
+    }
+    
+    .timeline-content:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .timeline-date {
+      color: var(--text-medium);
+      font-weight: 500;
+      font-size: 0.95rem;
+      margin-bottom: 0;
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--border-radius-small);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 3;
+    }
+    
+    .job-title {
+      color: var(--primary-color);
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .company {
+      color: var(--secondary-color);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .location {
+      color: var(--text-medium);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .job-description {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .job-description li {
+      margin-bottom: 0.8rem;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    
+    .job-description li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+    
+    .video-container {
+      margin-top: 1rem;
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%;
+      border-radius: var(--border-radius-small);
+      overflow: hidden;
+    }
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    @media (max-width: 768px) {
+      .timeline-item {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .timeline-date-marker {
+        width: 100%;
+        text-align: left;
+        position: relative;
+        padding-right: 0;
+        padding-left: 2rem;
+        justify-content: flex-start;
+      }
+      
+      .timeline-date-marker::after {
+        left: -8px;
+        right: auto;
+        top: 12px;
+      }
+      
+      .timeline::before {
+        left: -4px;
+        width: 3px;
+      }
+      
+      .timeline-content {
+        padding: 1.5rem;
+        margin-left: 1rem;
+      }
+      
+      .timeline-date {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+      }
+    }
+  </style>
 </head>
-
-<body id="resume">
-  <!-- Navbar -->
+<body class="resume-page">
+  <!-- Navigation -->
   <nav class="navbar">
-    <ul class="nav-links">
-  <li><a href="index.html">Home</a></li>
-  <li><a href="resume.html">Resume</a></li>
-  <li><a href="personal_projects.html">Projects</a></li>
-  <li><a href="about.html">About</a></li>
-    </ul>
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html" class="active">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
   </nav>
 
-  <!-- highlight current nav link -->
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Professional Experience</h1>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="section">
+      <div class="container">
+        <div class="timeline">
+          <!-- Current Position -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">Present</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Mechanical Design Engineer</h2>
+              <h3 class="company"><a href="https://lab0.com/" target="_blank" rel="noopener">Lab0</a></h3>
+              <p class="location">Ridgefield, WA</p>
+              <ul class="job-description">
+                <li>Worked with small team developing and deploying a robotic full system solution for inbound product</li>
+                <li>Designed superstructure and provided continuous improvement for a dual arm palletizing system <a href="/professional_projects/combiner/combiner.html" target="_blank" rel="noopener">more...</a></li>
+                <li>Designed, tested, and deployed a majority FDM-printed vacuum end effector for 6DoF pick/place operations for 25 kg cardboard boxes <a href="/professional_projects/gripper/gripper.html" target="_blank" rel="noopener">more...</a></li>
+                <li>Designed and implemented prototype 7-camera 3d scanning tunnel for product measurement and classification</li>
+              </ul>
+              <div class="video-container">
+                <iframe allowfullscreen src="https://www.youtube.com/embed/zUW0-jVlsAw"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sherpa Design -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">Oct 2023</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Mechanical Design Engineer</h2>
+              <h3 class="company"><a href="https://sherpa-design.com/" target="_blank" rel="noopener">Sherpa Design</a></h3>
+              <p class="location">Portland, OR</p>
+              <ul class="job-description">
+                <li>Built software tools to capture and visualise output from multisensor wearable device</li>
+                <li>Developed <a href="https://projectveet.com/" target="_blank" rel="noopener">ultralight hardware</a> for VR/AR style innovation, with particular attention to time-of-flight integration</li>
+                <li>Designed and prototyped 3000 PSI CNC washing robot for complex 3D printed support removal</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Plover -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">Sept 2022</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Design Engineer</h2>
+              <h3 class="company">Plover, Inc</h3>
+              <p class="location">Portland, OR</p>
+              <ul class="job-description">
+                <li>Worked with team of 6 to deploy the world's most environmentally friendly, efficient 5 axis robotic car wash</li>
+                <li>Developed and implemented chemical/water resistant LED displays with positive-pressure control electronics</li>
+                <li>Designed and installed 30' x 15' XY stainless steel gantry</li>
+              </ul>
+              <div class="video-container">
+                <iframe allowfullscreen src="https://www.youtube.com/embed/PZerhJ8tfgo"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- 333 LLC -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">Nov 2020</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Shop Engineer</h2>
+              <h3 class="company">333 LLC</h3>
+              <p class="location">Hood River, OR</p>
+              <ul class="job-description">
+                <li>Retrofitted vintage CNC plasma table with an modern, modular motion control system</li>
+                <li>Designed engineering assemblies and fabrication drawings for residential structure and metal art sculptures</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Trillium Engineering -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">Apr 2020</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Mechanical Engineering Intern</h2>
+              <h3 class="company">Trillium Engineering LLC</h3>
+              <p class="location">Hood River, OR</p>
+              <ul class="job-description">
+                <li>Assisted in design, testing, and assembly of high-performance drone mounted stabilized imaging systems</li>
+                <li>Gained experience in precision laboratory optical tools and instrumentation</li>
+                <li>Designed and delivered high-stiffness, vibration isolating sheet metal gimbal drone mount for client</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JavaScript for active navigation -->
   <script>
-    (function(){
-      const links = document.querySelectorAll('.nav-links a');
+    document.addEventListener('DOMContentLoaded', function() {
       const currentPath = window.location.pathname;
-      links.forEach(link => {
-        if (link.getAttribute('href') === currentPath) link.classList.add('active');
+      const navLinks = document.querySelectorAll('.nav-links a');
+      
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || currentPath.includes(href.substring(1))) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
       });
-    })();
+    });
   </script>
-
-}
-  <div class="timeline-line"></div>
-
-
-
-  <div class="timeline-marker">Present</div>
-
-
-  <div class="job-block">
-    <h1>Mechanical Design Engineer</h1>
-
- <h3> <a href="https://lab0.com/" target="_blank" rel="noopener">Lab0</a></h3>
-<h3>Ridgefield, WA</h3>
- <ul>
-    <li>Worked with small team developing and deploying a robotic full system solution for inbound product</li>
-    <li>Designed superstructure and provided continuous improvement for a dual arm palletizing system <a href="\professional_projects\combiner.html" target="_blank" rel="noopener"> more...</a> </li>
-    <li>Designed, tested, and deployed a majority FDM-printed vacuum end effector for 6DoF pick/place operations up for 25 kg cardboard boxes <a href="\professional_projects\gripper.html" target="_blank" rel="noopener"> more...</a> </li>
-    <li>Designed and implemented prototype 7-camera 3d scanning tunnel for product measurement and classification</li>
-    </ul>
-    <div class="video-container">
-      <iframe allowfullscreen src="https://www.youtube.com/embed/zUW0-jVlsAw"></iframe>
-    </div>
-   
-    </div>
-  </div>
-
-  <div class="timeline-marker">Oct 2023</div>
-
-  <div class="job-block">
-    
-     <h1>Mechanical Design Engineer</h1>
-<h3><a href="https://sherpa-design.com/" target="_blank" rel="noopener"> Sherpa Design </a> </h3>
-<h3>Portland, OR</h3>
-<ul>
-<li>Built software tools to capture and visualise output from multisensor wearable device</li>
-<li>Developed <a href="https://projectveet.com/" target="_blank" rel="noopener"> ultralight hardware </a> for VR/AR style innovation, with particular attention to time-of-flight integration</li>
-<li>Designed and prototyped 3000 PSI CNC washing robot for complex 3D printed support removal</li>
-</ul>
-
-  </div>
-
-  <div class="timeline-marker">Sept 2022</div>
-
-  <div class="job-block">
-<h1>Design Engineer</h1>
-<h3>Plover, Inc</h3>
-<h3>Portland, OR</h3>
-<ul>
-<li>Worked with team of 6 to deploy the world&#39;s most environmentally friendly, efficient 5 axis robotic car wash</li>
-<li>Developed and implemented chemical/water resistant LED displays with positive-pressure control electronics</li>
-<li>Designed and installed 30&#39; x 15&#39; XY stainless steel gantry</li>
-</ul>
-
-    
-    <div class="video-container">
-      <iframe allowfullscreen src="https://www.youtube.com/embed/PZerhJ8tfgo"></iframe>
-    </div>
-  </div>
-
-  <div class="timeline-marker">Nov 2020</div>
-
-  <div class="job-block">
-    <h1>Shop Engineer</h1>
-  <h3>333 LLC</h3>
-  <h3>Hood River, OR</h3>
-    <ul>
-      <li>Retrofitted vintage CNC plasma table with an af modern, modular motion control system </li>
-      <li>Designed engineering assemblies and fabrication drawings for residential structure and metal art sculptures</li>
-    </ul>
-  </div>
-
-  <div class="timeline-marker">Apr 2020</div>
-
-  <div class="job-block">
-  <h1>Mechanical Engineering Intern</h1>
-<h3>Trillium Engineering LLC</h3>
-<h3>Summer 2016/17</h3>
-  <h3>Hood River, OR</h3>
-<ul>
-<li>Assisted in design, testing, and assembly of high-performance drone mounted stabilized imaging systems</li>
-<li>Gained experience in precision laboratory optical tools and instrumentation</li>
-<li>Designed and delivered high-stiffness, vibration isolating sheet metal gimbal drone mount for client</li>
-</ul>
-
-
-  </div>
-
-
-  <script src="assets/js/main.js"></script>
-
 </body>
-
 </html>

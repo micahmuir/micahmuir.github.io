@@ -1,0 +1,1026 @@
+/* =======================================================================================
+   MODERN PORTFOLIO - DESIGN SYSTEM
+   Clean, stylish, modern portfolio with easy color sch.paper-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-heavy);
+}
+
+/* =======================================================================================
+   CARD SYSTEM
+======================================================================================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: var(--bg-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  padding: 1.5rem;
+  transition: all var(--transition-medium);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-heavy);
+  color: inherit;
+}
+
+.card-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--border-radius-small);
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+.card-description {
+  color: var(--text-medium);
+  font-size: 1rem;agement
+======================================================================================= */
+
+/* =======================================================================================
+   COLOR SCHEME VARIABLES - EASY TO CUSTOMIZE
+======================================================================================= */
+:root {
+  /* PRIMARY THEME COLORS - CHANGE THESE TO UPDATE YOUR ENTIRE SITE */
+  --primary-color: #2c3e50;        /* Dark blue-grey for headings, navbar */
+  --secondary-color: #3498db;      /* Bright blue for accents, links */
+  --accent-color: #e74c3c;         /* Red for hover states, highlights */
+  --success-color: #27ae60;        /* Green for success states */
+  
+  /* NEUTRAL COLORS */
+  --text-dark: #2c3e50;            /* Main text color */
+  --text-medium: #7f8c8d;          /* Secondary text */
+  --text-light: #bdc3c7;           /* Light text on dark backgrounds */
+  --bg-light: #ffffff;             /* Light backgrounds */
+  --bg-medium: #f8f9fa;            /* Medium backgrounds */
+  --bg-dark: #34495e;              /* Dark backgrounds */
+  
+  /* TEXTURE & BACKGROUND */
+  --texture-primary: url("/assets/images/cardstock.png");
+  --texture-background: url("/assets/images/bgd_texture.png");
+  --texture-fallback: #ecf0f1;
+  
+  /* SPACING & LAYOUT */
+  --max-width: 1200px;
+  --section-padding: 4rem 2rem;
+  --card-padding: 2rem;
+  --border-radius: 12px;
+  --border-radius-small: 8px;
+  
+  /* SHADOWS */
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 30px rgba(0, 0, 0, 0.2);
+  
+  /* TRANSITIONS */
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* =======================================================================================
+   RESET & BASE STYLES
+======================================================================================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background-color: var(--texture-fallback);
+  background-image: var(--texture-background);
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+body {
+  font-family: 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  background: transparent;
+}
+
+/* =======================================================================================
+   TYPOGRAPHY
+======================================================================================= */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+h1 { font-size: 3rem; }
+h2 { font-size: 2.5rem; }
+h3 { font-size: 2rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* =======================================================================================
+   NAVIGATION
+======================================================================================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-light);
+  background-image: var(--texture-primary);
+  background-size: 200px 200px;
+  box-shadow: var(--shadow-medium);
+  padding: 1rem 0;
+}
+
+.nav-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-small);
+  transition: all var(--transition-fast);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: var(--secondary-color);
+  color: var(--bg-light);
+  transform: translateY(-2px);
+}
+
+/* =======================================================================================
+   LAYOUT CONTAINERS
+======================================================================================= */
+.main-content {
+  padding-top: 100px; /* Account for fixed navbar */
+  min-height: 100vh;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section {
+  padding: var(--section-padding);
+}
+
+/* =======================================================================================
+   PAPER PANEL SYSTEM
+======================================================================================= */
+.paper-panel {
+  background: var(--bg-light);
+  background-image: var(--texture-primary);
+  background-size: 300px 300px;
+  padding: var(--card-padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 2rem;
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+.paper-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-heavy);
+}
+  background-repeat: no-repeat; /* no tiling */
+  background-color: #fff;       /* “rails” match the paper */
+}
+
+
+
+.polaroid__caption {
+  position: absolute;
+  left: .6rem; right: .6rem; bottom: .55rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  color: var(--text-color);
+  text-shadow: 0 1px 0 rgba(255,255,255,.6);
+  pointer-events: none; /* whole tile remains clickable if it's a link */
+  font-family: var(--hand-font, 'Caveat', 'Shadows Into Light', 'Open Sans', sans-serif);
+}
+
+/* ===== Polaroid with custom content instead of an image ===== */
+.polaroid--content .polaroid__body {
+  /* this replaces the image area for link/contact cards */
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 6px;
+  padding: 1rem;
+  background: #fdfdfd;
+}
+
+/* Links list inside a polaroid */
+.polaroid-links {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; gap: .5rem;
+}
+.polaroid-links a {
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--link, #b2987c);
+}
+.polaroid-links a:hover { color: var(--link-hover, #1d1d1d); }
+
+/* Contact form inside a polaroid */
+.polaroid .contact-form {
+  display: grid; gap: .75rem;
+}
+.polaroid .contact-form input,
+.polaroid .contact-form textarea {
+  width: 100%;
+  padding: .6rem .75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: 'Open Sans', sans-serif;
+}
+.polaroid .contact-form button {
+  padding: .6rem .75rem;
+  border-radius: 8px;
+  background-color: var(--button-bg);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.polaroid .contact-form button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+
+
+/* =======================================================================================
+   HOMEPAGE
+   (fix broken selectors: use "#homepage .columns-container", not "#homepage.columns-container")
+======================================================================================= */
+/* ===== Homepage: 2-col grid that collapses to 1 ===== */
+#homepage .columns-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;      /* row-gap column-gap */
+  align-items: stretch;
+}
+
+#homepage .card { aspect-ratio: auto; }
+/* Desktop: 2 columns; make the contact card span both columns */
+@media (min-width: 900px){
+  #homepage .columns-container{
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+  }
+  #homepage .span-2{
+    grid-column: 1 / -1;               /* full-width second row */
+  }
+}
+
+#homepage .columns-container {
+  row-gap: .5rem;
+  column-gap: 2rem;
+}
+
+/* ===== Polaroid shell (homepage scope so it won't affect other pages) ===== */
+#homepage .card{ height: 100%; }       /* grid cell fills; card fills cell */
+
+#homepage .polaroid{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  background: #f52626;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 0; /* Removed padding to ensure content fills the card */
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+
+/* Image area (use .polaroid__img--contain if you want full image, no crop) */
+#homepage .polaroid__img{
+  width: 100%;
+  aspect-ratio: 3 / 2;                 /* consistent face */
+  background-size: cover;              /* change to 'contain' if needed */
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 6px;
+  margin-top: 1.5em;
+}
+
+/* Content area inside the polaroid (links / form live here) */
+#homepage .polaroid__body{
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: .75rem;
+}
+
+/* Optional: show whole image (letterboxed) */
+#homepage .polaroid__img--contain{ background-size: contain; }
+
+/* Make the contact form fill the polaroid nicely */
+#homepage .contact-form{
+  width: 100%;
+  max-width: 720px;                    /* roomy on desktop */
+  margin: 0 auto;
+}
+#homepage .contact-form input,
+#homepage .contact-form textarea{ width: 100%; }
+
+
+
+/* =======================================================================================
+   RESUME PAGE
+   - Readability panel over the textured background
+   - Fixed dashed timeline line, job cards, and video container
+   (fix broken selectors that were missing spaces/dots)
+======================================================================================= */
+#resume {
+  padding: 2em 1em;
+}
+
+
+
+/* Panel for resume content to sit on (ensures readability) */
+#resume .page,
+#resume main {
+  max-width: 550px;
+  min-width: 0;
+  margin: 2rem auto;
+  padding-left: clamp(1em, 5vw, 3em);
+  padding-right: clamp(1em, 5vw, 3em);
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+/* Optional image column styles (if used) */
+#resume .column.image {
+  flex: 1 1 400px;
+  max-width: 800px;
+}
+
+#resume .column.links {
+  flex: 1 1 300px;
+  text-align: center;
+}
+
+#resume .column.image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: block;
+  margin: 0 auto;
+}
+
+/* Optional container row (if used on resume page) */
+#resume .columns-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  max-width: 1600px;
+  margin: auto;
+  padding: 1rem;
+}
+
+/* Timeline line & markers */
+#resume .timeline-marker {
+  margin: 2em auto;
+  text-align: center;
+  padding: 0.5em 1em;
+  background-image: url("/assets/images/cardstock.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #411111;
+  color: #2c2c2c;
+  border-radius: 9px;
+  width: fit-content;
+  font-weight: bolder;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.233);
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: scale(0.8);
+  animation: fadeInScale 0.6s ease forwards;
+  display: block;
+}
+
+/* Vertical timeline line */
+#resume {
+  position: relative;
+}
+#resume::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #bdbdbd 0 12px,
+    transparent 12px 24px
+  );
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+#resume .job-block p {
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
+/* Job cards */
+#resume .job-block {
+  border-radius: 4px;
+  padding: 2em;
+  width: 100%;
+  flex: 1 1 auto;
+  margin-bottom: 0.75rem;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s ease forwards;
+  flex: 0 0 auto;
+  margin-top: 0.5rem;
+  background-image: url("/assets/images/cardstock.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgba(93, 0, 255, 0.85);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+ display: block;
+}
+
+#resume .job-block h1 {
+  width: 100%;
+  letter-spacing: 0.035em;
+  text-align: center;
+  font-weight: bold;
+  position: relative;
+}
+
+#resume .job-block h1::after {
+  content: '';
+  display: block;
+  margin: 0.5em auto 0 auto;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(90deg, #434343 0%, #464646 100%);
+  border-radius: 2px;
+}
+
+#resume .job-block h2 {
+  width: 100%;
+  letter-spacing: 0.035em;
+  text-align: left;
+  font-weight: bold;
+  line-height: 0.8;
+}
+
+#resume .job-block h3 {
+  width: 100%;
+  letter-spacing: 0.035em;
+  text-align: left;
+  font-weight: bold;
+  line-height: 0.8;
+}
+
+
+/* Video embeds */
+#resume .video-container {
+  margin-top: 1.5em;
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+#resume .video-container iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
+
+/* Staggered marker animation delays (keep your pattern) */
+#resume .timeline-marker:nth-of-type(2) { animation-delay: 0.3s; }
+#resume .timeline-marker:nth-of-type(4) { animation-delay: 0.5s; }
+#resume .timeline-marker:nth-of-type(6) { animation-delay: 0.7s; }
+#resume .timeline-marker:nth-of-type(8) { animation-delay: 0.9s; }
+
+/* --- Bottom images on each resume card --- */
+#resume .job-photos {
+  margin-top: 1rem;                 /* space above the image strip */
+  display: grid;
+  grid-template-columns: 1fr;       /* default: single column */
+  gap: .75rem;                      /* space between images */
+}
+
+/* Optional quick layouts */
+#resume .job-photos.two-up   { grid-template-columns: repeat(2, 1fr); }
+#resume .job-photos.three-up { grid-template-columns: repeat(3, 1fr); }
+
+/* Image frame */
+#resume .job-photos figure {
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ddd;                 /* placeholder while loading */
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+
+/* If you want uniform cropped tiles, give the figure a fixed ratio: */
+#resume .job-photos.ratio-16x9 figure { aspect-ratio: 16 / 9; }
+#resume .job-photos.ratio-4x3  figure { aspect-ratio: 4 / 3; }
+
+/* Images */
+#resume .job-photos img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;                /* fills frame without distortion */
+}
+
+/* Optional caption */
+#resume .job-photos figcaption {
+  padding: .4rem .6rem;
+  font-size: .85rem;
+  color: #222;
+  background: rgba(255,255,255,.7);
+}
+
+
+
+
+/* =======================================================================================
+   PROJECTS (GALLERY)
+======================================================================================= */
+#projects.page { color: #dcdcdc; }
+
+#projects h2::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  margin: 0.5em 0 1em;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 10em; /* as you had it */
+}
+
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid #444;
+}
+
+.gallery-item img,
+.gallery-item iframe {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-content { max-width: 90vw; max-height: 90%; }
+.lightbox-content img,
+.lightbox-content iframe { width: auto; height: auto; max-height: 90vh; }
+
+.lightbox-close {
+  position: absolute;
+  top: 20px; right: 30px;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  padding: 0 1rem;
+  z-index: 10000;
+}
+.lightbox-prev { left: 0; }
+.lightbox-next { right: 0; }
+
+/* Back button (used on detail page) */
+a.button {
+  position: fixed;
+  top: 80px;
+  left: 10%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background-color: #333;
+  color: white;
+  padding: 0.75em 1.5em;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Paper panel for intro text on project detail pages ===== */
+#projects-detail .paper-panel {
+  max-width: 550px;
+  min-width: 0;
+  margin: 0 auto 1.25rem;
+  padding-left: clamp(1em, 5vw, 3em);
+  padding-right: clamp(1em, 5vw, 3em);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+
+  /* cardstock texture */
+  background-image: url("/assets/images/cardstock.png");   /* update filename if needed */
+  background-repeat: repeat;
+  background-size: 512px 512px;                       /* adjust grain scale */
+
+  /* soft white wash to keep text readable on the texture */
+  background-color: rgba(255,255,255,0.92);
+  background-blend-mode: overlay;
+
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* =======================================================================================
+   CARDS (index)
+======================================================================================= */
+time {
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 1em;
+}
+/* === Card container and card base styles (index only) === */
+.card-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3.5em;
+  margin-top: 3.5em;
+}
+
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  background: none;
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  box-shadow: none;
+  position: relative;
+  overflow: visible;
+}
+
+/* New cardstock card style for index */
+.card.cardstock {
+  border-radius: 4px;
+  padding: 2em;
+  width: 100%;
+  flex: 1 1 auto;
+  margin-bottom: 0.75rem;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeSlideUp 0.8s ease forwards;
+  flex: 0 0 auto;
+  margin-top: 0.5rem;
+  background-image: url("/assets/images/cardstock.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgba(93, 0, 255, 0.85);
+   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+ display: block;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.card.cardstock h2, .card.cardstock p {
+  margin: 0 0 0.5em 0;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.card.cardstock .card-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+}
+
+/* Remove polaroid styles from index cards */
+#homepage .card .polaroid, #homepage .card .polaroid__img, #homepage .card .polaroid__body, #homepage .card .polaroid__caption {
+  display: none !important;
+}
+
+/* =======================================================================================
+   PROJECT DETAIL PAGES (e.g., /personal_projects/… pages with body id="projects-detail")
+   - Cardboard background stays on <html> (from your global tokens)
+   - Only the intro panel uses cardstock (paper) texture
+   - Navbar matches resume
+   - Polished gallery + lightbox scoped here to avoid collisions with index page
+======================================================================================= */
+
+/* Let the global cardboard (on <html>) show through */
+body#projects-detail { background: transparent !important; }
+
+
+
+/* Page container spacing only (no background so cardboard shows) */
+#projects-detail .page {
+  max-width: 1000px;
+  margin: 6.5rem auto 3rem; /* push under fixed navbar */
+  padding: 0 1rem;
+}
+
+/* Intro “text field”: cardstock panel that lines up with the title */
+#projects-detail .paper-panel {
+  width: 100%;
+  max-width: 550px;
+  min-width: 0;
+  margin: 0 auto 1.25rem;
+  padding-left: clamp(1em, 5vw, 3em);
+  padding-right: clamp(1em, 5vw, 3em);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+
+  /* cardstock texture */
+  background-image: var(--paper-url);
+  background-repeat: repeat;
+  background-size: var(--paper-scale);
+
+  /* soft white wash for readability (texture still visible) */
+  background-color: rgba(255,255,255,0.92);
+  background-blend-mode: overlay;
+
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  line-height: 1.65;
+  font-size: 1.05rem;
+}
+
+/* Put the title inside the panel for a seamless “single sheet” look */
+#projects-detail .paper-panel .page-title {
+  margin: 0 0 .75rem;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: .02em;
+  font-size: 2rem;
+  opacity: 1 !important;
+}
+
+/* Gallery grid (scoped so it won't clash with your projects index styles) */
+#projects-detail .gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+/* Polaroid-style thumbs (single-photo look; no double shadows) */
+#projects-detail .gallery-item {
+  cursor: pointer;
+  border-radius: 5px;
+  background: #fff;                             /* paper */
+  border: 1px solid rgba(0,0,0,.12);
+  padding: .6rem .6rem 1.2rem;                  /* thicker bottom like a polaroid */
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+  transition: transform .15s ease, box-shadow .15s ease;
+  text-align: center;
+}
+#projects-detail .gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px rgba(0,0,0,.22);
+}
+
+#projects-detail .gallery-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  box-shadow: inset 0 6px 14px rgba(0,0,0,.12);
+}
+
+/* Lightbox (scoped) */
+#projects-detail .lightbox {
+  display: none; position: fixed; z-index: 1000; inset: 0;
+  background: rgba(0,0,0,0.92);
+  justify-content: center; align-items: center;
+  overflow-y: auto; padding: 1rem;
+  opacity: 0; transition: opacity .35s ease;
+}
+#projects-detail .lightbox.show { display: flex; opacity: 1; }
+
+#projects-detail .lightbox-content {
+  width: 100%; max-width: 90vw; max-height: 90vh;
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; transform: scale(.98);
+  transition: opacity .35s ease, transform .35s ease;
+}
+#projects-detail .lightbox-content.show { opacity: 1; transform: scale(1); }
+
+#projects-detail .lightbox-content img {
+  height: 80vh; width: auto; border-radius: 8px;
+}
+#projects-detail .lightbox-content .video-wrapper {
+  position: relative; width: 100%; padding-bottom: 56.25%;
+  height: 0; overflow: hidden; border-radius: 8px;
+}
+#projects-detail .lightbox-content .video-wrapper iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+}
+
+#projects-detail .lightbox-caption {
+  margin-top: 1rem; font-size: 1rem; max-width: 90%;
+  text-align: left; color: #f1f1f1;
+}
+
+#projects-detail .lightbox-close,
+#projects-detail .lightbox-nav {
+  position: absolute; color: #fff; opacity: .6; transition: opacity .2s ease;
+  cursor: pointer; user-select: none;
+}
+#projects-detail .lightbox:hover .lightbox-close,
+#projects-detail .lightbox:hover .lightbox-nav { opacity: 1; }
+#projects-detail .lightbox-close { top: 1rem; right: 1rem; font-size: 2rem; }
+#projects-detail .lightbox-nav { top: 50%; transform: translateY(-50%); font-size: 2.2rem; padding: 0 1rem; }
+#projects-detail .lightbox-prev { left: 0; }
+#projects-detail .lightbox-next { right: 0; }
+
+/* Mobile lightbox image scaling */
+@media (max-width: 768px) {
+  #projects-detail .lightbox-content img { height: auto; width: 100%; }
+}
+
+/* ---- Guard against your existing global .gallery spacing on other pages ---- */
+#projects-detail .gallery { margin: 1rem 0 0 !important; }
+
+/* =======================================================================================
+   ANIMATIONS
+======================================================================================= */
+@keyframes fadeSlideDown {
+  0%   { opacity: 0; transform: translateY(-30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideUp {
+  0%   { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  0%   { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* =======================================================================================
+   MEDIA QUERIES
+======================================================================================= */
+@media (max-width: 600px) {
+  .page-title { font-size: 1.8rem; }
+  .card-container { grid-template-columns: 1fr; }
+  .card h2 { font-size: 1.1em; }
+}
+
+.card-container,
+.gallery {
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+
+
+/* Personal Projects: Small polaroid tile grid */
+#projects .card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25em;
+  margin-top: 0;
+  align-items: start;
+}
+#projects .card {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  display: block;
+  min-height: 0;
+  transition: none;
+}
+#projects .card:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(0,0,0,.18);
+}
+/* Only the polaroid image area gets a background image, not the card itself */
+#projects .card .polaroid__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3/2;
+  background-size: cover;
+  background-position: center;
+  border-radius: 6px;
+  margin-bottom: .5em;
+}
+#projects .card h2, #projects .card p {
+  margin: 0 0 0.5em 0;
+  font-size: 1em;
+  text-align: center;
+}
+#projects .card .polaroid__caption {
+  text-align: center;
+  font-size: .95em;
+  color: #444;
+  margin-top: .5em;
+}

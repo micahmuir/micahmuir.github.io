@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="projects-page">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html" class="active">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <!-- Search Bar -->
+        <div class="search-container">
+          <input type="text" class="search-bar" id="projectSearch" placeholder="Search projects by name, description, or tags...">
+        </div>
+        
+        <!-- Project Type Navigation -->
+        <div class="project-nav">
+          <button class="project-nav-item" data-section="personal">Personal Projects</button>
+          <button class="project-nav-item active" data-section="professional">Professional Projects</button>
+        </div>
+        
+        <!-- Filter Tags -->
+        <div class="filter-tags" id="filterTags">
+          <button class="filter-tag active" data-filter="all">All</button>
+          <button class="filter-tag" data-filter="hardware">Hardware</button>
+          <button class="filter-tag" data-filter="software">Software</button>
+          <button class="filter-tag" data-filter="robotics">Robotics</button>
+          <button class="filter-tag" data-filter="photography">Photography</button>
+          <button class="filter-tag" data-filter="automation">Automation</button>
+          <button class="filter-tag" data-filter="electronics">Electronics</button>
+          <button class="filter-tag" data-filter="mechanical">Mechanical</button>
+          <button class="filter-tag" data-filter="optics">Optics</button>
+          <button class="filter-tag" data-filter="creative">Creative</button>
+          <button class="filter-tag" data-filter="iot">IoT</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Personal Projects Section -->
+    <section class="projects-section hidden" id="personalSection">
+      <div class="container">
+        <div class="card-grid" id="personalProjects">
+          <a href="/personal_projects/stairlight.html" class="card" data-tags="hardware,electronics,automation,iot,lighting">
+            <div class="card-image" style="background-image: url('https://img.youtube.com/vi/VXFYuCdimaI/hqdefault.jpg');"></div>
+            <h3 class="card-title">Companion Stairlight</h3>
+            <p class="card-description">An intelligent lighting system that responds to movement and ambient conditions.</p>
+            <div class="project-tags">
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Electronics</span>
+              <span class="project-tag">Automation</span>
+              <span class="project-tag">IoT</span>
+            </div>
+          </a>
+
+          <a href="/personal_projects/timeLapse.html" class="card" data-tags="hardware,software,photography,automation,electronics">
+            <div class="card-image" style="background-image: url('https://img.youtube.com/vi/UCMqOSOKHzI/hqdefault.jpg');"></div>
+            <h3 class="card-title">Timelapse Camera</h3>
+            <p class="card-description">Automated camera system for capturing long-term timelapse photography.</p>
+            <div class="project-tags">
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Software</span>
+              <span class="project-tag">Photography</span>
+              <span class="project-tag">Automation</span>
+            </div>
+          </a>
+
+          <a href="/personal_projects/small_projects.html" class="card" data-tags="hardware,electronics,creative,mechanical">
+            <div class="card-image" style="background-image: url('https://img.youtube.com/vi/aI-L-cnE9OY/hqdefault.jpg');"></div>
+            <h3 class="card-title">Small Projects</h3>
+            <p class="card-description">A collection of smaller experiments and creative solutions.</p>
+            <div class="project-tags">
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Electronics</span>
+              <span class="project-tag">Creative</span>
+              <span class="project-tag">Mechanical</span>
+            </div>
+          </a>
+
+          <a href="/personal_projects/dualCamera.html" class="card" data-tags="hardware,optics,photography,electronics">
+            <div class="card-image" style="background-image: url('/assets/images/combiner1.png');"></div>
+            <h3 class="card-title">Dual Camera System</h3>
+            <p class="card-description">Advanced camera setup for enhanced image capture capabilities.</p>
+            <div class="project-tags">
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Optics</span>
+              <span class="project-tag">Photography</span>
+              <span class="project-tag">Electronics</span>
+            </div>
+          </a>
+
+          <a href="/personal_projects/photography.html" class="card" data-tags="photography,creative">
+            <div class="card-image" style="background-image: url('/assets/images/photography/volcano.JPG');"></div>
+            <h3 class="card-title">Photography</h3>
+            <p class="card-description">A showcase of my landscape and nature photography work.</p>
+            <div class="project-tags">
+              <span class="project-tag">Photography</span>
+              <span class="project-tag">Creative</span>
+            </div>
+          </a>
+
+          <a href="/personal_projects/touchdesigner.html" class="card" data-tags="software,creative,interactive">
+            <div class="card-image" style="background-color: var(--bg-medium);"></div>
+            <h3 class="card-title">TouchDesigner Projects</h3>
+            <p class="card-description">Interactive visual experiences and generative art projects.</p>
+            <div class="project-tags">
+              <span class="project-tag">Software</span>
+              <span class="project-tag">Creative</span>
+              <span class="project-tag">Interactive</span>
+            </div>
+          </a>
+
+          <a href="/personal_projects/rabbit/rabbit.html" class="card" data-tags="robotics,hardware,electronics,mechanical,creative">
+            <div class="card-image" style="background-image: url('/personal_projects/rabbit/rabbitv2_01.png');"></div>
+            <h3 class="card-title">Rabbit Robot V2</h3>
+            <p class="card-description">An aesthetically-focused robot design with environmental scanning capabilities through functional "ears" using magnetic connectors.</p>
+            <div class="project-tags">
+              <span class="project-tag">Robotics</span>
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Electronics</span>
+              <span class="project-tag">Mechanical</span>
+              <span class="project-tag">Creative</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Professional Projects Section -->
+    <section class="projects-section visible" id="professionalSection">
+      <div class="container">
+        <div class="card-grid" id="professionalProjects">
+          <a href="/professional_projects/combiner/combiner.html" class="card" data-tags="robotics,mechanical,hardware,automation">
+            <div class="card-image" style="background-image: url('/assets/images/combiner1.png');"></div>
+            <h3 class="card-title">Palletizing Robot</h3>
+            <p class="card-description">Quad-parallel palletizing solution with steel superstructure and dual XYZT gantry system.</p>
+            <div class="project-tags">
+              <span class="project-tag">Robotics</span>
+              <span class="project-tag">Mechanical</span>
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Automation</span>
+            </div>
+          </a>
+
+          <a href="/professional_projects/gripper/gripper.html" class="card" data-tags="robotics,mechanical,hardware,automation">
+            <div class="card-image" style="background-image: url('/assets/images/gripper_01.png');"></div>
+            <h3 class="card-title">Vacuum Suction Gripper</h3>
+            <p class="card-description">FDM-printed 12-cup, 4-zone vacuum gripper for automated warehouse box handling operations.</p>
+            <div class="project-tags">
+              <span class="project-tag">Robotics</span>
+              <span class="project-tag">Mechanical</span>
+              <span class="project-tag">Hardware</span>
+              <span class="project-tag">Automation</span>
+            </div>
+          </a>
+        </div>
+        
+        <!-- No Results Message -->
+        <div class="no-results" id="noResults">
+          <p>No projects found matching your search criteria.</p>
+          <p>Try adjusting your search terms or filters.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JavaScript for search, filtering, and navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize navigation
+      const currentPath = window.location.pathname;
+      const navLinks = document.querySelectorAll('.nav-links a');
+      
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || currentPath.includes(href.substring(1))) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      
+      // Initialize search and filter functionality
+      initializeProjectFiltering();
+      
+      // Initialize section switching
+      initializeSectionSwitching();
+    });
+    
+    function initializeSectionSwitching() {
+      const navItems = document.querySelectorAll('.project-nav-item');
+      const personalSection = document.getElementById('personalSection');
+      const professionalSection = document.getElementById('professionalSection');
+      
+      // Check for saved preference, default to professional only on first visit
+      const savedSection = localStorage.getItem('lastProjectSection');
+      const initialSection = savedSection || 'professional';
+      
+      // Set initial state based on saved preference or default
+      setActiveSection(initialSection);
+      
+      navItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const section = this.getAttribute('data-section');
+          
+          // Save the user's choice
+          localStorage.setItem('lastProjectSection', section);
+          
+          // Update the display
+          setActiveSection(section);
+        });
+      });
+      
+      function setActiveSection(section) {
+        // Update active nav item
+        navItems.forEach(nav => nav.classList.remove('active'));
+        document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        
+        // Show/hide sections with smooth transition
+        if (section === 'personal') {
+          professionalSection.classList.remove('visible');
+          professionalSection.classList.add('hidden');
+          setTimeout(() => {
+            personalSection.classList.remove('hidden');
+            personalSection.classList.add('visible');
+          }, 150);
+        } else {
+          personalSection.classList.remove('visible');
+          personalSection.classList.add('hidden');
+          setTimeout(() => {
+            professionalSection.classList.remove('hidden');
+            professionalSection.classList.add('visible');
+          }, 150);
+        }
+        
+        // Re-apply current filters to the newly visible section
+        setTimeout(() => {
+          filterProjects();
+        }, 200);
+      }
+    }
+    
+    function initializeProjectFiltering() {
+      const searchBar = document.getElementById('projectSearch');
+      const filterTags = document.querySelectorAll('.filter-tag');
+      const noResults = document.getElementById('noResults');
+      
+      let currentFilter = 'all';
+      let currentSearch = '';
+      
+      // Search functionality
+      searchBar.addEventListener('input', function(e) {
+        currentSearch = e.target.value.toLowerCase().trim();
+        filterProjects();
+      });
+      
+      // Filter tag functionality
+      filterTags.forEach(tag => {
+        tag.addEventListener('click', function() {
+          // Update active filter
+          filterTags.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          currentFilter = this.getAttribute('data-filter');
+          filterProjects();
+        });
+      });
+      
+      function filterProjects() {
+        // Get currently visible section
+        const visibleSection = document.querySelector('.projects-section.visible');
+        if (!visibleSection) return;
+        
+        const projectCards = visibleSection.querySelectorAll('.card[data-tags]');
+        let visibleCount = 0;
+        
+        projectCards.forEach(card => {
+          const tags = card.getAttribute('data-tags').toLowerCase();
+          const title = card.querySelector('.card-title').textContent.toLowerCase();
+          const description = card.querySelector('.card-description').textContent.toLowerCase();
+          
+          // Check if card matches search
+          const matchesSearch = currentSearch === '' || 
+            title.includes(currentSearch) || 
+            description.includes(currentSearch) || 
+            tags.includes(currentSearch);
+          
+          // Check if card matches filter
+          const matchesFilter = currentFilter === 'all' || tags.includes(currentFilter);
+          
+          // Show/hide card based on both criteria
+          if (matchesSearch && matchesFilter) {
+            card.style.display = 'block';
+            card.classList.remove('fade-out');
+            card.classList.add('fade-in');
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+            card.classList.add('fade-out');
+            card.classList.remove('fade-in');
+          }
+        });
+        
+        // Show/hide no results message
+        if (visibleCount === 0) {
+          noResults.classList.add('show');
+        } else {
+          noResults.classList.remove('show');
+        }
+      }
+      
+      // Initial filter
+      filterProjects();
+    }
+  </script>
+</body>
+</html>
