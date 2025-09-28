@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gripper - Micah Muir - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Gripper - Micah Muir</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Gripper</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <h2>3D Printed Vacuum Gripper</h2>\n\n<article id="2339d96e-b8a1-80ab-b6b5-f60cb20171fc" class="page sans"><header><h1 class="page-title">3D Printed Vacuum Gripper</h1><p class="page-description"></p></header><div><p id="2769d96e-b8a1-8077-b96d-cc88a7a0ba1f" class="">I designed, tested, and deployed a multi-cup, multi-zone vacuum gripper EOAT to securely pick and place a variety of package sizes and weights in an automated warehouse. The tool is almost entirely 3D printable on a consumer-grade FDM printer with a specialized slicing profile. This slicing profile enabled complex internal geometry for a vacuum manifold to be quickly produced, tested, iterated, and improved upon based on real-world performance feedback.<br/></p><h2 id="2769d96e-b8a1-80e9-86bc-f7ed33086967" class="">Features</h2><ul id="2769d96e-b8a1-800a-b2af-ed53ff29aa58" class="bulleted-list"><li style="list-style-type:disc">Unibody manifold design. Almost every feature is built into the main body print, and all additional pieces can be printed in under 20 hours on a single buildplate </li></ul><ul id="2769d96e-b8a1-80a4-9697-dfe560b98d9e" class="bulleted-list"><li style="list-style-type:disc">Multi-zone vacuum triggering ability, enabling efficient suction power across a range of box sizes</li></ul><ul id="2769d96e-b8a1-8063-ac85-d1eec0f2d8ba" class="bulleted-list"><li style="list-style-type:disc">Tremendous vacuum sealing performance for a very low cost </li></ul><ul id="27b9d96e-b8a1-801d-951e-f38b0d94ff11" class="bulleted-list"><li style="list-style-type:disc">Significantly more lightweight than a metal analogue → increased end effector payload capacity</li></ul><ul id="27b9d96e-b8a1-806d-83eb-d31c50457e30" class="bulleted-list"><li style="list-style-type:disc">Continuous onboard sensor feedback to a larger robotic control system</li></ul><p id="2769d96e-b8a1-8024-a795-f0a306a17a2b" class="">
+</p><hr id="2769d96e-b8a1-8020-b6e1-ca3f30e4c461"/><p id="2769d96e-b8a1-8066-b1ee-f4452cb351e8" class="">
+</p><figure id="2769d96e-b8a1-80b8-8e16-f5136b9ca96b" class="image"><a href="3D%20Printed%20Vacuum%20Gripper%202339d96eb8a180abb6b5f60cb20171fc/G4L2.png"><div class="image-with-caption">
+  <div class="image-with-caption">
+  <img alt="Gallery Image" src="G4L2.png"/>
+  <div class="caption">Gallery Image</div>
+</div>
+  <div class="caption">Gallery Image</div>
+</div></a><figcaption>Perspective view of the assembled unit</figcaption></figure><figure id="2769d96e-b8a1-8023-85cd-ff12a4a9b721" class="image"><a href="3D%20Printed%20Vacuum%20Gripper%202339d96eb8a180abb6b5f60cb20171fc/G4L_Right_Gripper_(4).png"><div class="image-with-caption">
+  <div class="image-with-caption">
+  <img alt="Gallery Image" src="G4L_Right_Gripper_(4).png"/>
+  <div class="caption">Gallery Image</div>
+</div>
+  <div class="caption">Gallery Image</div>
+</div></a><figcaption>The highlighting shows the different possible vacuum zones that can be independently  toggled</figcaption></figure><figure id="2769d96e-b8a1-80ba-b413-e44ec19bd72c" class="image"><a href="3D%20Printed%20Vacuum%20Gripper%202339d96eb8a180abb6b5f60cb20171fc/G4L_Right_Gripper_(5).png"><div class="image-with-caption">
+  <div class="image-with-caption">
+  <img alt="Gallery Image" src="G4L_Right_Gripper_(5).png"/>
+  <div class="caption">Gallery Image</div>
+</div>
+  <div class="caption">Gallery Image</div>
+</div></a><figcaption>Side view</figcaption></figure><figure id="2769d96e-b8a1-807b-a4bf-c6b7954834e5" class="image"><a href="3D%20Printed%20Vacuum%20Gripper%202339d96eb8a180abb6b5f60cb20171fc/G4L1.png"><div class="image-with-caption">
+  <div class="image-with-caption">
+  <img alt="Gallery Image" src="G4L1.png"/>
+  <div class="caption">Gallery Image</div>
+</div>
+  <div class="caption">Gallery Image</div>
+</div></a></figure><p id="2339d96e-b8a1-80b4-ae9e-e73707f7f64a" class="">
+</p><figure id="2769d96e-b8a1-8043-901f-d190484e123b" class="image"><a href="3D%20Printed%20Vacuum%20Gripper%202339d96eb8a180abb6b5f60cb20171fc/G4_Assembly_(1).png"><div class="image-with-caption">
+  <div class="image-with-caption">
+  <img alt="Gallery Image" src="G4_Assembly_(1).png"/>
+  <div class="caption">Gallery Image</div>
+</div>
+  <div class="caption">Gallery Image</div>
+</div></a><figcaption>Image showing example cobot EOAT assembly, with secondary valve bank at the robot base</figcaption></figure><figure id="2769d96e-b8a1-802c-a7c0-dd70dd049e72" class="image"><a href="3D%20Printed%20Vacuum%20Gripper%202339d96eb8a180abb6b5f60cb20171fc/G4_Assembly_(2).png"><div class="image-with-caption">
+  <div class="image-with-caption">
+  <img alt="Gallery Image" src="G4_Assembly_(2).png"/>
+  <div class="caption">Gallery Image</div>
+</div>
+  <div class="caption">Gallery Image</div>
+</div></a></figure><p id="2339d96e-b8a1-808c-a012-f072c8a419db" class="">
+</p><hr id="2769d96e-b8a1-8055-9599-d3f79c2b03a3"/><p id="2769d96e-b8a1-800c-9a29-d3b7be123636" class="">
+</p><p id="2339d96e-b8a1-8091-a06c-dd0cf016b68e" class="">
+</p><p id="2339d96e-b8a1-80b2-94ee-cf4ae2752fcb" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  
+  
+  <!-- JavaScript for active navigation -->
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="/assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '/projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

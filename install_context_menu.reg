@@ -1,0 +1,32 @@
+Windows Registry Editor Version 5.00
+
+; HTML Bundle Extractor - Windows Explorer Context Menu Integration
+; Double-click this file to add "Extract HTML Bundle" to the right-click context menu for ZIP files
+
+; For ZIP files
+[HKEY_CLASSES_ROOT\.zip\shell\ExtractHTMLBundle]
+@="Extract HTML Bundle"
+"Icon"="shell32.dll,2"
+
+[HKEY_CLASSES_ROOT\.zip\shell\ExtractHTMLBundle\command]
+@="\"C:\\Python\\python.exe\" \"F:\\Backpack\\Vault\\Amber Osprey Code\\micahmuir.github.io\\html_bundle_extractor.py\" \"%1\""
+
+; Alternative using batch file (uncomment and modify paths as needed)
+; [HKEY_CLASSES_ROOT\.zip\shell\ExtractHTMLBundle\command]
+; @="\"F:\\Backpack\\Vault\\Amber Osprey Code\\micahmuir.github.io\\extract_html_bundle.bat\" \"%1\" \"context\""
+
+; For 7z files (uncomment if needed)
+; [HKEY_CLASSES_ROOT\.7z\shell\ExtractHTMLBundle]
+; @="Extract HTML Bundle"
+; "Icon"="shell32.dll,2"
+
+; [HKEY_CLASSES_ROOT\.7z\shell\ExtractHTMLBundle\command]
+; @="\"C:\\Python\\python.exe\" \"F:\\Backpack\\Vault\\Amber Osprey Code\\micahmuir.github.io\\html_bundle_extractor.py\" \"%1\""
+
+; For RAR files (uncomment if needed)
+; [HKEY_CLASSES_ROOT\.rar\shell\ExtractHTMLBundle]
+; @="Extract HTML Bundle"
+; "Icon"="shell32.dll,2"
+
+; [HKEY_CLASSES_ROOT\.rar\shell\ExtractHTMLBundle\command]
+; @="\"C:\\Python\\python.exe\" \"F:\\Backpack\\Vault\\Amber Osprey Code\\micahmuir.github.io\\html_bundle_extractor.py\" \"%1\""
