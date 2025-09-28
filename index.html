@@ -1,281 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Homepage</title>
-
-  <!-- Fonts & External CSS -->
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/css/style.css" />
-
-
-  <style>
-    /* ===== Shared Width Token ===== */
-    #homepage { --card-width: 400px; }
-
-    /* ===== Layout Basics ===== */
-    header { margin-bottom: 5em; }
-
-    .columns-container {
-      display: flex;
-      flex-direction: column;     /* mobile: stacked */
-      align-items: center;        /* center cards on the page */
-      margin: 2em 0;
-    }
-
-    /* Desktop / large screens: two columns side-by-side */
-    @media (min-width: 900px) {
-      .columns-container {
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-      .column.image,
-      .column.links {
-        width: var(--card-width); /* lock equal width */
-      }
-    }
-
-    /* ===== Column Styling ===== */
-    .column.image,
-    .column.links {
-      width: min(100%, var(--card-width));
-      box-sizing: border-box; /* keeps border included in width */
-      margin: 0 auto;
-    }
-
-    .column img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(21, 0, 59, 0.4);
-    }
-
-
-    /* ===== Navigation ===== */
-    nav { text-align: center; }
-    nav div { margin: 1em 0; }
-    nav a {
-      font-size: 1.8em;
-      text-decoration: none;
-      color: var(--text-color);
-      transition: color 0.3s;
-    }
-    nav a:hover { color: var(--button-hover-bg); }
-
-    /* ===== Contact Form ===== */
-    .contact-wrapper {
-      margin-top: 3em;
-      text-align: center;
-    }
-    .contact-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1em;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    .contact-form input,
-    .contact-form textarea {
-      padding: 0.75em;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      font-family: 'Open Sans', sans-serif;
-    }
-    .contact-form button {
-      padding: 0.75em;
-      border-radius: 8px;
-      background-color: var(--button-bg);
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s;
-      font-family: 'Open Sans', sans-serif;
-    }
-    .contact-form button:hover { background-color: var(--button-hover-bg); }
-
-
-/* HOMEPAGE links card — identical look to resume .job-block */
-#homepage .column.links {
-  position: relative;
-  overflow: hidden;                 /* clip rounded corners */
-  border: none;
-  border-radius: 4px;               /* same radius as resume cards */
-  padding: 1.25em;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-}
-
-/* Cardstock texture (behind content) */
-#homepage .column.links::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-
-  z-index: 0;
-}
-
-/* Soft overlay for readability (same vibe as resume) */
-#homepage .column.links::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #f31c1cd9;
-  z-index: 1;
-}
-
-/* Keep nav content above both layers */
-#homepage .column.links > * {
-  position: relative;
-  z-index: 2;
-}
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micah Muir - Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
 </head>
+<body class="about-page">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/" class="active">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
 
-<body id="homepage">
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Micah Muir Thomas</h1>
+      </div>
+    </section>
 
-  <article class="page">
+    <!-- About Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div style="display: flex; align-items: flex-start; gap: 3rem; flex-wrap: wrap;">
+            <!-- Profile Image -->
+            <div style="flex-shrink: 0; text-align: center;">
+              <img src="/assets/images/headshot.jpg" alt="Micah Muir Thomas" 
+                   style="width: 280px; height: 280px; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-heavy);">
+            </div>
+            
+            <!-- Bio Content -->
+            <div style="flex: 1; min-width: 300px;">
+              <h2 style="margin-bottom: 1.5rem;">Hi There, and welcome to portfolio page</h2>
+              <p> My name is Micah. I'm a mechanical engineer, artist, and tinkerer currently living in Portland, Oregon.  </p>
+
+ <p>I was born in South Africa, and while growing up lived in Singapore, Scotland, and California before settling back in PDX area..  </p>
+
+ <p>Moving around all the time as a kid definitely shaped my desire to bridge techniques and disciplines when it comes to the act of creation. In college, I couldn't decide whether to pursue fine art or get an engineering degree, so I did both. Professionally, I design and integrate hardware for robotic systems. In and outside of work, I believe all things are connected whether we like it or not, and there's beauty in the overlap of science, art, and human emotion. Data doesn't have to live and die in a table. My goal is to leverage engineering to make better art, and vice versa..  </p>
+
+ <p>These pages are intended to serve as an expansion of my professional resume, as well as a platform to share the things I work on in my spare time..  </p>
+
+ <p>Thanks for stopping by ~.  </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills & Interests -->
+    <section class="section">
+      <div class="container">
+        <div class="card-grid">
+          <div class="card">
+            <h3 class="card-title">Engineering</h3>
+            <p class="card-description">Mechanical design, robotics, automation systems, and precision manufacturing.</p>
+          </div>
+          
+          <div class="card">
+            <h3 class="card-title">Creative Arts</h3>
+            <p class="card-description">Photography, visual design, generative art, and interactive installations.</p>
+          </div>
+          
+          <div class="card">
+            <h3 class="card-title">Technology</h3>
+            <p class="card-description">Software development, computer vision, IoT systems, and hardware integration.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JavaScript for active navigation -->
   <script>
-    (function(){
-      const links = document.querySelectorAll('.nav-links a');
+    document.addEventListener('DOMContentLoaded', function() {
       const currentPath = window.location.pathname;
-      links.forEach(link => {
-        if (link.getAttribute('href') === currentPath) link.classList.add('active');
-      });
-    })();
-  </script>
-
-  <!-- 2) Links card -->
-  <div class="card cardstock">
-    <div class="card-content" style="align-items:center;">
-  <h2 style="text-align:center;margin:0 0 0.0em 0;font-size:2rem;font-weight:700;letter-spacing:.01em;">Micah Muir Thomas</h2>
-  <img src="assets/images/headshot.jpg" alt="Micah Muir Thomas headshot" style="width:100%;max-width:260px;display:block;margin:2.5em auto 1.5em auto;border-radius:50%;box-shadow:0 4px 16px rgba(0,0,0,0.18);object-fit:cover;" />
-      <nav aria-label="Primary" style="text-align:center; line-height:1.9; width:100%;">
-        <div><a href="about.html">About</a></div>
-        <div><a href="resume.html">Resume</a></div>
-        <div><a href="personal_projects.html">Projects</a></div>
-        <div><a href="https://www.linkedin.com/in/micah-thomas-09249586/" target="_blank" rel="noopener">LinkedIn</a></div>
-      </nav>
-    </div>
-  </div>
-  <div class="contact-wrapper">
-
-  <!-- 3) Contact card (always full width on desktop) -->
-  <div class="card cardstock">
-      <h2>Contact Me</h2>
-      <form class="contact-form" action="https://formspree.io/f/mjkwgkvg" method="POST" id="contact-form">
-        <input name="name" placeholder="Your Name" required type="text" />
-        <input name="email" placeholder="Your Email" required type="email" />
-        <textarea name="message" placeholder="Your Message" required rows="4"></textarea>
-        <button type="submit">Send</button>
-        <p id="form-status" style="margin-top:1em; font-weight:bold;"></p>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-  </article>
-
-  <!-- ===== Contact Form Script ===== -->
-  <script>
-    const form = document.getElementById('contact-form');
-    const status = document.getElementById('form-status');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-
-      try {
-        const response = await fetch(form.action, {
-          method: form.method,
-          body: formData,
-          headers: { 'Accept': 'application/json' }
-        });
-
-        if (response.ok) {
-          status.textContent = "✅ Message sent successfully!";
-          form.reset();
+      const navLinks = document.querySelectorAll('.nav-links a');
+      
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || (currentPath === '/' && href === '/') || 
+            (currentPath.includes('index.html') && href === '/')) {
+          link.classList.add('active');
         } else {
-          status.textContent = "❌ Oops, something went wrong.";
+          link.classList.remove('active');
         }
-      } catch {
-        status.textContent = "❌ Oops, something went wrong.";
-      }
+      });
     });
   </script>
-
-
-<script>
-(function () {
-  const cards = document.querySelectorAll('#resume .flip-card');
-
-  function activeFace(card){
-    return card.classList.contains('is-flipped')
-      ? card.querySelector('.face.back')
-      : card.querySelector('.face.front');
-  }
-  function setHeight(card){
-    const face = activeFace(card);
-    card.style.height = face.scrollHeight + 'px';
-  }
-  function openCard(card){
-    if (!card.classList.contains('is-flipped')) {
-      card.classList.add('is-flipped');
-      setHeight(card);
-    }
-  }
-  function closeCard(card){
-    if (card.classList.contains('is-flipped')) {
-      const back = card.querySelector('.face.back');
-      card.classList.remove('is-flipped');
-      // stop any videos on the back
-      back.querySelectorAll('iframe').forEach(ifr => { ifr.src = ifr.src; });
-      setHeight(card);
-    }
-  }
-
-  cards.forEach(card => {
-    const front = card.querySelector('.face.front');
-    setHeight(card);                         // initial: front height
-
-    // OPEN on click/tap (don’t hijack links/buttons/iframes)
-    card.addEventListener('pointerup', (e) => {
-      if (e.target.closest('a,button,iframe')) return;
-      openCard(card);
-    });
-
-    // Close button on back (if present)
-    const closeBtn = card.querySelector('.flip-close');
-    if (closeBtn) closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeCard(card);
-    });
-
-    // Keyboard: Enter/Space opens, Esc closes
-    card.setAttribute('role','button');
-    card.setAttribute('tabindex','0');
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(card); }
-      if (e.key === 'Escape') { closeCard(card); }
-    });
-
-    // Click/tap outside closes
-    document.addEventListener('pointerdown', (e) => {
-      if (!card.contains(e.target)) closeCard(card);
-    });
-
-    // Keep height in sync on resize
-    window.addEventListener('resize', () => setHeight(card), { passive: true });
-  });
-})();
-</script>
-
-
 </body>
 </html>
