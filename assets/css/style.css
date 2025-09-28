@@ -1,995 +1,1255 @@
-/* Global cardstock panel for all pages */
-.paper-panel {
-  background: rgba(255, 255, 255, 0.8);
-  background-image: url("/assets/images/cardstock.png");
-  background-repeat: repeat;
-  background-size: 512px 512px;
-  padding: 2cap;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-#homepage .page-title {
-  margin-bottom: 2.5em;
-}
 /* =======================================================================================
-   TOKENS / THEME
+   MODERN PORTFOLIO - DESIGN SYSTEM
+   Clean, stylish, modern portfolio with easy color scheme management
+======================================================================================= */
+
+/* =======================================================================================
+   COLOR SCHEME VARIABLES - EASY TO CUSTOMIZE
 ======================================================================================= */
 :root {
-  /* Base theme */
-  --bg-color: #ebe4e3;
-  --text-color: #1f1f1f;
-  --button-bg: #19232c;
-  --button-hover-bg: #928575;
-
-  /* Background texture */
-  /* from assets/css/ to assets/images/ */
-  --texture-url: url("/assets/images/bgd_texture.png");
-  --texture-fallback: #d2b48c;
-  --texture-size: auto;
-
-  --paper-url: url("/assets/images/cardstock.png");
-  --paper-scale: 512px 512px; /* adjust grain size if you want it bigger/smaller */
-
-  /* Layout */
-  --page-max: 1200px;
-
-   --link: #b2987c;
-  --link-hover: #1d1d1d;
-  --link-visited: #da2f00;
+  /* PRIMARY THEME COLORS - CHANGE THESE TO UPDATE YOUR ENTIRE SITE */
+  --primary-color: #2c3e50;        /* Dark blue-grey for headings, navbar */
+  --secondary-color: #3498db;      /* Bright blue for accents, links */
+  --accent-color: #e74c3c;         /* Red for hover states, highlights */
+  --success-color: #27ae60;        /* Green for success states */
+  
+  /* RGB VALUES FOR GRADIENTS */
+  --primary-rgb: 44, 62, 80;       /* Primary color in RGB */
+  --secondary-rgb: 52, 152, 219;   /* Secondary color in RGB */
+  --accent-rgb: 231, 76, 60;       /* Accent color in RGB */
+  --neutral-rgb: 236, 240, 241;    /* Neutral background in RGB */
+  
+  /* ADAPTIVE GRADIENT COLORS - Can be overridden per page */
+  --page-primary: var(--primary-rgb);
+  --page-secondary: var(--secondary-rgb);
+  --page-accent: var(--accent-rgb);
+  
+  /* RGB VALUES FOR GRADIENTS */
+  --primary-rgb: 44, 62, 80;       /* Primary color in RGB */
+  --secondary-rgb: 52, 152, 219;   /* Secondary color in RGB */
+  --accent-rgb: 231, 76, 60;       /* Accent color in RGB */
+  --neutral-rgb: 236, 240, 241;    /* Neutral background in RGB */
+  
+  /* RGB VALUES FOR GRADIENTS */
+  --primary-rgb: 44, 62, 80;       /* Primary color in RGB */
+  --secondary-rgb: 52, 152, 219;   /* Secondary color in RGB */
+  --accent-rgb: 231, 76, 60;       /* Accent color in RGB */
+  --neutral-rgb: 236, 240, 241;    /* Neutral background in RGB */
+  
+  /* NEUTRAL COLORS */
+  --text-dark: #2c3e50;            /* Main text color */
+  --text-medium: #7f8c8d;          /* Secondary text */
+  --text-light: #bdc3c7;           /* Light text on dark backgrounds */
+  --bg-light: #ffffff;             /* Light backgrounds */
+  --bg-medium: #f8f9fa;            /* Medium backgrounds */
+  --bg-dark: #34495e;              /* Dark backgrounds */
+  
+  /* GRADIENT BACKGROUNDS */
+  --gradient-primary: linear-gradient(135deg, 
+    rgba(var(--primary-rgb), 0.02) 0%, 
+    rgba(var(--secondary-rgb), 0.03) 50%, 
+    rgba(var(--neutral-rgb), 0.04) 100%);
+  --gradient-soft: linear-gradient(45deg, 
+    rgba(var(--neutral-rgb), 0.8) 0%, 
+    rgba(var(--primary-rgb), 0.05) 100%);
+  --texture-primary: linear-gradient(145deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(var(--page-primary), 0.02) 30%, 
+    rgba(var(--page-secondary), 0.01) 70%, 
+    rgba(255, 255, 255, 0.9) 100%);
+  --texture-fallback: #f8f9fa;
+  
+  /* SPACING & LAYOUT */
+  --max-width: 1200px;
+  --section-padding: 4rem 2rem;
+  --card-padding: 2rem;
+  --border-radius: 12px;
+  --border-radius-small: 8px;
+  
+  /* SHADOWS */
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-heavy: 0 8px 30px rgba(0, 0, 0, 0.2);
+  
+  /* TRANSITIONS */
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
 /* =======================================================================================
-   RESET / BASE
+   RESET & BASE STYLES
 ======================================================================================= */
-* { box-sizing: border-box; }
-
-html, body {
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Open Sans', sans-serif;
-  color: var(--text-color);
-  line-height: 1.5;
 }
 
-/* Put the texture BEHIND everything (html), keep body transparent so it shows through */
 html {
-  background-color: var(--texture-fallback);
-  background-image: var(--texture-url);
-  background-repeat: repeat;
-  background-attachment: fixed;       /* nice subtle effect when scrolling */
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background: linear-gradient(135deg, 
+    rgba(var(--page-primary), 0.02) 0%, 
+    rgba(var(--page-secondary), 0.03) 50%, 
+    rgba(var(--neutral-rgb), 0.04) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
-/* --paper-url is already set in :root, remove stray declaration */
-body { background: transparent; }
-
-/* Generic page container */
- .page {
-  max-width: 900px;
-  min-width: 0;
-  margin: 2em auto;
-  padding-left: clamp(4em, 15vw, 8em);
-  padding-right: clamp(4em, 15vw, 8em);
-  padding-top: 1.5em;
-  padding-bottom: 1.5em;
-}
-/* Simple spacing helper used under fixed navbar */
-#space { height: 50px; }
-
-/* =======================================================================================
-   TYPOGRAPHY / HEADINGS
-======================================================================================= */
-.page-title {
-  font-size: 3rem;
-  text-align: center;
-  margin: 1em 0 2em;
-  opacity: 0;                       /* fade-in animation */
-}
-
-/* Horizontal line treatment under h1/h2 using ::after only (cleaner) */
-h1::after,
-h2::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 0;                        /* visual line handled by background-color below */
-  background-color: rgba(255, 255, 255, 0.2);
+body {
+  font-family: 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  background: transparent;
 }
 
 /* =======================================================================================
-   NAVBAR
+   TYPOGRAPHY
 ======================================================================================= */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
 
+h1 { font-size: 3rem; }
+h2 { font-size: 2.5rem; }
+h3 { font-size: 2rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* =======================================================================================
+   NAVIGATION
+======================================================================================= */
 .navbar {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
-  margin: 0 auto;
-  padding: 1em 0;
-  background-image: url("/assets/images/cardstock.png");
-  background-color: #492f2e;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  border-radius: 0 0 4px 4px;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.08) 30%,
+    rgba(var(--page-primary), 0.12) 60%,
+    rgba(var(--page-secondary), 0.08) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 16px rgba(var(--page-primary), 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  padding: 1rem 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-
-.navbar > .nav-links {
-  max-width: var(--page-max);
+.nav-container {
+  max-width: var(--max-width);
   margin: 0 auto;
-  text-align: center;
+  padding: 0 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.5em;
-  padding: 0;
 }
-
 
 .nav-links {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.5em;
+  list-style: none;
+  gap: 2rem;
 }
-
-
-.nav-links li {
-  display: inline-block;
-  margin: 0;
-}
-
 
 .nav-links a {
-  color: #404040;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 700;
-  font-size: 1.0rem;
-  letter-spacing: 0.04em;
-  padding: 0.5em 0.2em;
-  border-radius: 8px;
-  transition: color 0.2s, background 0.2s;
-  text-decoration: none;
-  background: transparent;
-  display: inline-block;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-small);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid transparent;
 }
 
-
-.nav-links a:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.08);
-}
-
-
+.nav-links a:hover,
 .nav-links a.active {
-  color: #fff;
-  background: #3d2c1e;
-  border-radius: 8px;
-  text-shadow: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-  border: 2px solid #ffc400;
-}
-
-/* ===== Global Polaroid Base ===== */
-.polaroid {
-  position: relative;
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.12);
-  border-radius: 10px;
-  box-shadow: 0 10px 22px rgba(0,0,0,.18);
-  padding: .6rem .6rem 2.2rem;            /* thicker bottom like a real polaroid */
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-.polaroid:hover {
+  background: linear-gradient(135deg, 
+    rgba(var(--page-primary), 0.25) 0%,
+    rgba(var(--page-secondary), 0.18) 100%);
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 14px 26px rgba(0,0,0,.22);
+  box-shadow: 
+    0 4px 16px rgba(var(--page-primary), 0.3),
+    0 2px 8px rgba(var(--page-secondary), 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
 }
-.polaroid__img {
-  display: block;
-  width: 100%;
-  height: 0;
-  padding-bottom: 66.6667%;               /* 3:2 aspect; use 75% for 4:3 if you prefer */
-  background-size: cover;
-  background-position: center;
-  border-radius: 6px;
-}
-
-/* Show whole image inside the polaroid frame */
-.polaroid__img--contain {
-  background-size: contain;     /* no cropping */
-  background-repeat: no-repeat; /* no tiling */
-  background-color: #fff;       /* “rails” match the paper */
-}
-
-
-
-.polaroid__caption {
-  position: absolute;
-  left: .6rem; right: .6rem; bottom: .55rem;
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.05rem;
-  line-height: 1.15;
-  color: var(--text-color);
-  text-shadow: 0 1px 0 rgba(255,255,255,.6);
-  pointer-events: none; /* whole tile remains clickable if it's a link */
-  font-family: var(--hand-font, 'Caveat', 'Shadows Into Light', 'Open Sans', sans-serif);
-}
-
-/* ===== Polaroid with custom content instead of an image ===== */
-.polaroid--content .polaroid__body {
-  /* this replaces the image area for link/contact cards */
-  border: 1px solid rgba(0,0,0,.06);
-  border-radius: 6px;
-  padding: 1rem;
-  background: #fdfdfd;
-}
-
-/* Links list inside a polaroid */
-.polaroid-links {
-  list-style: none; padding: 0; margin: 0;
-  display: grid; gap: .5rem;
-}
-.polaroid-links a {
-  text-decoration: none;
-  font-weight: 700;
-  color: var(--link, #b2987c);
-}
-.polaroid-links a:hover { color: var(--link-hover, #1d1d1d); }
-
-/* Contact form inside a polaroid */
-.polaroid .contact-form {
-  display: grid; gap: .75rem;
-}
-.polaroid .contact-form input,
-.polaroid .contact-form textarea {
-  width: 100%;
-  padding: .6rem .75rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-family: 'Open Sans', sans-serif;
-}
-.polaroid .contact-form button {
-  padding: .6rem .75rem;
-  border-radius: 8px;
-  background-color: var(--button-bg);
-  color: #fff;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: background .2s ease;
-}
-.polaroid .contact-form button:hover {
-  background-color: var(--button-hover-bg);
-}
-
-
 
 /* =======================================================================================
-   HOMEPAGE
-   (fix broken selectors: use "#homepage .columns-container", not "#homepage.columns-container")
+   LAYOUT CONTAINERS
 ======================================================================================= */
-/* ===== Homepage: 2-col grid that collapses to 1 ===== */
-#homepage .columns-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem 2rem;      /* row-gap column-gap */
-  align-items: stretch;
+.main-content {
+  padding-top: 100px; /* Account for fixed navbar */
+  min-height: 100vh;
 }
 
-#homepage .card { aspect-ratio: auto; }
-/* Desktop: 2 columns; make the contact card span both columns */
-@media (min-width: 900px){
-  #homepage .columns-container{
-    grid-template-columns: repeat(2, minmax(320px, 1fr));
-  }
-  #homepage .span-2{
-    grid-column: 1 / -1;               /* full-width second row */
-  }
-}
-
-#homepage .columns-container {
-  row-gap: .5rem;
-  column-gap: 2rem;
-}
-
-/* ===== Polaroid shell (homepage scope so it won't affect other pages) ===== */
-#homepage .card{ height: 100%; }       /* grid cell fills; card fills cell */
-
-#homepage .polaroid{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-  background: #f52626;
-  border: 1px solid rgba(0,0,0,.12);
-  border-radius: 10px;
-  padding: 0; /* Removed padding to ensure content fills the card */
-  box-shadow: 0 10px 22px rgba(0,0,0,.18);
-}
-
-/* Image area (use .polaroid__img--contain if you want full image, no crop) */
-#homepage .polaroid__img{
-  width: 100%;
-  aspect-ratio: 3 / 2;                 /* consistent face */
-  background-size: cover;              /* change to 'contain' if needed */
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: 6px;
-  margin-top: 1.5em;
-}
-
-/* Content area inside the polaroid (links / form live here) */
-#homepage .polaroid__body{
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: .75rem;
-}
-
-/* Optional: show whole image (letterboxed) */
-#homepage .polaroid__img--contain{ background-size: contain; }
-
-/* Make the contact form fill the polaroid nicely */
-#homepage .contact-form{
-  width: 100%;
-  max-width: 720px;                    /* roomy on desktop */
+.container {
+  max-width: var(--max-width);
   margin: 0 auto;
+  padding: 0 2rem;
 }
-#homepage .contact-form input,
-#homepage .contact-form textarea{ width: 100%; }
 
-
+.section {
+  padding: var(--section-padding);
+}
 
 /* =======================================================================================
-   RESUME PAGE
-   - Readability panel over the textured background
-   - Fixed dashed timeline line, job cards, and video container
-   (fix broken selectors that were missing spaces/dots)
+   PAPER PANEL SYSTEM
 ======================================================================================= */
-#resume {
-  padding: 2em 1em;
+.paper-panel {
+  background: var(--texture-primary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: var(--card-padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  margin-bottom: 2rem;
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
 }
 
-
-
-/* Panel for resume content to sit on (ensures readability) */
-#resume .page,
-#resume main {
-  max-width: 550px;
-  min-width: 0;
-  margin: 2rem auto;
-  padding-left: clamp(1em, 5vw, 3em);
-  padding-right: clamp(1em, 5vw, 3em);
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+.paper-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-heavy);
 }
 
-/* Optional image column styles (if used) */
-#resume .column.image {
-  flex: 1 1 400px;
-  max-width: 800px;
-}
-
-#resume .column.links {
-  flex: 1 1 300px;
-  text-align: center;
-}
-
-#resume .column.image img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  display: block;
-  margin: 0 auto;
-}
-
-/* Optional container row (if used on resume page) */
-#resume .columns-container {
-  display: flex;
-  flex-wrap: wrap;
+/* =======================================================================================
+   CARD SYSTEM
+======================================================================================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
-  justify-content: center;
-  max-width: 1600px;
-  margin: auto;
-  padding: 1rem;
+  margin: 2rem 0;
 }
 
-/* Timeline line & markers */
-#resume .timeline-marker {
-  margin: 2em auto;
-  text-align: center;
-  padding: 0.5em 1em;
-  background-image: url("/assets/images/cardstock.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: #411111;
-  color: #2c2c2c;
-  border-radius: 9px;
-  width: fit-content;
-  font-weight: bolder;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.233);
-  position: relative;
-  z-index: 1;
-  opacity: 0;
-  transform: scale(0.8);
-  animation: fadeInScale 0.6s ease forwards;
+.card {
+  background: var(--bg-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  padding: 1.5rem;
+  transition: all var(--transition-medium);
+  text-decoration: none;
+  color: inherit;
   display: block;
 }
 
-/* Vertical timeline line */
-#resume {
-  position: relative;
-}
-#resume::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: repeating-linear-gradient(
-    to bottom,
-    #bdbdbd 0 12px,
-    transparent 12px 24px
-  );
-  transform: translateX(-50%);
-  z-index: 0;
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-heavy);
+  color: inherit;
 }
 
-#resume .job-block p {
-  padding-left: 1.5em;
-  padding-right: 1.5em;
-}
-
-/* Job cards */
-#resume .job-block {
-  border-radius: 4px;
-  padding: 2em;
+.card-image {
   width: 100%;
-  flex: 1 1 auto;
-  margin-bottom: 0.75rem;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeSlideUp 0.8s ease forwards;
-  flex: 0 0 auto;
-  margin-top: 0.5rem;
-  background-image: url("/assets/images/cardstock.png");
+  height: 200px;
   background-size: cover;
-  background-repeat: no-repeat;
   background-position: center;
-  background-color: rgba(93, 0, 255, 0.85);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
- display: block;
+  border-radius: var(--border-radius-small);
+  margin-bottom: 1rem;
 }
 
-#resume .job-block h1 {
-  width: 100%;
-  letter-spacing: 0.035em;
+.card-title {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+.card-description {
+  color: var(--text-medium);
+  font-size: 1rem;
+}
+
+/* =======================================================================================
+   PROJECT SECTIONS
+======================================================================================= */
+.projects-section {
+  margin: 3rem 0;
+}
+
+.section-title {
   text-align: center;
-  font-weight: bold;
+  margin-bottom: 3rem;
   position: relative;
 }
 
-#resume .job-block h1::after {
+.section-title::after {
   content: '';
-  display: block;
-  margin: 0.5em auto 0 auto;
-  width: 60%;
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, #434343 0%, #464646 100%);
+  background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
   border-radius: 2px;
 }
 
-#resume .job-block h2 {
-  width: 100%;
-  letter-spacing: 0.035em;
-  text-align: left;
-  font-weight: bold;
-  line-height: 0.8;
-}
-
-#resume .job-block h3 {
-  width: 100%;
-  letter-spacing: 0.035em;
-  text-align: left;
-  font-weight: bold;
-  line-height: 0.8;
-}
-
-
-/* Video embeds */
-#resume .video-container {
-  margin-top: 1.5em;
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%; /* 16:9 */
-  height: 0;
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-}
-
-#resume .video-container iframe {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  border: none;
-}
-
-/* Staggered marker animation delays (keep your pattern) */
-#resume .timeline-marker:nth-of-type(2) { animation-delay: 0.3s; }
-#resume .timeline-marker:nth-of-type(4) { animation-delay: 0.5s; }
-#resume .timeline-marker:nth-of-type(6) { animation-delay: 0.7s; }
-#resume .timeline-marker:nth-of-type(8) { animation-delay: 0.9s; }
-
-/* --- Bottom images on each resume card --- */
-#resume .job-photos {
-  margin-top: 1rem;                 /* space above the image strip */
-  display: grid;
-  grid-template-columns: 1fr;       /* default: single column */
-  gap: .75rem;                      /* space between images */
-}
-
-/* Optional quick layouts */
-#resume .job-photos.two-up   { grid-template-columns: repeat(2, 1fr); }
-#resume .job-photos.three-up { grid-template-columns: repeat(3, 1fr); }
-
-/* Image frame */
-#resume .job-photos figure {
-  margin: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #ddd;                 /* placeholder while loading */
-  box-shadow: 0 8px 24px rgba(0,0,0,.5);
-}
-
-/* If you want uniform cropped tiles, give the figure a fixed ratio: */
-#resume .job-photos.ratio-16x9 figure { aspect-ratio: 16 / 9; }
-#resume .job-photos.ratio-4x3  figure { aspect-ratio: 4 / 3; }
-
-/* Images */
-#resume .job-photos img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;                /* fills frame without distortion */
-}
-
-/* Optional caption */
-#resume .job-photos figcaption {
-  padding: .4rem .6rem;
-  font-size: .85rem;
-  color: #222;
-  background: rgba(255,255,255,.7);
-}
-
-
-
-
 /* =======================================================================================
-   PROJECTS (GALLERY)
+   HERO SECTION
 ======================================================================================= */
-#projects.page { color: #dcdcdc; }
-
-#projects h2::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 2px;
-  margin: 0.5em 0 1em;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-  max-width: 1200px;
-  margin: 10em; /* as you had it */
-}
-
-.gallery-item {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  border-radius: 10px;
-  border: 1px solid #444;
-}
-
-.gallery-item img,
-.gallery-item iframe {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Lightbox */
-.lightbox {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.9);
-  align-items: center;
-  justify-content: center;
-}
-
-.lightbox-content { max-width: 90vw; max-height: 90%; }
-.lightbox-content img,
-.lightbox-content iframe { width: auto; height: auto; max-height: 90vh; }
-
-.lightbox-close {
-  position: absolute;
-  top: 20px; right: 30px;
-  font-size: 2rem;
-  color: white;
-  cursor: pointer;
-}
-
-.lightbox-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 3rem;
-  color: white;
-  cursor: pointer;
-  user-select: none;
-  padding: 0 1rem;
-  z-index: 10000;
-}
-.lightbox-prev { left: 0; }
-.lightbox-next { right: 0; }
-
-/* Back button (used on detail page) */
-a.button {
-  position: fixed;
-  top: 80px;
-  left: 10%;
-  transform: translateX(-50%);
-  z-index: 999;
-  background-color: #333;
-  color: white;
-  padding: 0.75em 1.5em;
-  border-radius: 6px;
-  font-weight: bold;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-/* ===== Paper panel for intro text on project detail pages ===== */
-#projects-detail .paper-panel {
-  max-width: 550px;
-  min-width: 0;
-  margin: 0 auto 1.25rem;
-  padding-left: clamp(1em, 5vw, 3em);
-  padding-right: clamp(1em, 5vw, 3em);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-
-  /* cardstock texture */
-  background-image: url("/assets/images/cardstock.png");   /* update filename if needed */
-  background-repeat: repeat;
-  background-size: 512px 512px;                       /* adjust grain scale */
-
-  /* soft white wash to keep text readable on the texture */
-  background-color: rgba(255,255,255,0.92);
-  background-blend-mode: overlay;
-
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-
-/* =======================================================================================
-   CARDS (index)
-======================================================================================= */
-time {
-  opacity: 0.5;
-  display: block;
-  margin-bottom: 1em;
-}
-/* === Card container and card base styles (index only) === */
-.card-container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 3.5em;
-  margin-top: 3.5em;
-}
-
-
-.card {
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-  padding: 0;
-  aspect-ratio: 1 / 1;
-  border-radius: 8px;
-  background: none;
-  text-decoration: none;
-  color: inherit;
-  border: none;
-  box-shadow: none;
-  position: relative;
-  overflow: visible;
-}
-
-/* New cardstock card style for index */
-.card.cardstock {
-  border-radius: 4px;
-  padding: 2em;
-  width: 100%;
-  flex: 1 1 auto;
-  margin-bottom: 0.75rem;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeSlideUp 0.8s ease forwards;
-  flex: 0 0 auto;
-  margin-top: 0.5rem;
-  background-image: url("/assets/images/cardstock.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: rgba(93, 0, 255, 0.85);
-   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
- display: block;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-}
-
-.card.cardstock h2, .card.cardstock p {
-  margin: 0 0 0.5em 0;
-  flex: 1 1 auto;
-  width: 100%;
-}
-
-.card.cardstock .card-content {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-  width: 100%;
-  height: 100%;
-}
-
-/* Remove polaroid styles from index cards */
-#homepage .card .polaroid, #homepage .card .polaroid__img, #homepage .card .polaroid__body, #homepage .card .polaroid__caption {
-  display: none !important;
-}
-
-/* =======================================================================================
-   PROJECT DETAIL PAGES (e.g., /personal_projects/… pages with body id="projects-detail")
-   - Cardboard background stays on <html> (from your global tokens)
-   - Only the intro panel uses cardstock (paper) texture
-   - Navbar matches resume
-   - Polished gallery + lightbox scoped here to avoid collisions with index page
-======================================================================================= */
-
-/* Let the global cardboard (on <html>) show through */
-body#projects-detail { background: transparent !important; }
-
-
-
-/* Page container spacing only (no background so cardboard shows) */
-#projects-detail .page {
-  max-width: 1000px;
-  margin: 6.5rem auto 3rem; /* push under fixed navbar */
-  padding: 0 1rem;
-}
-
-/* Intro “text field”: cardstock panel that lines up with the title */
-#projects-detail .paper-panel {
-  width: 100%;
-  max-width: 550px;
-  min-width: 0;
-  margin: 0 auto 1.25rem;
-  padding-left: clamp(1em, 5vw, 3em);
-  padding-right: clamp(1em, 5vw, 3em);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-
-  /* cardstock texture */
-  background-image: var(--paper-url);
-  background-repeat: repeat;
-  background-size: var(--paper-scale);
-
-  /* soft white wash for readability (texture still visible) */
-  background-color: rgba(255,255,255,0.92);
-  background-blend-mode: overlay;
-
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  line-height: 1.65;
-  font-size: 1.05rem;
-}
-
-/* Put the title inside the panel for a seamless “single sheet” look */
-#projects-detail .paper-panel .page-title {
-  margin: 0 0 .75rem;
+.hero {
   text-align: center;
-  font-weight: 700;
-  letter-spacing: .02em;
-  font-size: 2rem;
-  opacity: 1 !important;
+  padding: 6rem 0 4rem;
 }
 
-/* Gallery grid (scoped so it won't clash with your projects index styles) */
-#projects-detail .gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.25rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  align-items: start;
+.hero h1 {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Polaroid-style thumbs (single-photo look; no double shadows) */
-#projects-detail .gallery-item {
+.hero p {
+  font-size: 1.3rem;
+  color: var(--text-medium);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* =======================================================================================
+   BUTTONS
+======================================================================================= */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: var(--border-radius-small);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  border: none;
   cursor: pointer;
-  border-radius: 5px;
-  background: #fff;                             /* paper */
-  border: 1px solid rgba(0,0,0,.12);
-  padding: .6rem .6rem 1.2rem;                  /* thicker bottom like a polaroid */
-  box-shadow: 0 10px 22px rgba(0,0,0,.18);
-  transition: transform .15s ease, box-shadow .15s ease;
-  text-align: center;
-  width: 100%;
-  height: auto;
+  font-size: 1rem;
 }
-#projects-detail .gallery-item:hover {
+
+.btn-primary {
+  background: var(--secondary-color);
+  color: var(--bg-light);
+}
+
+.btn-primary:hover {
+  background: var(--accent-color);
   transform: translateY(-2px);
-  box-shadow: 0 14px 26px rgba(0,0,0,.22);
+  box-shadow: var(--shadow-medium);
 }
 
-#projects-detail .gallery-item img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 6px;
-  box-shadow: inset 0 6px 14px rgba(0,0,0,.12);
-  aspect-ratio: auto;
+.btn-secondary {
+  background: transparent;
+  color: var(--secondary-color);
+  border: 2px solid var(--secondary-color);
 }
 
-/* Lightbox (scoped) */
-#projects-detail .lightbox {
-  display: none; position: fixed; z-index: 1000; inset: 0;
-  background: rgba(0,0,0,0.92);
-  justify-content: center; align-items: center;
-  overflow-y: auto; padding: 1rem;
-  opacity: 0; transition: opacity .35s ease;
-}
-#projects-detail .lightbox.show { display: flex; opacity: 1; }
-
-#projects-detail .lightbox-content {
-  width: 100%; max-width: 90vw; max-height: 90vh;
-  display: flex; flex-direction: column; align-items: center;
-  opacity: 0; transform: scale(.98);
-  transition: opacity .35s ease, transform .35s ease;
-}
-#projects-detail .lightbox-content.show { opacity: 1; transform: scale(1); }
-
-#projects-detail .lightbox-content img {
-  height: 80vh; width: auto; border-radius: 8px;
-}
-#projects-detail .lightbox-content .video-wrapper {
-  position: relative; width: 100%; padding-bottom: 56.25%;
-  height: 0; overflow: hidden; border-radius: 8px;
-}
-#projects-detail .lightbox-content .video-wrapper iframe {
-  position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+.btn-secondary:hover {
+  background: var(--secondary-color);
+  color: var(--bg-light);
 }
 
-#projects-detail .lightbox-caption {
-  margin-top: 1rem; font-size: 1rem; max-width: 90%;
-  text-align: left; color: #f1f1f1;
-}
-
-#projects-detail .lightbox-close,
-#projects-detail .lightbox-nav {
-  position: absolute; color: #fff; opacity: .6; transition: opacity .2s ease;
-  cursor: pointer; user-select: none;
-}
-#projects-detail .lightbox:hover .lightbox-close,
-#projects-detail .lightbox:hover .lightbox-nav { opacity: 1; }
-#projects-detail .lightbox-close { top: 1rem; right: 1rem; font-size: 2rem; }
-#projects-detail .lightbox-nav { top: 50%; transform: translateY(-50%); font-size: 2.2rem; padding: 0 1rem; }
-#projects-detail .lightbox-prev { left: 0; }
-#projects-detail .lightbox-next { right: 0; }
-
-/* Mobile lightbox image scaling */
+/* =======================================================================================
+   RESPONSIVE DESIGN
+======================================================================================= */
 @media (max-width: 768px) {
-  #projects-detail .lightbox-content img { height: auto; width: 100%; }
+  .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .section {
+    padding: 3rem 1rem;
+  }
 }
 
-/* ---- Guard against your existing global .gallery spacing on other pages ---- */
-#projects-detail .gallery { margin: 1rem 0 0 !important; }
+@media (max-width: 480px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+  
+  .hero {
+    padding: 4rem 0 2rem;
+  }
+  
+  .hero h1 {
+    font-size: 2rem;
+  }
+}
 
 /* =======================================================================================
    ANIMATIONS
 ======================================================================================= */
-@keyframes fadeSlideDown {
-  0%   { opacity: 0; transform: translateY(-30px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeSlideUp {
-  0%   { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInScale {
-  0%   { opacity: 0; transform: scale(0.8); }
-  100% { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-on-scroll {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
 }
 
 /* =======================================================================================
-   MEDIA QUERIES
+   SEARCH & FILTERING SYSTEM
 ======================================================================================= */
-@media (max-width: 600px) {
-  .page-title { font-size: 1.8rem; }
-  .card-container { grid-template-columns: 1fr; }
-  .card h2 { font-size: 1.1em; }
+.search-container {
+  max-width: 400px;
+  margin: 0 auto 3rem;
+  position: relative;
 }
 
-.card-container,
-.gallery {
-  padding-left: 2em;
-  padding-right: 2em;
-}
-
-
-
-/* Personal Projects: Small polaroid tile grid */
-#projects .card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.25em;
-  margin-top: 0;
-  align-items: start;
-}
-#projects .card {
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  background: none;
-  display: block;
-  min-height: 0;
-  transition: none;
-}
-#projects .card:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 12px 28px rgba(0,0,0,.18);
-}
-/* Only the polaroid image area gets a background image, not the card itself */
-#projects .card .polaroid__img {
-  display: block;
+.search-bar {
   width: 100%;
-  aspect-ratio: 3/2;
-  background-size: cover;
-  background-position: center;
-  border-radius: 6px;
-  margin-bottom: .5em;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--bg-medium);
+  border-radius: var(--border-radius);
+  background: var(--bg-light);
+  color: var(--text-dark);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-light);
 }
-#projects .card h2, #projects .card p {
-  margin: 0 0 0.5em 0;
-  font-size: 1em;
-  text-align: center;
+
+.search-bar:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  box-shadow: var(--shadow-medium);
 }
-#projects .card .polaroid__caption {
+
+.search-bar::placeholder {
+  color: var(--text-medium);
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.filter-tag {
+  padding: 0.5rem 1rem;
+  background: var(--bg-medium);
+  color: var(--text-medium);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.filter-tag:hover {
+  background: var(--secondary-color);
+  color: var(--bg-light);
+  transform: translateY(-2px);
+}
+
+.filter-tag.active {
+  background: var(--secondary-color);
+  color: var(--bg-light);
+  border-color: var(--accent-color);
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.project-tag {
+  padding: 0.3rem 0.7rem;
+  background: var(--bg-medium);
+  color: var(--text-medium);
+  border-radius: var(--border-radius-small);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.no-results {
   text-align: center;
-  font-size: .95em;
-  color: #444;
-  margin-top: .5em;
+  padding: 3rem;
+  color: var(--text-medium);
+  font-size: 1.2rem;
+  display: none;
+}
+
+.no-results.show {
+  display: block;
+}
+
+/* =======================================================================================
+   PROJECT SECTION NAVIGATION
+======================================================================================= */
+.project-nav {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(var(--page-primary), 0.08) 50%,
+    rgba(var(--page-secondary), 0.06) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 16px rgba(var(--page-primary), 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  margin: 2rem auto;
+  max-width: 400px;
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-nav-item {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-small);
+  color: var(--text-medium);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  text-align: center;
+  display: block;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.project-nav-item:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(var(--page-primary), 0.1) 100%);
+  color: var(--text-dark);
+  transform: translateY(-1px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 4px 16px rgba(var(--page-primary), 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.project-nav-item.active {
+  background: linear-gradient(135deg, 
+    rgba(var(--page-primary), 0.3) 0%,
+    rgba(var(--page-secondary), 0.2) 100%);
+  color: white;
+  box-shadow: 
+    0 6px 24px rgba(var(--page-primary), 0.3),
+    0 2px 12px rgba(var(--page-secondary), 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(15px) saturate(200%);
+  -webkit-backdrop-filter: blur(15px) saturate(200%);
+}
+
+.projects-section {
+  transition: opacity var(--transition-medium), transform var(--transition-medium);
+}
+
+.projects-section.hidden {
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.projects-section.visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =======================================================================================
+   UTILITY CLASSES
+======================================================================================= */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+.mb-3 { margin-bottom: 3rem; }
+
+.mt-1 { margin-top: 1rem; }
+.mt-2 { margin-top: 2rem; }
+.mt-3 { margin-top: 3rem; }
+
+.hidden { display: none; }
+.visible { display: block; }
+.fade-out { opacity: 0.3; }
+.fade-in { opacity: 1; }
+
+/* =======================================================================================
+   ELEGANT GALLERY SYSTEM
+======================================================================================= */
+
+/* Gallery overlay */
+.gallery-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 60px 90px 120px 90px; /* Reserve space for controls and caption */
+}
+
+.gallery-overlay.active {
+  display: flex;
+  opacity: 1;
+}
+
+/* Gallery container */
+.gallery-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: calc(100vw - 180px); /* Account for navigation arrows */
+  max-height: calc(100vh - 180px); /* Account for controls and caption */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Gallery media */
+.gallery-media {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-overlay.active .gallery-media {
+  transform: scale(1);
+}
+
+/* Gallery controls */
+.gallery-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10002;
+}
+
+.gallery-btn {
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-btn:hover {
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Navigation arrows */
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-nav:hover {
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0.9;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.gallery-nav.prev {
+  left: 30px;
+}
+
+.gallery-nav.next {
+  right: 30px;
+}
+
+/* Gallery counter */
+.gallery-counter {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0.8;
+}
+
+/* Gallery caption */
+.gallery-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-caption.visible {
+  opacity: 0.9;
+}
+
+.gallery-caption:empty {
+  display: none;
+}
+
+/* Clickable media styling */
+.clickable-media {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.clickable-media:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .gallery-overlay {
+    padding: 50px 60px 100px 60px; /* Reduce padding on mobile but maintain clearance */
+  }
+  
+  .gallery-container {
+    width: 100%;
+    height: 100%;
+    max-width: calc(100vw - 120px); /* Account for smaller navigation arrows */
+    max-height: calc(100vh - 150px); /* Account for controls and caption */
+  }
+  
+  .gallery-controls {
+    top: 10px;
+    right: 10px;
+    gap: 5px;
+  }
+  
+  .gallery-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .gallery-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .gallery-nav.prev {
+    left: 15px;
+  }
+  
+  .gallery-nav.next {
+    right: 15px;
+  }
+  
+  .gallery-counter {
+    bottom: 70px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .gallery-caption {
+    bottom: 10px;
+    max-width: 90%;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+}
+
+/* =======================================================================================
+   PRINT STYLES
+======================================================================================= */
+@media print {
+  .navbar,
+  .btn {
+    display: none !important;
+  }
+  
+  .main-content {
+    padding-top: 0;
+  }
+  
+  .paper-panel {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .gallery-overlay {
+    display: none !important;
+  }
+}
+
+/* =======================================================================================
+   LIQUID GLASS ADAPTIVE BACKGROUNDS
+   Dynamic backgrounds that reflect page content colors in a liquid glass aesthetic
+======================================================================================= */
+
+/* Base liquid glass effect */
+html {
+  position: relative;
+}
+
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(var(--page-primary), 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 80% 30%, rgba(var(--page-secondary), 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(var(--page-accent), 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 90% 90%, rgba(var(--page-primary), 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      rgba(var(--page-primary), 0.08) 0%, 
+      rgba(var(--page-secondary), 0.10) 30%,
+      rgba(var(--page-accent), 0.06) 60%,
+      rgba(var(--neutral-rgb), 0.12) 100%),
+    linear-gradient(180deg, 
+      rgba(20, 20, 30, 0.15) 0%, 
+      rgba(15, 15, 25, 0.08) 100%);
+  background-size: 800px 800px, 600px 600px, 900px 900px, 400px 400px, 100% 100%, 100% 100%;
+  background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 0% 0%, 0% 0%;
+  background-blend-mode: multiply, normal, overlay, soft-light, normal, normal;
+  animation: liquidFlow 35s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  filter: blur(4px);
+  backdrop-filter: blur(12px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Liquid flow animation - smoother and more blended */
+@keyframes liquidFlow {
+  0%, 100% {
+    background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 50%, 0% 0%;
+  }
+  16.66% {
+    background-position: 15% 25%, 85% 15%, 15% 85%, 85% 95%, 55% 45%, 8% 8%;
+  }
+  33.33% {
+    background-position: 30% 15%, 70% 35%, 10% 70%, 90% 80%, 65% 35%, 16% 16%;
+  }
+  50% {
+    background-position: 50% 40%, 50% 60%, 25% 50%, 75% 60%, 45% 55%, 25% 25%;
+  }
+  66.66% {
+    background-position: 35% 65%, 65% 25%, 40% 35%, 60% 75%, 75% 25%, 33% 33%;
+  }
+  83.33% {
+    background-position: 20% 80%, 80% 40%, 60% 20%, 40% 90%, 35% 65%, 41% 41%;
+  }
+}
+
+/* Enhanced glass morphism for panels */
+.paper-panel {
+  background: linear-gradient(145deg, 
+    rgba(255, 255, 255, 0.25) 0%, 
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(var(--page-primary), 0.05) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 8px 32px rgba(var(--page-primary), 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.paper-panel:hover {
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+  border-color: rgba(var(--page-secondary), 0.3);
+  box-shadow: 
+    0 12px 40px rgba(var(--page-primary), 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* About page (home) - warm, organic liquid colors */
+.about-page {
+  --page-primary: 80, 35, 120;    /* Deeper purple */
+  --page-secondary: 130, 60, 160; /* Richer purple */
+  --page-accent: 220, 165, 0;     /* Deeper golden accent */
+}
+
+.about-page html::before {
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(80, 35, 120, 0.25) 0%, transparent 60%),
+    radial-gradient(circle at 75% 20%, rgba(130, 60, 160, 0.18) 0%, transparent 55%),
+    radial-gradient(circle at 20% 80%, rgba(220, 165, 0, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 85%, rgba(100, 45, 140, 0.12) 0%, transparent 45%),
+    linear-gradient(160deg, 
+      rgba(80, 35, 120, 0.10) 0%, 
+      rgba(130, 60, 160, 0.12) 35%,
+      rgba(220, 165, 0, 0.08) 70%,
+      rgba(25, 25, 35, 0.15) 100%);
+  filter: blur(6px);
+  backdrop-filter: blur(15px);
+}
+
+/* Projects page - tech blue liquid flows */
+.projects-page {
+  --page-primary: 25, 100, 155;   /* Deeper professional blue */
+  --page-secondary: 35, 120, 180; /* Richer bright blue */
+  --page-accent: 15, 150, 120;    /* Deeper teal accent */
+}
+
+.projects-page html::before {
+  background: 
+    radial-gradient(circle at 30% 15%, rgba(25, 100, 155, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 85% 25%, rgba(35, 120, 180, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 15% 75%, rgba(15, 150, 120, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(25, 100, 155, 0.12) 0%, transparent 45%),
+    linear-gradient(145deg, 
+      rgba(25, 100, 155, 0.08) 0%, 
+      rgba(35, 120, 180, 0.12) 40%,
+      rgba(15, 150, 120, 0.08) 75%,
+      rgba(20, 30, 40, 0.15) 100%);
+  filter: blur(6px);
+  backdrop-filter: blur(15px);
+}
+
+/* Resume page - success green liquid gradients */
+.resume-page {
+  --page-primary: 25, 140, 70;    /* Deeper success green */
+  --page-secondary: 30, 170, 85;  /* Richer bright green */
+  --page-accent: 200, 155, 0;     /* Deeper golden accent */
+}
+
+.resume-page html::before {
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(25, 140, 70, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 80% 15%, rgba(30, 170, 85, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 35% 85%, rgba(200, 155, 0, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 85% 90%, rgba(25, 140, 70, 0.12) 0%, transparent 45%),
+    linear-gradient(125deg, 
+      rgba(25, 140, 70, 0.10) 0%, 
+      rgba(30, 170, 85, 0.12) 35%,
+      rgba(200, 155, 0, 0.08) 70%,
+      rgba(20, 35, 25, 0.15) 100%);
+  filter: blur(6px);
+  backdrop-filter: blur(15px);
+}
+
+/* Project detail pages - adaptive to project theme */
+.project-detail {
+  --page-primary: 44, 62, 80;     /* Professional dark */
+  --page-secondary: 52, 152, 219; /* Tech blue */
+  --page-accent: 231, 76, 60;     /* Warning red */
+}
+
+.project-detail html {
+  background: 
+    radial-gradient(circle at 25% 20%, rgba(44, 62, 80, 0.08) 0%, transparent 55%),
+    radial-gradient(circle at 75% 30%, rgba(52, 152, 219, 0.06) 0%, transparent 60%),
+    radial-gradient(circle at 40% 85%, rgba(231, 76, 60, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 90% 75%, rgba(44, 62, 80, 0.03) 0%, transparent 45%),
+    linear-gradient(140deg, 
+      rgba(44, 62, 80, 0.02) 0%, 
+      rgba(52, 152, 219, 0.03) 40%,
+      rgba(231, 76, 60, 0.02) 80%,
+      rgba(236, 240, 241, 0.04) 100%);
+}
+
+/* Responsive liquid effects */
+@media (max-width: 768px) {
+  html {
+    background-size: 400px 400px, 300px 300px, 450px 450px, 200px 200px, 100% 100%;
+    animation-duration: 15s;
+  }
+}
+
+/* =======================================================================================
+   SPECIALIZED PROJECT LIQUID GLASS THEMES
+======================================================================================= */
+
+/* TouchDesigner projects - vibrant, creative colors */
+.touchdesigner-project {
+  --page-primary: 220, 50, 130;   /* Deeper hot pink */
+  --page-secondary: 110, 30, 180; /* Deeper blue violet */
+  --page-accent: 200, 170, 0;     /* Deeper gold */
+}
+
+.touchdesigner-project html::before {
+  background: 
+    radial-gradient(circle at 15% 25%, rgba(220, 50, 130, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 85% 15%, rgba(110, 30, 180, 0.24) 0%, transparent 60%),
+    radial-gradient(circle at 30% 80%, rgba(200, 170, 0, 0.20) 0%, transparent 50%),
+    radial-gradient(circle at 80% 85%, rgba(220, 50, 130, 0.16) 0%, transparent 45%),
+    linear-gradient(165deg, 
+      rgba(220, 50, 130, 0.12) 0%, 
+      rgba(110, 30, 180, 0.14) 30%,
+      rgba(200, 170, 0, 0.10) 60%,
+      rgba(30, 20, 35, 0.18) 100%);
+  filter: blur(7px);
+  backdrop-filter: blur(18px);
+  animation: creativeFlow 25s ease-in-out infinite;
+}
+
+/* Photography projects - warm, natural tones */
+.photography-project {
+  --page-primary: 100, 45, 10;    /* Deeper saddle brown */
+  --page-secondary: 160, 100, 40; /* Deeper peru */
+  --page-accent: 200, 130, 70;    /* Deeper sandy brown */
+}
+
+.photography-project html::before {
+  background: 
+    radial-gradient(circle at 25% 20%, rgba(100, 45, 10, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 75% 30%, rgba(160, 100, 40, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 20% 85%, rgba(200, 130, 70, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 90% 70%, rgba(100, 45, 10, 0.12) 0%, transparent 45%),
+    linear-gradient(120deg, 
+      rgba(100, 45, 10, 0.10) 0%, 
+      rgba(160, 100, 40, 0.12) 40%,
+      rgba(200, 130, 70, 0.10) 80%,
+      rgba(35, 25, 15, 0.16) 100%);
+  filter: blur(6px);
+  backdrop-filter: blur(15px);
+}
+
+/* Hardware/Engineering projects - metallic, tech colors */
+.hardware-project {
+  --page-primary: 50, 100, 140;   /* Deeper steel blue */
+  --page-secondary: 80, 95, 110;  /* Deeper slate gray */
+  --page-accent: 200, 110, 0;     /* Deeper orange */
+}
+
+.hardware-project html::before {
+  background: 
+    radial-gradient(circle at 30% 15%, rgba(50, 100, 140, 0.26) 0%, transparent 55%),
+    radial-gradient(circle at 80% 25%, rgba(80, 95, 110, 0.22) 0%, transparent 60%),
+    radial-gradient(circle at 25% 80%, rgba(200, 110, 0, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 85% 90%, rgba(50, 100, 140, 0.14) 0%, transparent 45%),
+    linear-gradient(150deg, 
+      rgba(50, 100, 140, 0.10) 0%, 
+      rgba(80, 95, 110, 0.12) 35%,
+      rgba(200, 110, 0, 0.08) 70%,
+      rgba(25, 30, 35, 0.16) 100%);
+  filter: blur(6px);
+  backdrop-filter: blur(15px);
+}
+
+/* IoT/Electronics projects - electric, energetic colors */
+.electronics-project {
+  --page-primary: 0, 200, 100;    /* Deeper spring green */
+  --page-secondary: 0, 150, 200;  /* Deeper sky blue */
+  --page-accent: 200, 15, 110;    /* Deeper pink */
+}
+
+.electronics-project html::before {
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(0, 200, 100, 0.24) 0%, transparent 55%),
+    radial-gradient(circle at 80% 20%, rgba(0, 150, 200, 0.20) 0%, transparent 60%),
+    radial-gradient(circle at 35% 85%, rgba(200, 15, 110, 0.16) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(0, 200, 100, 0.12) 0%, transparent 45%),
+    linear-gradient(130deg, 
+      rgba(0, 200, 100, 0.10) 0%, 
+      rgba(0, 150, 200, 0.12) 40%,
+      rgba(200, 15, 110, 0.08) 75%,
+      rgba(20, 30, 25, 0.16) 100%);
+  filter: blur(6px);
+  backdrop-filter: blur(15px);
+}
+
+/* Creative flow animation for artistic projects */
+@keyframes creativeFlow {
+  0%, 100% {
+    background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 0% 0%;
+  }
+  14.28% {
+    background-position: 12% 18%, 88% 12%, 18% 82%, 82% 88%, 7% 7%;
+  }
+  28.57% {
+    background-position: 25% 8%, 75% 28%, 8% 72%, 92% 78%, 14% 14%;
+  }
+  42.85% {
+    background-position: 8% 22%, 92% 8%, 22% 92%, 78% 82%, 21% 21%;
+  }
+  57.14% {
+    background-position: 22% 12%, 78% 22%, 12% 88%, 88% 72%, 28% 28%;
+  }
+  71.42% {
+    background-position: 18% 32%, 82% 18%, 32% 68%, 68% 85%, 35% 35%;
+  }
+  85.71% {
+    background-position: 35% 25%, 65% 35%, 25% 75%, 75% 90%, 42% 42%;
+  }
+}
+
+/* Enhanced glass cards with subtle color reflections */
+.paper-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(145deg, 
+    rgba(var(--page-accent), 0.02) 0%,
+    transparent 30%,
+    rgba(var(--page-secondary), 0.01) 70%,
+    transparent 100%);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.paper-panel:hover::before {
+  opacity: 1;
+}
+
+.paper-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    animation: none;
+  }
+  
+  @keyframes creativeFlow {
+    0%, 100% {
+      background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 0% 0%;
+    }
+  }
 }

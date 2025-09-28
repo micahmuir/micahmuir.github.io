@@ -1,208 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Project Gallery — Timelapse Camera</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Site-wide CSS (applies the cardboard texture via <html> background, tokens, navbar, etc.) -->
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photography - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    /* Photography-specific grid - more images, smaller cells */
+    .photography-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+  </style>
 </head>
-
-<body id="projects-detail">
-  <!-- Navbar -->
+<body class="project-detail photography-project">
+  <!-- Navigation -->
   <nav class="navbar">
-    <ul class="nav-links">
-      <li><a href="../index.html">Home</a></li>
-      <li><a href="../resume.html">Resume</a></li>
-      <li><a href="../personal_projects.html">Projects</a></li>
-      <li><a href="../about.html">About</a></li>
-    </ul>
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
   </nav>
 
-  <script>
-    (function(){
-      const links = document.querySelectorAll('.nav-links a');
-      const currentPath = window.location.pathname;
-      links.forEach(link => {
-        if (link.getAttribute('href') === currentPath) link.classList.add('active');
-      });
-    })();
-  </script>
-
-  <div class="page">
-    <!-- Cardstock intro panel (title + paragraph on one paper sheet) -->
-    <section class="paper-panel">
-      <h1 class="page-title">Photography</h1>
-      <p>
-        One of the first engineering/art crossovers I came across. I got my first camera when I was 10 years old, and immediately fell in love.
-        The feeling of millions of photons colliding and energizing buckets on a microscopically tiny city of diodes that spits out a cloud a colors
-        that organizes to freeze a moment of tell a story... well, it fed both sides of my brain in one meal.
-      </p>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1> Digital Nature Photography</h1>
+      </div>
     </section>
 
-    <!-- Gallery -->
-    <div class="gallery" id="gallery">
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <p>I got my first camera when I was 10 years old, and immediately fell in love. Growing up always travelling between places teaches you to pack light. A camera became my one "big thing" I brought along, because in my mind, a photo is weightless, so a camera represents infinite capacity. </p>
 
-      <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/hawk.jpg"
-           data-caption="A hawk I saw on an october walk a few years ago.">
-        <img src="../assets/images/photography/hawk.jpg" alt="Hawk">
+            <!-- Photography Gallery -->
+            <div class="photography-grid">
+              <div class="image-with-caption">
+                <img alt="Hawk on October walk" src="/assets/images/photography/hawk.jpg"/>
+                <div class="caption">A hawk I saw on a october walk a few years ago.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Forest exploration near Mt. Hood" src="/assets/images/photography/mira_forest.jpg"/>
+                <div class="caption">My partner and I exploring a forest near Mt. Hood, Oregon.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Bear skull study" src="/assets/images/photography/bearskull.JPG"/>
+                <div class="caption">My father collected a range of animal specimens, and my mother loves gardening.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Cloud formations" src="/assets/images/photography/cloudspotting.JPG"/>
+                <div class="caption">A low, heavy cloud over The Dalles. I shot this while flight testing EO/IR systems.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Dry creek landscape" src="/assets/images/photography/drycreek.JPG"/>
+                <div class="caption">A patch of sun low in the Columbia River Gorge.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Heavy cloud cover" src="/assets/images/photography/heavycloud.JPG"/>
+                <div class="caption">A heavy cloud lingering over The Grand Canyon.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Ice cathedral formation" src="/assets/images/photography/ice_cathedral.JPG"/>
+                <div class="caption">Dripping water freezes on impact, slowly building an above-ground stalagmite in New Mexico .</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Icy Tamanawas Falls" src="/assets/images/photography/icy_tamanawas.JPG"/>
+                <div class="caption">Tamanawas Falls in the winter.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Lightning strike" src="/assets/images/photography/lightning.jpg"/>
+                <div class="caption">Lightning captured above Lake Wateree, South Carolina.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Volcano landscape" src="/assets/images/photography/volcano.JPG"/>
+                <div class="caption">Steam plumes rising from the ocean as lava cascades in. Hawaii.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Cold Spring Creek" src="/assets/images/photography/coldspringcreek.JPG"/>
+                <div class="caption">Cold Spring Creek winding through the forest.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Icy Tamanawas Falls - winter view" src="/assets/images/photography/icy_tamanaswas2.JPG"/>
+                <div class="caption">Another perspective of Tamanawas Falls in winter.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Volcanic landscape - real capture" src="/assets/images/photography/volcano_real.png"/>
+                <div class="caption">Raw volcanic terrain captured as night falls.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Mono Lake landscape" src="/assets/images/photography/mono_lake.png"/>
+                <div class="caption">Sunrise at Mono Lake, California.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Solar eclipse" src="/assets/images/photography/eclipse.png"/>
+                <div class="caption">2017 Solar Eclipse. I wish I had better filters, I only had ND10.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Hawk portrait - second capture" src="/assets/images/photography/hawk 1.jpg"/>
+                <div class="caption">Hawk in color.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Tamanawas Falls lower section" src="/assets/images/photography/Tamawanas lower half bright - December 14, 2017-[06-32].JPG"/>
+                <div class="caption">Lower section of Tamanawas Falls</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="New York cityscape" src="/assets/images/photography/new york.png"/>
+                <div class="caption">Portrait of a friend in New York City.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Life itself - abstract nature" src="/assets/images/photography/life_itself.png"/>
+                <div class="caption">A small plant breaking out of the lava rock</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Mt. Hood with moon" src="/assets/images/photography/hood_moon.png"/>
+                <div class="caption">Moonlight on Mount Hood.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
       </div>
+    </section>
+  </main>
 
-    
-      <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/mira_forest.jpg"
-           data-caption="My partner and I exploring a forest near Mt. Hood, Oregon.">
-    <img src="../assets/images/photography/mira_forest.jpg" alt="Mira Forest">
-      </div>
-
- 
-      <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/bearskull.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-    <img src="../assets/images/photography/bearskull.JPG" alt="Bear Skull">
-      </div>
-
-      <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/cloudspotting.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-    <img src="../assets/images/photography/cloudspotting.JPG" alt="Cloud Spotting">
-      </div>
-
-           <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/drycreek.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-        <img src="../assets/images/photography/drycreek.JPG" alt="Dry Creek">
-      </div>
-
-            <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/heavycloud.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-          <img src="../assets/images/photography/heavycloud.JPG" alt="Heavy Cloud">
-      </div>
-
-            <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/ice_cathedral.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-          <img src="../assets/images/photography/ice_cathedral.JPG" alt="Ice Cathedral">
-      </div>
-
-        <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/volcano.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-      <img src="../assets/images/photography/volcano.JPG" alt="Volcano">
-      </div>
-
-         <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/lightning.jpg"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-      <img src="../assets/images/photography/lightning.jpg" alt="Hawk">
-      </div>
-
-        <div class="gallery-item"
-           data-type="img"
-           data-src="../assets/images/photography/icy_tamanawas.JPG"
-           data-caption="One of the early captures while testing lens choices and exposure pipeline.">
-      <img src="../assets/images/photography/icy_tamanawas.JPG" alt="Icy Tamanawas">
-      </div>
-    </div>
-
-    <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
-      <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-      <span class="lightbox-nav lightbox-prev" onclick="prevLightbox()">&#10094;</span>
-      <div class="lightbox-content" id="lightboxContent"></div>
-      <span class="lightbox-nav lightbox-next" onclick="nextLightbox()">&#10095;</span>
-    </div>
-  </div>
-
-  <!-- Lightbox scripts (same as your other project page) -->
-  <script>
-    const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
-    let currentIndex = 0;
-
-    function openLightbox(type, src, caption) {
-      const contentEl = document.getElementById('lightboxContent');
-      contentEl.classList.remove('show');
-
-      setTimeout(() => {
-        const html = (type === 'img')
-          ? `<div style="display:flex;flex-direction:column;align-items:center;">
-               <img src="${src}" alt="">
-               <div class="lightbox-caption">${caption||''}</div>
-             </div>`
-          : `<div class="video-wrapper">
-               <iframe src="${src}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-             </div>
-             <div class="lightbox-caption">${caption||''}</div>`;
-
-        contentEl.innerHTML = html;
-        requestAnimationFrame(() => contentEl.classList.add('show'));
-      }, 150);
-
-      const lightbox = document.getElementById('lightbox');
-      lightbox.classList.add('show');
-      lightbox.style.display = 'flex';
-    }
-
-    function closeLightbox() {
-      const lightbox = document.getElementById('lightbox');
-      lightbox.classList.remove('show');
-      setTimeout(() => {
-        lightbox.style.display = 'none';
-        document.getElementById('lightboxContent').innerHTML = '';
-      }, 250);
-    }
-
-    function showLightbox(index) {
-      const item = galleryItems[index];
-      openLightbox(item.dataset.type, item.dataset.src, item.dataset.caption);
-      currentIndex = index;
-    }
-    function nextLightbox() {
-      currentIndex = (currentIndex + 1) % galleryItems.length;
-      showLightbox(currentIndex);
-    }
-    function prevLightbox() {
-      currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
-      showLightbox(currentIndex);
-    }
-
-    galleryItems.forEach((item, index) => {
-      item.addEventListener('click', () => showLightbox(index));
-    });
-
-    document.addEventListener('keydown', (e) => {
-      const lightbox = document.getElementById('lightbox');
-      if (!lightbox.classList.contains('show')) return;
-      if (e.key === 'ArrowRight') nextLightbox();
-      if (e.key === 'ArrowLeft')  prevLightbox();
-      if (e.key === 'Escape')     closeLightbox();
-    });
-
-    // Swipe support
-    let touchStartX = 0, touchEndX = 0;
-    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
-    document.addEventListener('touchend',   e => { touchEndX   = e.changedTouches[0].screenX; handleSwipe(); }, {passive:true});
-    function handleSwipe(){
-      const lightbox = document.getElementById('lightbox');
-      if (!lightbox || !lightbox.classList.contains('show')) return;
-      if (touchEndX < touchStartX - 50) nextLightbox();
-      if (touchEndX > touchStartX + 50) prevLightbox();
-    }
-  </script>
-
+  <!-- Main JavaScript -->
   <script src="/assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '/projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

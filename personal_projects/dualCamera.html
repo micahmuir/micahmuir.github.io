@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RABBIT Project - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Project-specific styling */
+    .project-content h1 {
+      color: var(--text-dark);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    
+    .project-content h1:first-child {
+      font-size: 2.5rem;
+      text-align: center;
+      border-bottom: none;
+      margin-bottom: 2rem;
+    }
+    
+    .project-content h3 {
+      color: var(--text-dark);
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin: 1.5rem 0 0.5rem 0;
+    }
+    
+    .project-content p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .project-content ul {
+      margin: 1rem 0;
+      padding-left: 2rem;
+    }
+    
+    .project-content li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+    
+    .simple-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: var(--border-radius-small);
+      overflow: hidden;
+    }
+    
+    .simple-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .simple-table td:first-child {
+      font-weight: 500;
+      background: rgba(var(--accent-rgb), 0.1);
+      border-right: 1px solid var(--border-light);
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>RABBIT Project</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <h1>RABBIT</h1>
+            
+            <table class="simple-table">
+              <tbody>
+                <tr><td>Global Shutter Camera FOV</td><td>TBD</td></tr>
+                <tr><td>IP Address</td><td>Network configurable</td></tr>
+              </tbody>
+            </table>
+
+            <h1>Motivation</h1>
+            <p>A year and a half ago, I had a vision of two dancers on a darkened stage, moving together in a call-response fashion. When moving synchronously, beams of light flared out across space to connect them, but only when they mirrored each other within a certain threshold. I didn't know how I was going to achieve this exactly, but I knew it wasn't impossible.</p>
+
+            <h1>Requirements</h1>
+            <p>This project was borne out of need for a low cost, high-ish performance network camera solution for my interactive spatial projects. I needed a generalized method and hardware to locate a human in 3D space and perform pose estimation.</p>
+            <p>It needed to do the following:</p>
+            <ul>
+              <li>Provide real-time depth imaging alongside simultaneous "regular" imaging</li>
+              <li>Be relatively small</li>
+              <li>Send imaging data across CAT5/6 network cables as fast as possible</li>
+              <li>Leverage a much more powerful central computer to perform GPU calculation</li>
+            </ul>
+
+            <h1>Hardware Build</h1>
+            <h3>Computer Choice</h3>
+            <p>Details about the computer selection process and specifications.</p>
+            
+            <h3>Camera Choice</h3>
+            <p>Analysis of camera options and final selection criteria.</p>
+            
+            <h3>Global vs Rolling</h3>
+            <p>Comparison of global shutter vs rolling shutter for this application.</p>
+
+            <h1>Software Build</h1>
+            <p>Enter TouchDesigner. Although intended as a tool for live entertainment and visuals, I quickly discovered its power as a sort of connective "glue" between the hardware nodes for this project.</p>
+            <p>Yes, I can use it to make pretty pictures, but I can ALSO use it to accept and process real-time camera data, perform pose estimation, and coordinate interactive responses across the network.</p>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="/assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '/projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Palletizing Robot - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail hardware-project">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Palletizing Robot</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <p>I acted as mechanical engineer, then eventually hardware lead on a unique palletizing robot. I designed the metal superstructure for quad-parallel palletizing solution. I worked closely with this machine from concept through to final installation, and provided many additional hardware improvements as we learned more about how this novel system operated in the real world.</p>
+
+            <p>I designed, simulated, and integrated the steel superstructure for this robot so that the company could begin populating the volume with off-the-shelf components. The structure had to be strong enough to allow the upper dual XYZT gantry to accelerate fast enough to palletize four pallets simultaneously.</p>
+
+            <p>This was a R&D project, and I worked closely with it from conception through numerous upgrades and improvements as we utilized it in real-world inbound product scenarios. I worked with this machine through concept and commissioning, as well as through several key system upgrades such as:</p>
+
+            <ul>
+              <li>3D machine vision camera EOAT integration</li>
+              <li>Numerous crash protection safety systems</li>
+              <li>Axis modifications and upgrades</li>
+              <li>Safety compliance systems</li>
+            </ul>
+
+            <!-- Image Gallery -->
+            <div class="image-grid two-column">
+              <div class="image-with-caption">
+                <img alt="Rendered view of palletizing robot" src="combiner_01.png"/>
+                <div class="caption">Rendered view of an early version of the robot. Dual product lanes with built-in singulation ability on every conveyor section allows precise and smart picking by the gantry.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Robot with conveyor ramp" src="combiner_02.png"/>
+                <div class="caption">Shown with ramp connected to human-height conveyor.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="/assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '/projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

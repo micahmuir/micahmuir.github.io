@@ -1,149 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Project Gallery — Small Projects</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Site-wide CSS (applies the cardboard texture via <html> background, tokens, navbar, etc.) -->
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Small Projects - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Project-specific styling */
+    .project-content p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .video-container {
+      margin: 2rem 0;
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      border-radius: var(--border-radius-small);
+      overflow: hidden;
+      box-shadow: var(--shadow-medium);
+    }
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    .video-description {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      text-align: center;
+    }
+  </style>
 </head>
-
-<body id="projects-detail">
-  <!-- Navbar -->
+<body class="project-detail electronics-project">
+  <!-- Navigation -->
   <nav class="navbar">
-    <ul class="nav-links">
-      <li><a href="../index.html">Home</a></li>
-      <li><a href="../resume.html">Resume</a></li>
-      <li><a href="../personal_projects.html">Projects</a></li>
-      <li><a href="../about.html">About</a></li>
-    </ul>
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
   </nav>
 
-  <script>
-    (function(){
-      const links = document.querySelectorAll('.nav-links a');
-      const currentPath = window.location.pathname;
-      links.forEach(link => {
-        if (link.getAttribute('href') === currentPath) link.classList.add('active');
-      });
-    })();
-  </script>
-
-  <div class="page">
-    <!-- Cardstock intro panel (title + paragraph on one paper sheet) -->
-    <section class="paper-panel">
-      <h1 class="page-title">Small Projects</h1>
-      <p>
-         For lack of a better category, here are some smaller projects that don't quite deserve their own page, but are still worth mentioning. 
-      </p>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Small Projects</h1>
+      </div>
     </section>
 
-    <!-- Gallery -->
-    <div class="gallery" id="gallery">
-  
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <p>For lack of a better category, here are some smaller projects that don't quite deserve their own page, but are still worth mentioning.</p>
 
-      <div class="gallery-item" data-type="video" data-src="https://www.youtube.com/embed/aI-L-cnE9OY"
-           data-caption="Directing the output of the ToF camera through an internal Pi4, and out into the panels.">
-        <img src="https://i.ytimg.com/vi/aI-L-cnE9OY/maxresdefault.jpg" alt="Companion Stairlight video">
+            <!-- Video Content -->
+            <div class="video-container">
+              <iframe 
+                src="https://www.youtube.com/embed/aI-L-cnE9OY" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            </div>
+            <div class="video-description">
+              Directing the output of the ToF camera through an internal Pi4, and out into the panels.
+            </div>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
       </div>
- 
-    
-      
+    </section>
+  </main>
 
-
-    </div>
-
-    
-
-     
-
-    <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
-      <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-      <span class="lightbox-nav lightbox-prev" onclick="prevLightbox()">&#10094;</span>
-      <div class="lightbox-content" id="lightboxContent"></div>
-      <span class="lightbox-nav lightbox-next" onclick="nextLightbox()">&#10095;</span>
-    </div>
-  </div>
-
-  <!-- Lightbox scripts -->
+  <!-- Main JavaScript -->
+  <script src="/assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
   <script>
-    const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
-    let currentIndex = 0;
-
-    function openLightbox(type, src, caption) {
-      const contentEl = document.getElementById('lightboxContent');
-      contentEl.classList.remove('show');
-
-      setTimeout(() => {
-        const html = (type === 'img')
-          ? `<div style="display:flex;flex-direction:column;align-items:center;">
-               <img src="${src}" alt="">
-               <div class="lightbox-caption">${caption||''}</div>
-             </div>`
-          : `<div class="video-wrapper">
-               <iframe src="${src}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-             </div>
-             <div class="lightbox-caption">${caption||''}</div>`;
-
-        contentEl.innerHTML = html;
-        requestAnimationFrame(() => contentEl.classList.add('show'));
-      }, 150);
-
-      const lightbox = document.getElementById('lightbox');
-      lightbox.classList.add('show');
-      lightbox.style.display = 'flex';
-    }
-
-    function closeLightbox() {
-      const lightbox = document.getElementById('lightbox');
-      lightbox.classList.remove('show');
-      setTimeout(() => {
-        lightbox.style.display = 'none';
-        document.getElementById('lightboxContent').innerHTML = '';
-      }, 250);
-    }
-
-    function showLightbox(index) {
-      const item = galleryItems[index];
-      openLightbox(item.dataset.type, item.dataset.src, item.dataset.caption);
-      currentIndex = index;
-    }
-    function nextLightbox() {
-      currentIndex = (currentIndex + 1) % galleryItems.length;
-      showLightbox(currentIndex);
-    }
-    function prevLightbox() {
-      currentIndex = (currentIndex - 1 + galleryItems.length) % galleryItems.length;
-      showLightbox(currentIndex);
-    }
-
-    galleryItems.forEach((item, index) => {
-      item.addEventListener('click', () => showLightbox(index));
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '/projects.html') {
+          link.classList.add('active');
+        }
+      });
     });
-
-    document.addEventListener('keydown', (e) => {
-      const lightbox = document.getElementById('lightbox');
-      if (!lightbox.classList.contains('show')) return;
-      if (e.key === 'ArrowRight') nextLightbox();
-      if (e.key === 'ArrowLeft')  prevLightbox();
-      if (e.key === 'Escape')     closeLightbox();
-    });
-
-    // Swipe support
-    let touchStartX = 0, touchEndX = 0;
-    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
-    document.addEventListener('touchend',   e => { touchEndX   = e.changedTouches[0].screenX; handleSwipe(); }, {passive:true});
-    function handleSwipe(){
-      const lightbox = document.getElementById('lightbox');
-      if (!lightbox || !lightbox.classList.contains('show')) return;
-      if (touchEndX < touchStartX - 50) nextLightbox();
-      if (touchEndX > touchStartX + 50) prevLightbox();
-    }
   </script>
-
-  <script src="assets/js/main.js"></script>
 </body>
 </html>

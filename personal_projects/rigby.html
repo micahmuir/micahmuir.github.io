@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIGBY Project - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Project-specific styling */
+    .project-content h1 {
+      color: var(--text-dark);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    
+    .project-content h1:first-child {
+      font-size: 2.5rem;
+      text-align: center;
+      border-bottom: none;
+      margin-bottom: 2rem;
+    }
+    
+    .project-content p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .callout {
+      background: rgba(var(--accent-rgb), 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: var(--border-radius-small);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .callout-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    
+    .callout-content {
+      flex: 1;
+    }
+    
+    .code-block {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 1rem;
+      border-radius: var(--border-radius-small);
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    
+    .startup-section {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: var(--border-radius-small);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-light);
+    }
+    
+    .startup-section h3 {
+      margin: 0 0 1rem 0;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>RIGBY Project</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <h1>RIGBY</h1>
+            
+            <div class="callout">
+              <div class="callout-icon">💡</div>
+              <div class="callout-content">
+                <p>This is the visible, high resolution, static side of the sensing pantheon</p>
+              </div>
+            </div>
+
+            <div class="startup-section">
+              <h3>Startup Commands</h3>
+              <div class="code-block">
+cd /home/micah/Camera/ 
+source visionvenv/bin/activate
+python3 rigby_main.py
+              </div>
+            </div>
+
+            <h1>Motivation</h1>
+            <p>During my development of the system I call RABBIT, I quickly hit a fundamental design split. The need for both high-resolution visual data and real-time depth sensing led to the creation of RIGBY as the visual component of the broader sensing architecture.</p>
+            
+            <p>RIGBY serves as the high-fidelity visual sensor in the network, providing detailed imagery that complements the depth and motion data from other sensors in the system. This distributed approach allows for more sophisticated computer vision applications while maintaining real-time performance.</p>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="/assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '/projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
