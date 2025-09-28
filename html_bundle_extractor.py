@@ -1337,6 +1337,14 @@ class HTMLBundleExtractor:
         else:
             print("No HEIC files found to convert")
         
+        # Embed YouTube videos
+        print("Embedding YouTube videos...")
+        embedded_count = self.embed_youtube_videos(output_dir)
+        if embedded_count > 0:
+            print(f"Embedded {embedded_count} YouTube videos as iframe players")
+        else:
+            print("No YouTube videos found to embed")
+        
         # Find the main HTML file
         # Clean up filenames first
         print("Cleaning up long filenames...")

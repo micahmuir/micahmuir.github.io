@@ -77,6 +77,12 @@ class WebsiteThemeApplicator:
       box-shadow: var(--shadow-heavy);
     }
     
+    /* Video embed styling for gallery compatibility */
+    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
     .caption {
       font-size: 0.9rem;
       color: var(--text-medium);
@@ -410,7 +416,7 @@ class WebsiteThemeApplicator:
             flags=re.DOTALL
         )
         
-        # Wrap multiple images in grid if needed
+        # Wrap multiple images/videos in grid if needed (including YouTube embeds)
         if content.count('image-with-caption') > 1 and 'image-grid' not in content:
             # Simple approach: wrap consecutive image-with-caption divs in grid
             content = re.sub(
@@ -420,11 +426,183 @@ class WebsiteThemeApplicator:
                 flags=re.DOTALL
             )
         
+        # Process YouTube links and convert to gallery-compatible embeds
+        content = self.convert_youtube_links_to_gallery_embeds(content)
+        
         return {
             'title': title,
             'content': content.strip()
         }
     
+    def convert_youtube_links_to_gallery_embeds(self, content):
+        """Convert YouTube links to embedded gallery items"""
+        import re
+        
+        print("    🎥 Processing YouTube links...")
+        
+        # YouTube URL patterns to match (including shorts)
+        youtube_patterns = [
+            r'https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
+            r'https?://(?:www\.)?youtube\.com/watch\?.*?v=([a-zA-Z0-9_-]{11})',
+            r'https?://youtu\.be/([a-zA-Z0-9_-]{11})',
+            r'https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
+            r'https?://(?:www\.)?youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
+        ]
+        
+        youtube_embeds = []
+        total_matches = 0
+        
+        # Process each YouTube pattern
+        for pattern in youtube_patterns:
+            matches = list(re.finditer(pattern, content))
+            total_matches += len(matches)
+            
+            for match in matches:
+                video_id = match.group(1)
+                full_url = match.group(0)
+                print(f"    📹 Found YouTube video: {full_url} (ID: {video_id})")
+                
+                # Try to extract title from nearby text
+                # Look for text in the same paragraph or nearby elements
+                url_start = match.start()
+                url_end = match.end()
+                
+                # Get surrounding context to find potential title
+                context_start = max(0, url_start - 200)
+                context_end = min(len(content), url_end + 200)
+                context = content[context_start:context_end]
+                
+                # Look for potential titles in various patterns
+                title = self.extract_youtube_title_from_context(context, full_url)
+                if not title:
+                    title = f"YouTube Video {video_id}"
+                
+                # Create gallery-compatible embed
+                embed_html = f'''<div class="image-with-caption">
+  <div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; border-radius: var(--border-radius-small); overflow: hidden; box-shadow: var(--shadow-medium); transition: transform var(--transition-medium);">
+    <iframe 
+        src="https://www.youtube.com/embed/{video_id}" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+    </iframe>
+  </div>
+  <div class="caption">{title}</div>
+</div>'''
+                
+                youtube_embeds.append((full_url, embed_html))
+        
+        # Replace YouTube URLs with embeds
+        for url, embed in youtube_embeds:
+            # Handle URLs inside <a> tags - be more specific about the replacement
+            link_pattern = rf'<a[^>]*href="{re.escape(url)}"[^>]*>[^<]*{re.escape(url)}[^<]*</a>'
+            link_matches = re.findall(link_pattern, content, re.DOTALL | re.IGNORECASE)
+            
+            if link_matches:
+                # Replace the entire <a> tag
+                content = re.sub(link_pattern, embed, content, flags=re.DOTALL | re.IGNORECASE)
+                print(f"    🔗 Replaced YouTube link in <a> tag: {url}")
+            else:
+                # Replace plain URL
+                if url in content:
+                    content = content.replace(url, embed)
+                    print(f"    📝 Replaced plain YouTube URL: {url}")
+        
+        # Also handle YouTube URLs in href attributes and complex structures
+        def replace_youtube_href(match):
+            full_match = match.group(0)
+            href_value = match.group(1)
+            
+            # Check if this is a YouTube URL
+            for pattern in [
+                r'https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
+                r'https?://(?:www\.)?youtube\.com/watch\?.*?v=([a-zA-Z0-9_-]{11})',
+                r'https?://youtu\.be/([a-zA-Z0-9_-]{11})',
+                r'https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
+                r'https?://(?:www\.)?youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
+            ]:
+                video_match = re.search(pattern, href_value)
+                if video_match:
+                    video_id = video_match.group(1)                    # Try to get link text as title
+                    link_text_match = re.search(r'<a[^>]*>([^<]*)</a>', full_match)
+                    title = "YouTube Video"
+                    if link_text_match:
+                        link_text = link_text_match.group(1).strip()
+                        if link_text and link_text != href_value:
+                            title = link_text
+                    
+                    # Create gallery-compatible embed
+                    embed_html = f'''<div class="image-with-caption">
+  <div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; border-radius: var(--border-radius-small); overflow: hidden; box-shadow: var(--shadow-medium); transition: transform var(--transition-medium);">
+    <iframe 
+        src="https://www.youtube.com/embed/{video_id}" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+    </iframe>
+  </div>
+  <div class="caption">{title}</div>
+</div>'''
+                    return embed_html
+            
+            return full_match
+        
+        # Replace YouTube links in href attributes
+        original_content_before_href = content
+        content = re.sub(r'<a[^>]*href="([^"]*youtube[^"]*)"[^>]*>.*?</a>', replace_youtube_href, content, flags=re.DOTALL | re.IGNORECASE)
+        
+        if content != original_content_before_href:
+            print(f"    ✅ Replaced YouTube links in href attributes")
+        
+        total_embeds = len(youtube_embeds) + (1 if content != original_content_before_href else 0)
+        if total_embeds > 0:
+            print(f"    ✅ Converted {total_embeds} YouTube links to gallery embeds")
+        elif total_matches > 0:
+            print(f"    ⚠️  Found {total_matches} YouTube URLs but couldn't convert them")
+        else:
+            print(f"    ℹ️  No YouTube links found")
+        
+        return content
+    
+    def extract_youtube_title_from_context(self, context, url):
+        """Extract potential title for YouTube video from surrounding context"""
+        import re
+        
+        # Look for text patterns that could be titles
+        # Common patterns: text before the URL, in same paragraph, or in headers
+        
+        # Split context by the URL to get before/after
+        parts = context.split(url)
+        if len(parts) >= 2:
+            before_url = parts[0]
+            
+            # Look for text in headers near the URL
+            header_match = re.search(r'<h[1-6][^>]*>([^<]+)</h[1-6]>', before_url, re.IGNORECASE)
+            if header_match:
+                title = header_match.group(1).strip()
+                if len(title) < 100:
+                    return title
+            
+            # Look for text in same paragraph
+            para_match = re.search(r'<p[^>]*>([^<]*(?:<[^>]*>[^<]*)*)</p>$', before_url, re.IGNORECASE)
+            if para_match:
+                title = re.sub(r'<[^>]*>', '', para_match.group(1)).strip()
+                if title and len(title) < 100 and not title.startswith('http'):
+                    return title
+            
+            # Look for text immediately before URL (same line)
+            text_before = before_url.split('\n')[-1] if '\n' in before_url else before_url
+            text_before = re.sub(r'<[^>]*>', '', text_before).strip()
+            if text_before and len(text_before) < 100 and not text_before.startswith('http'):
+                # Remove common prefixes
+                text_before = re.sub(r'^(video:|watch:|link:|see:)\s*', '', text_before, flags=re.IGNORECASE)
+                if text_before:
+                    return text_before
+        
+        return None
+
     def process_html_file(self, html_file, template, backup_dir=None):
         """Process a single HTML file and apply the theme"""
         html_file = Path(html_file)
