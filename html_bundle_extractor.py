@@ -178,6 +178,135 @@ class HTMLBundleExtractor:
         if updated_files > 0:
             print(f"    ✓ Updated HEIC references in {updated_files} HTML files")
     
+    def embed_youtube_videos(self, output_dir):
+        """Convert YouTube links to embedded iframe players"""
+        html_files = self.find_html_files(output_dir)
+        
+        if not html_files:
+            return 0
+        
+        updated_files = 0
+        total_embeddings = 0
+        
+        # YouTube URL patterns to match
+        youtube_patterns = [
+            r'https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
+            r'https?://(?:www\.)?youtube\.com/watch\?.*?v=([a-zA-Z0-9_-]{11})',
+            r'https?://youtu\.be/([a-zA-Z0-9_-]{11})',
+            r'https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
+        ]
+        
+        for html_file in html_files:
+            try:
+                with open(html_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                original_content = content
+                embeddings_in_file = 0
+                
+                # Process each YouTube pattern
+                for pattern in youtube_patterns:
+                    matches = re.finditer(pattern, content)
+                    
+                    for match in matches:
+                        video_id = match.group(1)
+                        full_url = match.group(0)
+                        
+                        # Create iframe embed code
+                        iframe_html = f'''<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/{video_id}" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div>'''
+                        
+                        # Check if this URL is inside an <a> tag or just plain text
+                        # Find the position of the URL in the content
+                        url_start = match.start()
+                        url_end = match.end()
+                        
+                        # Look backwards to see if it's inside an <a> tag
+                        before_text = content[:url_start]
+                        after_text = content[url_end:]
+                        
+                        # Find the last opening <a> tag before this URL
+                        last_a_open = before_text.rfind('<a ')
+                        last_a_close = before_text.rfind('</a>')
+                        
+                        # If there's an opening <a> tag after the last closing </a> tag, 
+                        # this URL is inside a link
+                        if last_a_open > last_a_close and last_a_open != -1:
+                            # Replace the entire <a>...</a> tag containing this URL
+                            # Find the closing </a> tag after this URL
+                            next_a_close = after_text.find('</a>')
+                            if next_a_close != -1:
+                                # Replace from start of <a> tag to end of </a> tag
+                                a_tag_start = before_text.rfind('<a ', last_a_open)
+                                a_tag_end = url_end + next_a_close + 4  # +4 for "</a>"
+                                
+                                # Replace the entire <a>...</a> with the iframe
+                                content = content[:a_tag_start] + iframe_html + content[a_tag_end:]
+                                embeddings_in_file += 1
+                                continue
+                        
+                        # If not in an <a> tag, just replace the URL directly
+                        content = content.replace(full_url, iframe_html)
+                        embeddings_in_file += 1
+                
+                # Also look for YouTube links in href attributes and replace them
+                def replace_youtube_href(match):
+                    full_match = match.group(0)
+                    href_value = match.group(1)
+                    
+                    # Check if this is a YouTube URL
+                    for pattern in youtube_patterns:
+                        video_match = re.search(pattern, href_value)
+                        if video_match:
+                            video_id = video_match.group(1)
+                            
+                            # Create iframe embed for href replacement
+                            iframe_html = f'''<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/{video_id}" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div>'''
+                            return iframe_html
+                    
+                    return full_match
+                
+                # Replace YouTube links in href attributes  
+                original_before_href = content
+                content = re.sub(r'<a[^>]*href="([^"]*youtube[^"]*)"[^>]*>.*?</a>', replace_youtube_href, content, flags=re.DOTALL | re.IGNORECASE)
+                
+                if content != original_before_href:
+                    href_replacements = content.count('<iframe') - original_before_href.count('<iframe')
+                    embeddings_in_file += href_replacements
+                
+                # Write back if content changed
+                if content != original_content:
+                    with open(html_file, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    updated_files += 1
+                    total_embeddings += embeddings_in_file
+                    
+                if embeddings_in_file > 0:
+                    print(f"    ✓ Embedded {embeddings_in_file} YouTube video(s) in {html_file.name}")
+                    
+            except Exception as e:
+                print(f"    ⚠ Could not process YouTube videos in {html_file.name}: {e}")
+        
+        if updated_files > 0:
+            print(f"    ✓ Embedded YouTube videos in {updated_files} HTML files ({total_embeddings} total videos)")
+        
+        return total_embeddings
+    
     def reprocess_extracted_directory(self, directory_path):
         """Re-process an already extracted directory to fix navigation links"""
         directory_path = Path(directory_path)

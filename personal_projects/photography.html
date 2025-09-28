@@ -65,7 +65,7 @@
     <!-- Header -->
     <section class="hero" style="padding: 4rem 0 2rem;">
       <div class="container">
-        <h1> Digital Nature Photography</h1>
+        <h1> Photography</h1>
       </div>
     </section>
 
@@ -74,7 +74,7 @@
       <div class="container">
         <div class="paper-panel">
           <div class="project-content">
-            <p>I got my first camera when I was 10 years old, and immediately fell in love. Growing up always travelling between places teaches you to pack light. A camera became my one "big thing" I brought along, because in my mind, a photo is weightless, so a camera represents infinite capacity. </p>
+            <p>I got my first camera when I was 10 years old, and immediately fell in love. Growing up always travelling between places teaches you to pack light. A camera became my one "big thing" I brought along, because in my mind, a photo is weightless, so a camera represents infinite capacity.</p>
 
             <!-- Photography Gallery -->
             <div class="photography-grid">
@@ -100,38 +100,26 @@
               </div>
               <div class="image-with-caption">
                 <img alt="Heavy cloud cover" src="/assets/images/photography/heavycloud.JPG"/>
-                <div class="caption">A heavy cloud lingering over The Grand Canyon.</div>
+                <div class="caption">A big storm system lingering over the Grand Canyon.</div>
               </div>
               <div class="image-with-caption">
-                <img alt="Ice cathedral formation" src="/assets/images/photography/ice_cathedral.JPG"/>
-                <div class="caption">Dripping water freezes on impact, slowly building an above-ground stalagmite in New Mexico .</div>
+                <img alt="Ice formations" src="/assets/images/photography/ice_cathedral.JPG"/>
+                <div class="caption">Dripping water freezes on impact, slowly building an above-ground ice stalagmite in New Mexico.</div>
               </div>
               <div class="image-with-caption">
-                <img alt="Icy Tamanawas Falls" src="/assets/images/photography/icy_tamanawas.JPG"/>
-                <div class="caption">Tamanawas Falls in the winter.</div>
+                <img alt="Icy waterfall" src="/assets/images/photography/icy_tamanawas.JPG"/>
+                <div class="caption">Tamanawas Falls in winter.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Detailed ice formations" src="/assets/images/photography/icy_tamanaswas2.JPG"/>
+                <div class="caption">More ice formations at Tamanawas Falls.</div>
               </div>
               <div class="image-with-caption">
                 <img alt="Lightning strike" src="/assets/images/photography/lightning.jpg"/>
-                <div class="caption">Lightning captured above Lake Wateree, South Carolina.</div>
+                <div class="caption">Lightning above Lake Wateree, South Carolina.</div>
               </div>
               <div class="image-with-caption">
-                <img alt="Volcano landscape" src="/assets/images/photography/volcano.JPG"/>
-                <div class="caption">Steam plumes rising from the ocean as lava cascades in. Hawaii.</div>
-              </div>
-              <div class="image-with-caption">
-                <img alt="Cold Spring Creek" src="/assets/images/photography/coldspringcreek.JPG"/>
-                <div class="caption">Cold Spring Creek winding through the forest.</div>
-              </div>
-              <div class="image-with-caption">
-                <img alt="Icy Tamanawas Falls - winter view" src="/assets/images/photography/icy_tamanaswas2.JPG"/>
-                <div class="caption">Another perspective of Tamanawas Falls in winter.</div>
-              </div>
-              <div class="image-with-caption">
-                <img alt="Volcanic landscape - real capture" src="/assets/images/photography/volcano_real.png"/>
-                <div class="caption">Raw volcanic terrain captured as night falls.</div>
-              </div>
-              <div class="image-with-caption">
-                <img alt="Mono Lake landscape" src="/assets/images/photography/mono_lake.png"/>
+                <img alt="Sunrise at Mono Lake" src="/assets/images/photography/mono_lake.png"/>
                 <div class="caption">Sunrise at Mono Lake, California.</div>
               </div>
               <div class="image-with-caption">
@@ -148,41 +136,60 @@
               </div>
               <div class="image-with-caption">
                 <img alt="New York cityscape" src="/assets/images/photography/new york.png"/>
-                <div class="caption">Portrait of a friend in New York City.</div>
+                <div class="caption">New York</div>
               </div>
               <div class="image-with-caption">
-                <img alt="Life itself - abstract nature" src="/assets/images/photography/life_itself.png"/>
-                <div class="caption">A small plant breaking out of the lava rock</div>
+                <img alt="Volcanic landscape" src="/assets/images/photography/volcano_real.png"/>
+                <div class="caption">Volcanic landscape</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Life persisting through hardship" src="/assets/images/photography/life_itself.png"/>
+                <div class="caption">A plant growing through lava rock</div>
               </div>
               <div class="image-with-caption">
                 <img alt="Mt. Hood with moon" src="/assets/images/photography/hood_moon.png"/>
-                <div class="caption">Moonlight on Mount Hood.</div>
+                <div class="caption">Mt. Hood with moon visible</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Cold Spring Creek" src="/assets/images/photography/coldspringcreek.JPG"/>
+                <div class="caption">Cold Spring Creek winding through the forest</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Hawaiian lava flow" src="/assets/images/photography/volcano.JPG"/>
+                <div class="caption">Lava cascading into the ocean in Hawaii</div>
               </div>
             </div>
+
+            <!-- Back Link -->
+            <div style="text-align: center; margin-top: 3rem;">
+              <a href="/projects.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.5rem; background: var(--bg-medium); border: 2px solid transparent; border-radius: var(--border-radius); color: var(--primary-color); text-decoration: none; font-weight: 500; transition: all var(--transition-medium);">
+                ← Back to Projects
+              </a>
+            </div>
           </div>
-        </div>
-        
-        <!-- Back to Projects -->
-        <div class="text-center mt-3">
-          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Main JavaScript -->
-  <script src="/assets/js/main.js"></script>
-  
   <!-- JavaScript for active navigation -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      const currentPath = window.location.pathname;
       const navLinks = document.querySelectorAll('.nav-links a');
+      
       navLinks.forEach(link => {
-        if (link.getAttribute('href') === '/projects.html') {
+        const href = link.getAttribute('href');
+        if (href === '/projects.html') {
           link.classList.add('active');
+        } else {
+          link.classList.remove('active');
         }
       });
     });
   </script>
+  
+  <!-- Include main.js for navbar auto-hide functionality -->
+  <script src="/assets/js/main.js"></script>
 </body>
 </html>

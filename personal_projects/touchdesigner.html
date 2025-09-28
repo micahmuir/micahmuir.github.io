@@ -7,25 +7,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
   <style>
-    /* Project-specific styling */
+    /* TouchDesigner-specific theme colors */
+    .touchdesigner-project {
+      --page-primary: 120, 20, 100;    /* Purple */
+      --page-secondary: 140, 60, 180; /* Lighter purple */
+      --page-accent: 200, 100, 255;    /* Light purple */
+    }
+
+    /* Project content styling */
     .project-content p {
       margin-bottom: 1rem;
       line-height: 1.6;
     }
     
+    /* Video Grid - Similar to Photography Grid */
     .video-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
       margin: 2rem 0;
     }
     
     .video-item {
-      background: white;
-      border-radius: var(--border-radius-small);
-      padding: 1rem;
+      position: relative;
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      overflow: hidden;
       box-shadow: var(--shadow-medium);
-      transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+      transition: all var(--transition-medium);
+      background: var(--bg-light);
     }
     
     .video-item:hover {
@@ -33,29 +43,223 @@
       box-shadow: var(--shadow-heavy);
     }
     
-    .video-container {
+    .video-thumbnail {
       position: relative;
       width: 100%;
-      height: 0;
-      padding-bottom: 56.25%; /* 16:9 aspect ratio */
-      border-radius: var(--border-radius-small);
-      overflow: hidden;
-      margin-bottom: 1rem;
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #000;
     }
     
-    .video-container iframe {
+    .play-button {
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #333;
+      transition: all var(--transition-medium);
+    }
+    
+    .video-item:hover .play-button {
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+    
+    .video-overlay {
       position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+      color: white;
+      padding: 2rem 1rem 1rem;
+      opacity: 0;
+      transition: opacity var(--transition-medium);
+    }
+    
+    .video-item:hover .video-overlay {
+      opacity: 1;
+    }
+    
+    .video-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
     }
     
     .video-description {
-      font-size: 0.9rem;
-      color: var(--text-medium);
+      font-size: 0.85rem;
       line-height: 1.4;
+      opacity: 0.9;
+    }
+
+    /* Gallery Modal */
+    .gallery-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(5px);
+    }
+
+    .gallery-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .gallery-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gallery-video {
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .gallery-info {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      color: white;
+      text-align: center;
+      margin-top: 1.5rem;
+      max-width: 800px;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+    }
+
+    .gallery-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .gallery-description {
+      font-size: 1rem;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    .gallery-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color var(--transition-fast);
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .gallery-close:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .gallery-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.7);
+      border: none;
+      padding: 1rem;
+      border-radius: 50%;
+      transition: background-color var(--transition-fast);
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .gallery-nav:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .gallery-prev {
+      left: 20px;
+    }
+
+    .gallery-next {
+      right: 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .video-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+      
+      .video-thumbnail {
+        height: 200px;
+      }
+      
+      .gallery-nav {
+        display: none;
+      }
+      
+      .gallery-close {
+        top: 10px;
+        right: 10px;
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+      }
+
+      .gallery-content {
+        max-width: 95vw;
+        max-height: 95vh;
+      }
+
+      .gallery-info {
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -88,97 +292,8 @@
             <p>Here are my experiments and investigations with TouchDesigner. I started learning TouchDesigner seriously at the start of 2025, and it's quickly become my go-to swiss army knife tool for interacting with data and hardware.</p>
 
             <!-- Video Gallery -->
-            <div class="video-grid">
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/otG2o5SEMO0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  This is a particle system I'm simulating with a compute shader, and rendering with instancing. The force input to the system is provided by a live point cloud input from a generalized lidar scan, and used with a blob detector to track the UV positions of an arbitrary number of blobs. 2D lines are drawn when blobs are close enough, and interact as attractors and repellers to another point cloud layer. Additional effects were created with TOPs in TouchDesigner.
-                </div>
-              </div>
-
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/8Lr2bAI5sjk" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  A particle system interaction using a leap motion device. I instanced the joint locations to become attractors to a basic simulation.
-                </div>
-              </div>
-
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/tef3gADUe9g" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  Another lidar UV projection mapping experiment.
-                </div>
-              </div>
-
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/j_7EeqCTrwI" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  This was a semi-successful experiment to see if I could 3D print a Chladni plate functional enough to achieve resonance. It worked better than I expected, however not as well as some of the extra-rigid steel plates normally used in these demonstrations. Still, TouchDesigner was used to map the dials of a midi keyboard to the driving frequency of the current through a solenoid, whose field acted on the tiny magnet glued to the center of the somewhat wobbly plate. Still, resonance was achieved at a number of harmonics. It proves that I could build an interactive exhibit where some sensor input could visibly change the salt patterns for a viewer.
-                </div>
-              </div>
-
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/ytpllJccHts" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  Live ToF camera depth map is captured by a Raspberry Pi and sent over UDP to TouchDesigner, where the depth information is used to create a number of masks that are projected back onto the physical scene.
-                </div>
-              </div>
-
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/NGeER6sxBN8" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  Another view of the live action ToF depth mapping and projection setup.
-                </div>
-              </div>
-
-              <div class="video-item">
-                <div class="video-container">
-                  <iframe 
-                    src="https://www.youtube.com/embed/C5aKc9JWSPw" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                  </iframe>
-                </div>
-                <div class="video-description">
-                  I built this prototype luminaire out of 32x64 P2.5 HUB75 panels, with a Teensy 4.1 and a LED smartshield interfacing with the panels. Graphic output from TouchDesigner was streamed to the teensy via Ethernet, and displayed on the luminaire at a high framerate.
-                </div>
-              </div>
+            <div class="video-grid" id="videoGrid">
+              <!-- Videos will be dynamically generated by JavaScript -->
             </div>
           </div>
         </div>
@@ -191,18 +306,204 @@
     </section>
   </main>
 
+  <!-- Gallery Modal -->
+  <div class="gallery-modal" id="galleryModal">
+    <div class="gallery-content">
+      <button class="gallery-close" id="galleryClose" title="Close">&times;</button>
+      <button class="gallery-nav gallery-prev" id="galleryPrev" title="Previous">‹</button>
+      <iframe class="gallery-video" id="galleryVideo" src="" allowfullscreen></iframe>
+      <button class="gallery-nav gallery-next" id="galleryNext" title="Next">›</button>
+      <div class="gallery-info">
+        <div class="gallery-title" id="galleryTitle"></div>
+        <div class="gallery-description" id="galleryDescription"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Main JavaScript -->
   <script src="/assets/js/main.js"></script>
   
-  <!-- JavaScript for active navigation -->
+  <!-- TouchDesigner Gallery JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Set active navigation
       const navLinks = document.querySelectorAll('.nav-links a');
       navLinks.forEach(link => {
         if (link.getAttribute('href') === '/projects.html') {
           link.classList.add('active');
         }
       });
+
+      // Video data
+      const videos = [
+        {
+          id: "otG2o5SEMO0",
+          title: "Particle System with Lidar Input",
+          description: "This is a particle system I'm simulating with a compute shader, and rendering with instancing. The force input to the system is provided by a live point cloud input from a generalized lidar scan, and used with a blob detector to track the UV positions of an arbitrary number of blobs. 2D lines are drawn when blobs are close enough, and interact as attractors and repellers to another point cloud layer. Additional effects were created with TOPs in TouchDesigner."
+        },
+        {
+          id: "8Lr2bAI5sjk",
+          title: "Leap Motion Particle Interaction",
+          description: "A particle system interaction using a leap motion device. I instanced the joint locations to become attractors to a basic simulation."
+        },
+        {
+          id: "tef3gADUe9g",
+          title: "Lidar UV Projection Mapping",
+          description: "Another lidar UV projection mapping experiment."
+        },
+        {
+          id: "j_7EeqCTrwI",
+          title: "3D Printed Chladni Plate",
+          description: "This was a semi-successful experiment to see if I could 3D print a Chladni plate functional enough to achieve resonance. It worked better than I expected, however not as well as some of the extra-rigid steel plates normally used in these demonstrations. Still, TouchDesigner was used to map the dials of a midi keyboard to the driving frequency of the current through a solenoid, whose field acted on the tiny magnet glued to the center of the somewhat wobbly plate. Still, resonance was achieved at a number of harmonics. It proves that I could build an interactive exhibit where some sensor input could visibly change the salt patterns for a viewer."
+        },
+        {
+          id: "ytpllJccHts",
+          title: "ToF Camera Depth Mapping",
+          description: "Live ToF camera depth map is captured by a Raspberry Pi and sent over UDP to TouchDesigner, where the depth information is used to create a number of masks that are projected back onto the physical scene."
+        },
+        {
+          id: "NGeER6sxBN8",
+          title: "Live Depth Mapping Projection",
+          description: "Another view of the live action ToF depth mapping and projection setup."
+        },
+        {
+          id: "C5aKc9JWSPw",
+          title: "LED Panel Luminaire",
+          description: "I built this prototype luminaire out of 32x64 P2.5 HUB75 panels, with a Teensy 4.1 and a LED smartshield interfacing with the panels. Graphic output from TouchDesigner was streamed to the teensy via Ethernet, and displayed on the luminaire at a high framerate."
+        }
+      ];
+
+      // Generate video grid
+      const videoGrid = document.getElementById('videoGrid');
+      videos.forEach((video, index) => {
+        const videoItem = document.createElement('div');
+        videoItem.className = 'video-item';
+        videoItem.setAttribute('data-video-index', index);
+        
+        videoItem.innerHTML = `
+          <div class="video-thumbnail" style="background-image: url('https://img.youtube.com/vi/${video.id}/maxresdefault.jpg')">
+            <div class="play-button">▶</div>
+            <div class="video-overlay">
+              <div class="video-title">${video.title}</div>
+              <div class="video-description">${video.description.length > 120 ? video.description.substring(0, 120) + '...' : video.description}</div>
+            </div>
+          </div>
+        `;
+        
+        videoGrid.appendChild(videoItem);
+      });
+
+      // Modal functionality
+      const modal = document.getElementById('galleryModal');
+      const modalVideo = document.getElementById('galleryVideo');
+      const modalTitle = document.getElementById('galleryTitle');
+      const modalDescription = document.getElementById('galleryDescription');
+      const closeBtn = document.getElementById('galleryClose');
+      const prevBtn = document.getElementById('galleryPrev');
+      const nextBtn = document.getElementById('galleryNext');
+      
+      let currentVideoIndex = 0;
+
+      function openModal(index) {
+        currentVideoIndex = index;
+        const video = videos[index];
+        
+        modalVideo.src = `https://www.youtube.com/embed/${video.id}?autoplay=1`;
+        modalTitle.textContent = video.title;
+        modalDescription.textContent = video.description;
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.remove('active');
+        modalVideo.src = '';
+        document.body.style.overflow = '';
+      }
+
+      function showVideo(index) {
+        if (index < 0) index = videos.length - 1;
+        if (index >= videos.length) index = 0;
+        
+        currentVideoIndex = index;
+        const video = videos[index];
+        
+        modalVideo.src = `https://www.youtube.com/embed/${video.id}?autoplay=1`;
+        modalTitle.textContent = video.title;
+        modalDescription.textContent = video.description;
+      }
+
+      // Event listeners
+      videoGrid.addEventListener('click', function(e) {
+        const videoItem = e.target.closest('.video-item');
+        if (videoItem) {
+          const index = parseInt(videoItem.getAttribute('data-video-index'));
+          openModal(index);
+        }
+      });
+
+      closeBtn.addEventListener('click', closeModal);
+      
+      prevBtn.addEventListener('click', function() {
+        showVideo(currentVideoIndex - 1);
+      });
+      
+      nextBtn.addEventListener('click', function() {
+        showVideo(currentVideoIndex + 1);
+      });
+
+      // Close modal on background click
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', function(e) {
+        if (!modal.classList.contains('active')) return;
+        
+        switch(e.key) {
+          case 'Escape':
+            closeModal();
+            break;
+          case 'ArrowLeft':
+            showVideo(currentVideoIndex - 1);
+            break;
+          case 'ArrowRight':
+            showVideo(currentVideoIndex + 1);
+            break;
+        }
+      });
+
+      // Touch/swipe support for mobile
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      modal.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+      });
+
+      modal.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      });
+
+      function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+          if (diff > 0) {
+            // Swiped left - next video
+            showVideo(currentVideoIndex + 1);
+          } else {
+            // Swiped right - previous video
+            showVideo(currentVideoIndex - 1);
+          }
+        }
+      }
     });
   </script>
 </body>

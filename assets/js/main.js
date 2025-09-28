@@ -4,6 +4,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize all functionality
   initNavigation();
+  initNavbarAutoHide();
   initAnimations();
   initSmoothScrollling();
   initProjectSectionMemory();
@@ -34,6 +35,36 @@ function initNavigation() {
         link.classList.add('active');
       }
     }
+  });
+}
+
+// Navbar auto-hide on scroll for all screen sizes
+function initNavbarAutoHide() {
+  const navbar = document.querySelector('.navbar');
+  let lastScrollTop = 0;
+  let scrollTimeout;
+  
+  window.addEventListener('scroll', function() {
+    clearTimeout(scrollTimeout);
+    
+    scrollTimeout = setTimeout(function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Apply auto-hide on all screen sizes
+      if (scrollTop <= 50) {
+        // At the very top of the page - show navbar fully
+        navbar.classList.remove('navbar-hidden');
+        navbar.classList.add('navbar-visible');
+      } else if (scrollTop > lastScrollTop && scrollTop > 100) {
+        // Scrolling down and past header - hide navbar (90% disappears)
+        navbar.classList.add('navbar-hidden');
+        navbar.classList.remove('navbar-visible');
+      }
+      // Note: Scrolling up does NOT show navbar unless at very top
+      // This matches the requirement "doesn't fully reappear until scrolling all the way back up"
+      
+      lastScrollTop = scrollTop;
+    }, 10); // Debounce scroll events
   });
 }
 

@@ -90,9 +90,9 @@ html {
   font-size: 16px;
   scroll-behavior: smooth;
   background: linear-gradient(135deg, 
-    rgba(var(--page-primary), 0.02) 0%, 
-    rgba(var(--page-secondary), 0.03) 50%, 
-    rgba(var(--neutral-rgb), 0.04) 100%);
+    rgba(var(--page-primary), 0.15) 0%, 
+    rgba(var(--page-secondary), 0.12) 50%, 
+    rgba(var(--neutral-rgb), 0.25) 100%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -160,6 +160,17 @@ a:hover {
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 1rem 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Navbar auto-hide states for mobile */
+.navbar.navbar-hidden {
+  transform: translateY(-80%);
+  opacity: 0.1;
+}
+
+.navbar.navbar-visible {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .nav-container {
