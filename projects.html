@@ -233,9 +233,14 @@
       const personalSection = document.getElementById('personalSection');
       const professionalSection = document.getElementById('professionalSection');
       
-      // Check for saved preference, default to professional only on first visit
+      // Check for saved preference, default to professional projects
       const savedSection = localStorage.getItem('lastProjectSection');
       const initialSection = savedSection || 'professional';
+      
+      // If no preference is saved, set professional as the default
+      if (!savedSection) {
+        localStorage.setItem('lastProjectSection', 'professional');
+      }
       
       // Set initial state based on saved preference or default
       setActiveSection(initialSection);
