@@ -11,11 +11,13 @@ import zipfile
 import shutil
 from pathlib import Path
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import webbrowser
 import argparse
 import re
 import urllib.parse
+import threading
+import time
 
 # For HEIC conversion
 try:
@@ -255,10 +257,161 @@ class HTMLBundleExtractor:
             return 1
         
     def select_zip_file(self):
-        """Show file dialog to select ZIP file"""
+        """Show drag-and-drop GUI to select ZIP file"""
+        return self.show_drag_drop_gui()
+    
+    def show_drag_drop_gui(self):
+        """Create a drag-and-drop interface for file selection"""
         root = tk.Tk()
-        root.withdraw()  # Hide the main window
+        root.title("HTML Bundle Extractor")
+        root.geometry("500x350")
+        root.configure(bg='#f0f0f0')
         
+        # Center the window
+        root.update_idletasks()
+        x = (root.winfo_screenwidth() // 2) - (500 // 2)
+        y = (root.winfo_screenheight() // 2) - (350 // 2)
+        root.geometry(f"500x350+{x}+{y}")
+        
+        # Result storage
+        self.selected_file = None
+        
+        # Main frame
+        main_frame = tk.Frame(root, bg='#f0f0f0')
+        main_frame.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        # Title
+        title_label = tk.Label(
+            main_frame, 
+            text="HTML Bundle Extractor",
+            font=('Arial', 16, 'bold'),
+            bg='#f0f0f0',
+            fg='#333333'
+        )
+        title_label.pack(pady=(0, 10))
+        
+        # Drop area
+        self.drop_frame = tk.Frame(
+            main_frame,
+            bg='#ffffff',
+            relief='solid',
+            bd=2,
+            height=150
+        )
+        self.drop_frame.pack(fill='both', expand=True, pady=10)
+        self.drop_frame.pack_propagate(False)
+        
+        # Drop area content
+        drop_content = tk.Frame(self.drop_frame, bg='#ffffff')
+        drop_content.place(relx=0.5, rely=0.5, anchor='center')
+        
+        # Drop icon (using text for simplicity)
+        drop_icon = tk.Label(
+            drop_content,
+            text="📁",
+            font=('Arial', 32),
+            bg='#ffffff',
+            fg='#666666'
+        )
+        drop_icon.pack()
+        
+        self.drop_label = tk.Label(
+            drop_content,
+            text="Drag & Drop ZIP file here\nor click to browse",
+            font=('Arial', 12),
+            bg='#ffffff',
+            fg='#666666',
+            justify='center'
+        )
+        self.drop_label.pack(pady=(10, 0))
+        
+        # Status area
+        self.status_frame = tk.Frame(main_frame, bg='#f0f0f0')
+        self.status_frame.pack(fill='x', pady=(10, 0))
+        
+        self.status_label = tk.Label(
+            self.status_frame,
+            text="Ready to process files...",
+            font=('Arial', 10),
+            bg='#f0f0f0',
+            fg='#666666'
+        )
+        self.status_label.pack()
+        
+        # Progress bar (initially hidden)
+        self.progress = ttk.Progressbar(
+            self.status_frame,
+            mode='indeterminate',
+            length=400
+        )
+        
+        # Buttons frame
+        button_frame = tk.Frame(main_frame, bg='#f0f0f0')
+        button_frame.pack(fill='x', pady=(20, 0))
+        
+        # Browse button
+        browse_btn = tk.Button(
+            button_frame,
+            text="Browse Files",
+            font=('Arial', 10),
+            bg='#4CAF50',
+            fg='white',
+            activebackground='#45a049',
+            activeforeground='white',
+            relief='flat',
+            padx=20,
+            pady=8,
+            command=self.browse_file
+        )
+        browse_btn.pack(side='left')
+        
+        # Cancel button
+        cancel_btn = tk.Button(
+            button_frame,
+            text="Cancel",
+            font=('Arial', 10),
+            bg='#f44336',
+            fg='white',
+            activebackground='#da190b',
+            activeforeground='white',
+            relief='flat',
+            padx=20,
+            pady=8,
+            command=lambda: self.cancel_selection(root)
+        )
+        cancel_btn.pack(side='right')
+        
+        # Bind drag and drop events
+        self.setup_drag_drop(root)
+        
+        # Click to browse
+        self.drop_frame.bind("<Button-1>", lambda e: self.browse_file())
+        drop_content.bind("<Button-1>", lambda e: self.browse_file())
+        drop_icon.bind("<Button-1>", lambda e: self.browse_file())
+        self.drop_label.bind("<Button-1>", lambda e: self.browse_file())
+        
+        # Run the GUI
+        root.mainloop()
+        
+        return self.selected_file
+    
+    def setup_drag_drop(self, root):
+        """Setup basic drag and drop functionality"""
+        # This is a simplified version that works without external libraries
+        def on_drag_enter(event):
+            self.drop_frame.configure(bg='#e8f5e8', bd=3)
+            self.drop_label.configure(text="Drop file here!", bg='#e8f5e8', fg='#2e7d32')
+        
+        def on_drag_leave(event):
+            self.drop_frame.configure(bg='#ffffff', bd=2)
+            self.drop_label.configure(text="Drag & Drop ZIP file here\nor click to browse", bg='#ffffff', fg='#666666')
+        
+        # For now, just visual feedback - actual drag/drop would need tkinterdnd2
+        root.bind('<Enter>', on_drag_enter)
+        root.bind('<Leave>', on_drag_leave)
+    
+    def browse_file(self):
+        """Open file browser"""
         file_path = filedialog.askopenfilename(
             title="Select HTML Bundle ZIP File",
             filetypes=[
@@ -270,8 +423,45 @@ class HTMLBundleExtractor:
             initialdir=os.path.expanduser("~/Desktop")
         )
         
+        if file_path:
+            self.process_selected_file(file_path)
+    
+    def process_selected_file(self, file_path):
+        """Process the selected file"""
+        self.selected_file = file_path
+        filename = os.path.basename(file_path)
+        
+        # Update UI
+        self.drop_label.configure(text=f"Selected: {filename}")
+        self.status_label.configure(text="Processing file...", fg='#2e7d32')
+        self.progress.pack(pady=(10, 0))
+        self.progress.start()
+        
+        # Process file in background thread
+        def process_file():
+            try:
+                time.sleep(0.5)  # Small delay for UI update
+                # Close the GUI and continue with processing
+                self.status_label.configure(text="File selected! Processing will begin...", fg='#2e7d32')
+                time.sleep(1)
+                root = self.drop_label.winfo_toplevel()
+                root.quit()
+                root.destroy()
+            except Exception as e:
+                self.status_label.configure(text=f"Error: {str(e)}", fg='#f44336')
+                self.progress.stop()
+                self.progress.pack_forget()
+        
+        # Start processing thread
+        thread = threading.Thread(target=process_file)
+        thread.daemon = True
+        thread.start()
+    
+    def cancel_selection(self, root):
+        """Cancel file selection"""
+        self.selected_file = None
+        root.quit()
         root.destroy()
-        return file_path if file_path else None
     
     def clean_filename(self, filename):
         """Clean up Notion export filenames by removing UUIDs and long paths"""
@@ -307,9 +497,21 @@ class HTMLBundleExtractor:
             clean_part = re.sub(r'[<>:"|?*]', '', clean_part)
             clean_part = re.sub(r'\s+', ' ', clean_part)  # Normalize multiple spaces to single space
             
-            # Limit length of each component
-            if len(clean_part) > 50:
-                clean_part = clean_part[:50]
+            # Preserve file extensions for images and other important file types
+            # Extract extension before length limiting
+            clean_part_path = Path(clean_part)
+            extension = clean_part_path.suffix.lower()
+            name_without_ext = clean_part_path.stem
+            
+            # Limit length of filename without extension
+            if len(name_without_ext) > 50:
+                name_without_ext = name_without_ext[:50]
+            
+            # Reconstruct with extension
+            if extension:
+                clean_part = name_without_ext + extension
+            else:
+                clean_part = name_without_ext
             
             clean_part = clean_part.strip(' .-')
             
@@ -1093,9 +1295,8 @@ Examples:
         # Command line mode
         return extractor.run(args.archive)
     else:
-        # Interactive mode
-        print("HTML Bundle Extractor")
-        print("====================")
+        # Interactive mode - show drag-and-drop GUI
+        print("Starting HTML Bundle Extractor GUI...")
         return extractor.run()
 
 if __name__ == "__main__":

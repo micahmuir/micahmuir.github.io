@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toolhead Camera Mount - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Toolhead Camera Mount</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="2779d96e-b8a1-80d3-a355-ed0f793775be" class="page sans"><header><h1 class="page-title">Toolhead Camera Mount</h1><p class="page-description"></p></header><div><h1 id="2779d96e-b8a1-8023-9e58-fa59c4ebf5ba" class="">Problem</h1><p id="2779d96e-b8a1-8085-84f3-dd8813147316" class="">A vision system mounted on an EOAT of an XYZT gantry system needed a rigid but adjustable mounting solution to replace a quick turn 3D printed solution. 3D printing was previously used because due to development timeline pivots, cameras were nestled between two immutable extrusions,  and required asymmetric geometry  and prescribed hole pattern to avoid collisions.</p><p id="27c9d96e-b8a1-8055-bf49-c59001281e69" class=""><br/>The material required to make a sturdy 3D printed mount limited the cameras ability to dissipate heat. Passive ventilation would be a consideration. <br/></p><p id="27c9d96e-b8a1-8023-b926-e0153a59e1ab" class="">The fixture also needed to include a ring light mounting point, and because this project was in active development, maintain some adjustability as we qualified the rest of the vision system. <br/><br/></p><h1 id="2779d96e-b8a1-80b9-8949-cbaad0dfff50" class="">Solution</h1><p id="2779d96e-b8a1-80ef-8709-e0a9b5a3101d" class="">I designed a lightweight sheet metal torsion resistant structure that was much lighter than the camera it would protect.  The strange mounting configuration was not a barrier, and the final vision system allowed for product palletization at up to 900 cartons per hour.</p><p id="27c9d96e-b8a1-80ac-8962-d8e5f15f4d24" class="">
+</p><h3 id="27c9d96e-b8a1-802b-9e10-dd4636bf42a8" class="">Features</h3><ul id="27c9d96e-b8a1-80ef-bb3a-c4ae35f600bf" class="bulleted-list"><li style="list-style-type:disc">Very lightweight - thin aluminum sheeting gained great rigidity when fastened into box structure</li></ul><ul id="27c9d96e-b8a1-8097-9417-e5e91b35a7e3" class="bulleted-list"><li style="list-style-type:disc">Keyhole mounting slots - the camera this held was extremely expensive, and needed to be mounted high off a typical warehouse floor. Dropping this during installation would be unacceptable.  With this cutout, you could mount the vision system in its entirety and safely remove both hands to tighten the mounting screws</li></ul><ul id="27c9d96e-b8a1-80f4-b362-fa33b8940895" class="bulleted-list"><li style="list-style-type:disc">Scalable Design - one assembly works in both left and right configurations, and are made out of two pieces of sheet metal</li></ul><p id="2779d96e-b8a1-8027-8a18-cc2ed606dd67" class="">
+</p><figure id="2779d96e-b8a1-8035-939d-ffad64b5f1d5" class="image"><a href="Vision_SM_Bracket_Assembly_(4).png"><div class="image-with-caption">
+  <img alt="" src="Vision_SM_Bracket_Assembly_(4).png"/>
+  <div class="caption"></div>
+</div></a></figure><figure id="2779d96e-b8a1-8039-b8b0-e27b933b39c1" class="image"><a href="Vision_SM_Bracket_Assembly_(7).png"><div class="image-with-caption">
+  <img alt="" src="Vision_SM_Bracket_Assembly_(7).png"/>
+  <div class="caption"></div>
+</div></a></figure></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

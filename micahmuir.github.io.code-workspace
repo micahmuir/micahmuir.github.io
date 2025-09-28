@@ -6,5 +6,8 @@
         {
             "path": "../html_tools"
         }
-    ]
+    ],
+    "settings": {
+        "liveServer.settings.multiRootWorkspaceName": "micahmuir.github.io"
+    }
 }
