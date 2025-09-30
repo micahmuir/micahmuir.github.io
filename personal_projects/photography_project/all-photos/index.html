@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Photos - Photography Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Photography gallery grid */
+    .photo-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .photo-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-medium);
+      transition: all var(--transition-medium);
+      cursor: pointer;
+    }
+
+    .photo-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform var(--transition-medium);
+    }
+
+    .photo-item:hover img {
+      transform: scale(1.02);
+    }
+
+    .photo-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+      padding: 2rem 1rem 1rem;
+      transform: translateY(100%);
+      transition: transform var(--transition-medium);
+    }
+
+    .photo-item:hover .photo-overlay {
+      transform: translateY(0);
+    }
+
+    .photo-overlay h3 {
+      font-size: 1.2rem;
+      margin: 0;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Back button */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--secondary-color);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color var(--transition-fast);
+    }
+
+    .back-link:hover {
+      color: var(--accent-color);
+    }
+
+    /* Gallery header */
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .gallery-header h1 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .gallery-header p {
+      color: var(--text-medium);
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body class="projects-page">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html" class="active">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <!-- Back link -->
+          <a href="../index.html" class="back-link">
+            ← Back to Photography Portfolio
+          </a>
+
+          <!-- Gallery Header -->
+          <div class="gallery-header">
+            <h1>All Photos</h1>
+            <p>Complete collection of photography from all albums.</p>
+          </div>
+
+          <!-- Photo Gallery -->
+          <div class="photo-gallery">
+            
+            <!-- Nature & Landscape Photos -->
+            <div class="photo-item">
+              <img src="../nature-landscape/ice_cathedral.JPG" alt="Ice Cathedral">
+              <div class="photo-overlay">
+                <h3>Ice Cathedral</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/icy_tamanawas.JPG" alt="Icy Tamanawas Falls">
+              <div class="photo-overlay">
+                <h3>Icy Tamanawas Falls</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/volcano.JPG" alt="Volcanic Peak">
+              <div class="photo-overlay">
+                <h3>Volcanic Peak</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/coldspringcreek.JPG" alt="Cold Spring Creek">
+              <div class="photo-overlay">
+                <h3>Cold Spring Creek</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/drycreek.JPG" alt="Dry Creek">
+              <div class="photo-overlay">
+                <h3>Dry Creek</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/volcano_real.png" alt="Volcanic Landscape">
+              <div class="photo-overlay">
+                <h3>Volcanic Landscape</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/mira_forest.jpg" alt="Mira Forest">
+              <div class="photo-overlay">
+                <h3>Mira Forest</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/icy_tamanaswas2.JPG" alt="Icy Tamanawas 2">
+              <div class="photo-overlay">
+                <h3>Icy Tamanawas Alternative View</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../nature-landscape/Tamawanas lower half bright - December 14, 2017-[06-32].JPG" alt="Tamanawas Lower Falls">
+              <div class="photo-overlay">
+                <h3>Tamanawas Lower Falls</h3>
+              </div>
+            </div>
+
+            <!-- Wildlife Photos -->
+            <div class="photo-item">
+              <img src="../wildlife/hawk.jpg" alt="Red-tailed Hawk">
+              <div class="photo-overlay">
+                <h3>Red-tailed Hawk</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../wildlife/hawk 1.jpg" alt="Hawk in Flight">
+              <div class="photo-overlay">
+                <h3>Hawk in Flight</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../wildlife/bearskull.JPG" alt="Bear Skull">
+              <div class="photo-overlay">
+                <h3>Nature's Memorial</h3>
+              </div>
+            </div>
+
+            <!-- Weather & Sky Photos -->
+            <div class="photo-item">
+              <img src="../weather-sky/lightning.jpg" alt="Lightning Strike">
+              <div class="photo-overlay">
+                <h3>Lightning Strike</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../weather-sky/eclipse.png" alt="Solar Eclipse">
+              <div class="photo-overlay">
+                <h3>Solar Eclipse</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../weather-sky/hood_moon.png" alt="Moonrise over Mount Hood">
+              <div class="photo-overlay">
+                <h3>Moonrise over Mount Hood</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../weather-sky/heavycloud.JPG" alt="Heavy Clouds">
+              <div class="photo-overlay">
+                <h3>Heavy Clouds</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../weather-sky/cloudspotting.JPG" alt="Cloud Formations">
+              <div class="photo-overlay">
+                <h3>Cloud Formations</h3>
+              </div>
+            </div>
+
+            <!-- Urban & Travel Photos -->
+            <div class="photo-item">
+              <img src="../urban-travel/new york.png" alt="New York City">
+              <div class="photo-overlay">
+                <h3>New York City</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../urban-travel/mono_lake.png" alt="Mono Lake">
+              <div class="photo-overlay">
+                <h3>Mono Lake</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../urban-travel/life_itself.png" alt="Life Itself">
+              <div class="photo-overlay">
+                <h3>Life Itself</h3>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Include main.js for navbar auto-hide functionality -->
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>

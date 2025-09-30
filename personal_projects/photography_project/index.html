@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photography Portfolio - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* Portfolio album grid */
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0;
+      padding: 0 2rem;
+    }
+
+    /* Album card styling - simplified to transparent container */
+    .album-card {
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      display: block;
+    }
+
+    .album-card:hover {
+      color: inherit;
+    }
+
+    /* Photo stack container */
+    .photo-stack {
+      position: relative;
+      height: 200px;
+      margin-bottom: 1.5rem;
+      perspective: 1000px;
+    }
+
+    /* Individual photos in stack */
+    .stack-photo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--border-radius-small);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: all var(--transition-medium);
+      transform-origin: center bottom;
+    }
+
+    /* Stack positioning - creates layered effect */
+    .stack-photo:nth-child(1) {
+      z-index: 3;
+      transform: rotate(-2deg) translateY(0px);
+    }
+
+    .stack-photo:nth-child(2) {
+      z-index: 2;
+      transform: rotate(1deg) translateY(8px);
+    }
+
+    .stack-photo:nth-child(3) {
+      z-index: 1;
+      transform: rotate(-1deg) translateY(16px);
+    }
+
+    /* Hover effects - photos fan out slightly */
+    .album-card:hover .stack-photo:nth-child(1) {
+      transform: rotate(-4deg) translateY(-10px) translateX(-5px);
+    }
+
+    .album-card:hover .stack-photo:nth-child(2) {
+      transform: rotate(2deg) translateY(2px) translateX(5px);
+    }
+
+    .album-card:hover .stack-photo:nth-child(3) {
+      transform: rotate(-2deg) translateY(12px) translateX(-3px);
+    }
+
+    /* Album info */
+    .album-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .album-description {
+      display: none;
+    }
+
+    .album-count {
+      display: none;
+    }
+
+    /* Header styling */
+    .portfolio-header {
+      text-align: center;
+      margin: 2rem 0 3rem;
+    }
+
+    .portfolio-header h1 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .portfolio-header p {
+      color: var(--text-medium);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body class="projects-page">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html" class="active">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <!-- Portfolio Header -->
+          <div class="portfolio-header">
+            <h1>Photography</h1>
+            <p>I got my first camera when I was 10, and it's been a tool and art ever since.</p>
+          </div>
+
+          <!-- Album Grid -->
+          <div class="album-grid">
+            
+            <!-- All Photos Album -->
+            <a href="all-photos/index.html" class="album-card">
+              <div class="photo-stack">
+                <div class="stack-photo" style="background-image: url('nature/ice_cathedral.JPG');"></div>
+                <div class="stack-photo" style="background-image: url('animals/hawk.jpg');"></div>
+                <div class="stack-photo" style="background-image: url('weather/lightning.jpg');"></div>
+              </div>
+              <h3 class="album-title">All Photos</h3>
+            </a>
+
+            <!-- Nature Album -->
+            <a href="nature/index.html" class="album-card">
+              <div class="photo-stack">
+                <div class="stack-photo" style="background-image: url('nature/ice_cathedral.JPG');"></div>
+                <div class="stack-photo" style="background-image: url('nature/icy_tamanawas.JPG');"></div>
+                <div class="stack-photo" style="background-image: url('nature/volcano.JPG');"></div>
+              </div>
+              <h3 class="album-title">Nature</h3>
+            </a>
+
+            <!-- Animals Album -->
+            <a href="animals/index.html" class="album-card">
+              <div class="photo-stack">
+                <div class="stack-photo" style="background-image: url('animals/hawk.jpg');"></div>
+                <div class="stack-photo" style="background-image: url('animals/bearskull.JPG');"></div>
+                <div class="stack-photo" style="background-image: url('animals/hawk 1.jpg');"></div>
+              </div>
+              <h3 class="album-title">Animals</h3>
+            </a>
+
+            <!-- Weather Album -->
+            <a href="weather/index.html" class="album-card">
+              <div class="photo-stack">
+                <div class="stack-photo" style="background-image: url('weather/lightning.jpg');"></div>
+                <div class="stack-photo" style="background-image: url('weather/eclipse.png');"></div>
+                <div class="stack-photo" style="background-image: url('weather/hood_moon.png');"></div>
+              </div>
+              <h3 class="album-title">Weather</h3>
+            </a>
+
+            <!-- People Album -->
+            <a href="people/index.html" class="album-card">
+              <div class="photo-stack">
+                <div class="stack-photo" style="background-image: url('people/new york.png');"></div>
+                <div class="stack-photo" style="background-image: url('people/mono_lake.png');"></div>
+                <div class="stack-photo" style="background-image: url('people/life_itself.png');"></div>
+              </div>
+              <h3 class="album-title">People</h3>
+            </a>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Include main.js for navbar auto-hide functionality -->
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
