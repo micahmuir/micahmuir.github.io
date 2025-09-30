@@ -194,6 +194,7 @@ class HTMLBundleExtractor:
             r'https?://(?:www\.)?youtube\.com/watch\?.*?v=([a-zA-Z0-9_-]{11})',
             r'https?://youtu\.be/([a-zA-Z0-9_-]{11})',
             r'https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
+            r'https?://(?:www\.)?youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
         ]
         
         for html_file in html_files:
@@ -204,16 +205,58 @@ class HTMLBundleExtractor:
                 original_content = content
                 embeddings_in_file = 0
                 
-                # Process each YouTube pattern
+                # Skip files that already have YouTube iframes to prevent double-processing
+                if 'youtube.com/embed/' in content and '<iframe' in content:
+                    continue
+                
+                # First, handle Notion export pattern: <div class="source"><a href="...youtube...">...youtube...</a></div>
+                notion_pattern = r'<div class="source"><a href="([^"]*(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/|youtube\.com/shorts/)([a-zA-Z0-9_-]{11})[^"]*)">([^<]*)</a></div>'
+                notion_matches = list(re.finditer(notion_pattern, content, re.IGNORECASE))
+                
+                # Process Notion matches in reverse order
+                for match in reversed(notion_matches):
+                    video_url = match.group(1)
+                    video_id = match.group(2)
+                    
+                    # Create iframe embed code
+                    iframe_html = f'''<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/{video_id}" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div>'''
+                    
+                    # Replace the entire Notion div structure
+                    content = content[:match.start()] + iframe_html + content[match.end():]
+                    embeddings_in_file += 1
+                
+                # Then handle remaining YouTube URLs that weren't caught by the Notion pattern
+                # Collect all YouTube matches from all patterns
+                all_matches = []
                 for pattern in youtube_patterns:
-                    matches = re.finditer(pattern, content)
-                    
+                    matches = list(re.finditer(pattern, content))
                     for match in matches:
-                        video_id = match.group(1)
-                        full_url = match.group(0)
-                        
-                        # Create iframe embed code
-                        iframe_html = f'''<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+                        # Skip if this URL is already an embed URL inside an iframe
+                        if 'embed/' in match.group(0) and content[max(0, match.start()-200):match.start()].find('<iframe') > content[max(0, match.start()-200):match.start()].rfind('</iframe>'):
+                            continue
+                        all_matches.append(match)
+                
+                # Sort matches by start position in reverse order (end to beginning)
+                # This prevents position shifts from affecting later replacements
+                all_matches.sort(key=lambda x: x.start(), reverse=True)
+                
+                # Process matches in reverse order
+                for match in all_matches:
+                    video_id = match.group(1)
+                    full_url = match.group(0)
+                    url_start = match.start()
+                    url_end = match.end()
+                    
+                    # Create iframe embed code
+                    iframe_html = f'''<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
     <iframe 
         src="https://www.youtube.com/embed/{video_id}" 
         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
@@ -222,72 +265,37 @@ class HTMLBundleExtractor:
         allowfullscreen>
     </iframe>
 </div>'''
-                        
-                        # Check if this URL is inside an <a> tag or just plain text
-                        # Find the position of the URL in the content
-                        url_start = match.start()
-                        url_end = match.end()
-                        
-                        # Look backwards to see if it's inside an <a> tag
-                        before_text = content[:url_start]
-                        after_text = content[url_end:]
-                        
-                        # Find the last opening <a> tag before this URL
-                        last_a_open = before_text.rfind('<a ')
-                        last_a_close = before_text.rfind('</a>')
-                        
-                        # If there's an opening <a> tag after the last closing </a> tag, 
-                        # this URL is inside a link
-                        if last_a_open > last_a_close and last_a_open != -1:
-                            # Replace the entire <a>...</a> tag containing this URL
-                            # Find the closing </a> tag after this URL
-                            next_a_close = after_text.find('</a>')
-                            if next_a_close != -1:
-                                # Replace from start of <a> tag to end of </a> tag
-                                a_tag_start = before_text.rfind('<a ', last_a_open)
-                                a_tag_end = url_end + next_a_close + 4  # +4 for "</a>"
-                                
-                                # Replace the entire <a>...</a> with the iframe
-                                content = content[:a_tag_start] + iframe_html + content[a_tag_end:]
-                                embeddings_in_file += 1
-                                continue
-                        
-                        # If not in an <a> tag, just replace the URL directly
-                        content = content.replace(full_url, iframe_html)
-                        embeddings_in_file += 1
-                
-                # Also look for YouTube links in href attributes and replace them
-                def replace_youtube_href(match):
-                    full_match = match.group(0)
-                    href_value = match.group(1)
                     
-                    # Check if this is a YouTube URL
-                    for pattern in youtube_patterns:
-                        video_match = re.search(pattern, href_value)
-                        if video_match:
-                            video_id = video_match.group(1)
+                    # Check if this URL is inside an <a> tag
+                    before_text = content[:url_start]
+                    after_text = content[url_end:]
+                    
+                    # Find the last opening <a> tag before this URL
+                    last_a_open = before_text.rfind('<a ')
+                    last_a_close = before_text.rfind('</a>')
+                    
+                    # If there's an opening <a> tag after the last closing </a> tag, 
+                    # this URL is inside a link
+                    if last_a_open > last_a_close and last_a_open != -1:
+                        # Replace the entire <a>...</a> tag containing this URL
+                        # Find the closing </a> tag after this URL
+                        next_a_close = after_text.find('</a>')
+                        if next_a_close != -1:
+                            # Replace from start of <a> tag to end of </a> tag
+                            a_tag_start = last_a_open
+                            a_tag_end = url_end + next_a_close + 4  # +4 for "</a>"
                             
-                            # Create iframe embed for href replacement
-                            iframe_html = f'''<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
-    <iframe 
-        src="https://www.youtube.com/embed/{video_id}" 
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen>
-    </iframe>
-</div>'''
-                            return iframe_html
+                            # Replace the entire <a>...</a> with the iframe
+                            content = content[:a_tag_start] + iframe_html + content[a_tag_end:]
+                            embeddings_in_file += 1
+                        continue
                     
-                    return full_match
+                    # If not in an <a> tag, replace just this specific URL occurrence
+                    content = content[:url_start] + iframe_html + content[url_end:]
+                    embeddings_in_file += 1
                 
-                # Replace YouTube links in href attributes  
-                original_before_href = content
-                content = re.sub(r'<a[^>]*href="([^"]*youtube[^"]*)"[^>]*>.*?</a>', replace_youtube_href, content, flags=re.DOTALL | re.IGNORECASE)
-                
-                if content != original_before_href:
-                    href_replacements = content.count('<iframe') - original_before_href.count('<iframe')
-                    embeddings_in_file += href_replacements
+                # Note: Notion export patterns are handled above, and individual URL matches
+                # are handled in the main loop. No additional href processing needed.
                 
                 # Write back if content changed
                 if content != original_content:

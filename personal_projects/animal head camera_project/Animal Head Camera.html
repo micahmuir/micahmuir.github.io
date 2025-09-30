@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animal Head Camera - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    /* Video embed styling for gallery compatibility */
+    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Animal Head Camera</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="22e9d96e-b8a1-80bc-875a-faa8a87793d9" class="page sans"><header><h1 class="page-title">Animal Head Camera</h1><p class="page-description"></p></header><div><p id="27c9d96e-b8a1-8096-a471-d2fe843345b7" class="">
+</p><figure id="27c9d96e-b8a1-80ee-8bf1-e5ecb1fbfa41" class="link-to-page"><a href="Background and Motivation.html">Background and Motivation</a></figure><figure id="2749d96e-b8a1-8064-a70a-d8946b72518a" class="link-to-page"><a href="First Prototype.html">First Prototype</a></figure><figure id="2749d96e-b8a1-806c-89b0-c5312878ef13" class="link-to-page"><a href="V2.html">V2</a></figure><p id="27c9d96e-b8a1-805d-969b-db5c7e82e310" class="">
+</p><h1 id="2749d96e-b8a1-8037-8a12-f0556e1e8ebf" class="">Current Form</h1><p id="27c9d96e-b8a1-8057-a55f-f63102898d3b" class="">I created a design for a teddy bear head that acts as a learning and development platform for machine vision, and as a useful tool for Touchdesigner project input. <br/><br/>These represent the evolution of learning from a number of smaller projects, such as the time lapse camera and the depth image mirroring on my luminaire lamp. <br/><br/>Each head hosts a ToF sensor in one eye and an RGB camera in the other. It can stream pixel output from both over a UDP connection at 30 fps, allowing me to patch the image input into Touchdesigner to perform  graphics card applications in real time. </p><figure id="27c9d96e-b8a1-80ad-be2d-d8cb5aa5c327" class="image"><a href="photo.png"><div class="image-with-caption">
+  <img alt="" src="photo.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>Blackbear and greenbear after almost complete assembly</figcaption></figure><p id="27c9d96e-b8a1-80b9-857b-d6362c00102b" class="">
+</p><p id="27c9d96e-b8a1-80b2-b4c9-e695cd2d4c21" class="">
+</p><figure id="27c9d96e-b8a1-80a5-9d79-d76b2e19625f" class="image"><a href="photo 1.png"><div class="image-with-caption">
+  <img alt="" src="photo 1.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>Greenbear has the global shutter RGB camera</figcaption></figure><figure id="27c9d96e-b8a1-809e-bbfc-e21c6ee48310" class="image"><a href="photo 2.png"><div class="image-with-caption">
+  <img alt="" src="photo 2.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>Blackbear has the high resolution, autofocus rolling shutter camera. That still needs to be integrated into the CAD model. </figcaption></figure><p id="27c9d96e-b8a1-8002-a6d1-c0cad2ad8824" class="">
+</p><figure id="27c9d96e-b8a1-80bf-9670-e6999542a336"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="<div class="image-with-caption">
+  <div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; border-radius: var(--border-radius-small); overflow: hidden; box-shadow: var(--shadow-medium); transition: transform var(--transition-medium);">
+    <iframe 
+        src="https://www.youtube.com/embed/7RPBYiTumeU" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+    </iframe>
+  </div>
+  <div class="caption">src="</div>
+</div>" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div></figure><p id="27c9d96e-b8a1-8044-87c0-d75e24281318" class="">The above video shows a view of my point cloud visualizer from a depth map in Touchdesigner</p><figure id="27c9d96e-b8a1-80f1-a4a7-c04f5aa39ad9"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="<div class="image-with-caption">
+  <div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; border-radius: var(--border-radius-small); overflow: hidden; box-shadow: var(--shadow-medium); transition: transform var(--transition-medium);">
+    <iframe 
+        src="https://www.youtube.com/embed/NanE1DEooPE" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen>
+    </iframe>
+  </div>
+  <div class="caption">src="</div>
+</div>" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div></figure><p id="27c9d96e-b8a1-80eb-8576-d18a6df331e7" class="">From the dual ToF Configuration</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
