@@ -60,6 +60,29 @@ class WebsiteThemeApplicator:
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
     
+    .image-grid.three-column {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    
+    .image-grid.four-column {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    /* Responsive grid adjustments */
+    @media (max-width: 768px) {
+      .image-grid.three-column,
+      .image-grid.four-column {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .image-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+    
     .image-with-caption {
       text-align: center;
     }
@@ -319,7 +342,7 @@ class WebsiteThemeApplicator:
         return updated_content
     
     def extract_content_from_html(self, html_content, file_path):
-        """Extract title and main content from existing HTML"""
+        """Extract title and main content from existing HTML while preserving layout structure"""
         file_path = Path(file_path)
         
         # Try to extract title from various sources
@@ -356,7 +379,16 @@ class WebsiteThemeApplicator:
         # Remove script tags
         content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
         
-        # Clean up common wrapper elements
+        # PRESERVE LAYOUT STRUCTURES - Look for existing column/grid layouts
+        has_columns = self.detect_column_layout(content)
+        original_layout_preserved = False
+        
+        if has_columns:
+            print("    📐 Detected multi-column layout - preserving structure")
+            content = self.preserve_column_layout(content)
+            original_layout_preserved = True
+        
+        # Clean up common wrapper elements (but preserve layout-related ones)
         content = re.sub(r'<div[^>]*class="[^"]*notion[^"]*"[^>]*>', '<div>', content, flags=re.IGNORECASE)
         content = re.sub(r'<div[^>]*class="[^"]*page[^"]*"[^>]*>', '<div>', content, flags=re.IGNORECASE)
         
@@ -416,8 +448,8 @@ class WebsiteThemeApplicator:
             flags=re.DOTALL
         )
         
-        # Wrap multiple images/videos in grid if needed (including YouTube embeds)
-        if content.count('image-with-caption') > 1 and 'image-grid' not in content:
+        # Only apply default grid layout if we didn't preserve original layout
+        if not original_layout_preserved and content.count('image-with-caption') > 1 and 'image-grid' not in content:
             # Simple approach: wrap consecutive image-with-caption divs in grid
             content = re.sub(
                 r'(<div class="image-with-caption">.*?</div>)(\s*<div class="image-with-caption">.*?</div>)+',
@@ -428,6 +460,181 @@ class WebsiteThemeApplicator:
         
         # Process YouTube links and convert to gallery-compatible embeds
         content = self.convert_youtube_links_to_gallery_embeds(content)
+        
+        return {
+            'title': title,
+            'content': content.strip()
+        }
+    
+    def detect_column_layout(self, content):
+        """Detect if the content has multi-column layout structures"""
+        # Look for common column indicators
+        column_indicators = [
+            r'display:\s*flex',
+            r'display:\s*grid',
+            r'grid-template-columns',
+            r'flex-direction:\s*row',
+            r'class="[^"]*col',  # Bootstrap/common column classes
+            r'class="[^"]*grid',  # Grid classes
+            r'style="[^"]*width:\s*[0-9]+%',  # Percentage widths
+            r'style="[^"]*float:\s*(left|right)',  # Floated elements
+            r'<td[^>]*>.*?<img',  # Table-based layouts with images
+            r'<div[^>]*style="[^"]*display:\s*inline',  # Inline block elements
+        ]
+        
+        for pattern in column_indicators:
+            if re.search(pattern, content, re.IGNORECASE | re.DOTALL):
+                return True
+        
+        return False
+    
+    def preserve_column_layout(self, content):
+        """Preserve and adapt existing column layouts for the theme"""
+        # Convert common column patterns to our theme-compatible structure
+        
+        # Handle table-based layouts (common in older HTML or Notion exports)
+        if re.search(r'<table[^>]*>.*?<img.*?</table>', content, re.DOTALL | re.IGNORECASE):
+            content = self.convert_table_layout_to_grid(content)
+        
+        # Handle flexbox layouts
+        if re.search(r'display:\s*flex', content, re.IGNORECASE):
+            content = self.convert_flex_layout_to_grid(content)
+        
+        # Handle percentage-width divs (common for side-by-side layouts)
+        if re.search(r'style="[^"]*width:\s*[0-9]+%', content, re.IGNORECASE):
+            content = self.convert_percentage_layout_to_grid(content)
+        
+        # Handle float-based layouts
+        if re.search(r'float:\s*(left|right)', content, re.IGNORECASE):
+            content = self.convert_float_layout_to_grid(content)
+        
+        return content
+    
+    def convert_table_layout_to_grid(self, content):
+        """Convert table-based image layouts to CSS grid"""
+        def replace_table_with_grid(match):
+            table_content = match.group(1)
+            
+            # Count cells to determine grid columns
+            cell_count = len(re.findall(r'<td[^>]*>', table_content, re.IGNORECASE))
+            
+            # Extract images from table cells
+            cells = re.findall(r'<td[^>]*>(.*?)</td>', table_content, re.DOTALL | re.IGNORECASE)
+            
+            grid_class = "image-grid"
+            if cell_count == 2:
+                grid_class += " two-column"
+            elif cell_count == 3:
+                grid_class += " three-column"
+            elif cell_count >= 4:
+                grid_class += " four-column"
+            
+            grid_content = f'<div class="{grid_class}">'
+            for cell in cells:
+                if '<img' in cell:
+                    grid_content += f'<div class="image-with-caption">{cell}<div class="caption"></div></div>'
+                else:
+                    grid_content += f'<div>{cell}</div>'
+            grid_content += '</div>'
+            
+            return grid_content
+        
+        content = re.sub(
+            r'<table[^>]*>(.*?)</table>',
+            replace_table_with_grid,
+            content,
+            flags=re.DOTALL | re.IGNORECASE
+        )
+        
+        return content
+    
+    def convert_flex_layout_to_grid(self, content):
+        """Convert flexbox layouts to CSS grid"""
+        def replace_flex_container(match):
+            flex_content = match.group(1)
+            
+            # Count direct children to determine columns
+            children = re.findall(r'<div[^>]*>.*?</div>', flex_content)
+            child_count = len(children)
+            
+            grid_class = "image-grid"
+            if child_count == 2:
+                grid_class += " two-column"
+            elif child_count == 3:
+                grid_class += " three-column"
+            elif child_count >= 4:
+                grid_class += " four-column"
+            
+            return f'<div class="{grid_class}">{flex_content}</div>'
+        
+        content = re.sub(
+            r'<div[^>]*style="[^"]*display:\s*flex[^"]*"[^>]*>(.*?)</div>',
+            replace_flex_container,
+            content,
+            flags=re.DOTALL | re.IGNORECASE
+        )
+        
+        return content
+    
+    def convert_percentage_layout_to_grid(self, content):
+        """Convert percentage-width layouts to CSS grid"""
+        # Look for consecutive divs with percentage widths
+        def replace_percentage_divs(match):
+            divs = match.group(0)
+            
+            # Count divs to determine grid
+            div_count = len(re.findall(r'<div[^>]*style="[^"]*width:\s*[0-9]+%', divs))
+            
+            grid_class = "image-grid"
+            if div_count == 2:
+                grid_class += " two-column"
+            elif div_count == 3:
+                grid_class += " three-column"
+            elif div_count >= 4:
+                grid_class += " four-column"
+            
+            # Remove width styles and wrap in grid
+            cleaned_divs = re.sub(r'width:\s*[0-9]+%;?\s*', '', divs)
+            return f'<div class="{grid_class}">{cleaned_divs}</div>'
+        
+        content = re.sub(
+            r'(<div[^>]*style="[^"]*width:\s*[0-9]+%[^"]*"[^>]*>.*?</div>\s*){2,}',
+            replace_percentage_divs,
+            content,
+            flags=re.DOTALL
+        )
+        
+        return content
+    
+    def convert_float_layout_to_grid(self, content):
+        """Convert float-based layouts to CSS grid"""
+        # Remove float styles and detect consecutive floated elements
+        def replace_floated_elements(match):
+            elements = match.group(0)
+            
+            # Count floated elements
+            float_count = len(re.findall(r'float:\s*(left|right)', elements))
+            
+            grid_class = "image-grid"
+            if float_count == 2:
+                grid_class += " two-column"
+            elif float_count == 3:
+                grid_class += " three-column"
+            elif float_count >= 4:
+                grid_class += " four-column"
+            
+            # Remove float styles
+            cleaned_elements = re.sub(r'float:\s*(left|right);?\s*', '', elements)
+            return f'<div class="{grid_class}">{cleaned_elements}</div>'
+        
+        content = re.sub(
+            r'(<[^>]*style="[^"]*float:\s*(left|right)[^"]*"[^>]*>.*?</[^>]*>\s*){2,}',
+            replace_floated_elements,
+            content,
+            flags=re.DOTALL
+        )
+        
+        return content
         
         return {
             'title': title,
