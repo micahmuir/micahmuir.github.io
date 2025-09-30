@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Background and Motivation - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    /* Video embed styling for gallery compatibility */
+    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Background and Motivation</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="27c9d96e-b8a1-80ee-8bf1-e5ecb1fbfa41" class="page sans"><header><h1 class="page-title">Background and Motivation</h1><p class="page-description"></p></header><div><p id="27c9d96e-b8a1-80de-919f-ed8b4dfa1525" class=""><a href="Animal Head Camera.html">Animal Head Camera</a> </p><details open=""><summary style="font-weight:600;font-size:1.25em;line-height:1.3;margin:0">Background/Motivation</summary><div class="indented"><p id="2749d96e-b8a1-8066-ba60-dcdf5fcf3557" class="">When I was a kid, I developed a fascination with drawing cyborg rabbits. <br/><br/>There, that’s all. I don’t know what it was. But it scratched an itch I couldn’t quite explain. Skyscraper sized rabbits with entire human crews manning from the brain cockpit. Human sized android robot rabbits that handled domestic labour. Valiant adventurer bunnies dutifully exploring the most dangerous areas of space. I’ll need to dig out some of the old journals where you’d see this cutaways of all the hypothetical mechanisms I thought a cyborg rabbit would operate. That was back when I thought engineers only worked on trains. <br/><br/>Anyways. I’ve been wanting for a general purpose vision platform for future ideas and experiments I may get up to. I wanted something that was easily expandable, upgradeable, and serviceable. I have a DSLR, but I wanted a camera system that was more or less custom to my needs. And those needs include being a robust, high-ish (30 fps ideally) camera system I could treat as a sort of “vision” component to a wide range of future projects. <br/><br/>Beyond that, a couple of things happened in close proximity to each other that enabled this rabbit hole. At work, we were testing some very low-cost ToF cameras for possible industrial usage. We ultimately determined they wouldn’t fit the use case, but through testing, I learned how simple it was to work with a board level camera on a Raspberry Pi. </p><p id="27e9d96e-b8a1-802e-a6d1-d235b74f4cfd" class="">
+</p><p id="27e9d96e-b8a1-80e8-abae-fc0f0cdde295" class="">The recently released Pi 5 had TWO camera slots. That you could use at the same time? Outrageous. I had to have one. The only problem was at the time, Arducam developers hadn’t adapted the their ToF camera to the newest Pi, so my dreams of a super low cost panoramic ToF camera were dashed… until a year later, when they released a firmware update that enabled usage with the Pi 5</p><p id="2749d96e-b8a1-80e8-a5f2-f65745d62f16" class=""><br/>It hit me that 20ish years later, I likely had all the skills necessary to realize a ridiculous phase-of-childhood dream, and create an actually useful tool at the same time.<br/><br/></p></div></details><details open=""><summary style="font-weight:600;font-size:1.25em;line-height:1.3;margin:0">Wants/Requirements</summary><div class="indented"><ul id="2749d96e-b8a1-80c1-aa22-d7708874cf87" class="bulleted-list"><li style="list-style-type:disc"><strong>Dual Camera</strong>. I had recently acquired a Pi 5, and for the first time, I had a reasonably affordable method of two cameras at the same time. I knew this wouldn’t quite be frame to frame synchronization, but for my use cases of education and live visual installations, it would be good enough</li></ul><ul id="27e9d96e-b8a1-803e-bd27-f40f2efd7ecd" class="bulleted-list"><li style="list-style-type:disc"><strong>Language agnostic</strong> - I’m already decent at python and C++ for specific applications, but I wanted to broaden my scope over time. I needed a platform that could achieve the same function over a variety of languages. </li></ul><ul id="2749d96e-b8a1-80b4-93bc-e54a0519c3d3" class="bulleted-list"><li style="list-style-type:disc"><strong>Network oriented</strong>. I want this device to be able to stream frames over a network cable to a PC to maintain flexibility. Maybe I want this for a Touchdesigner application. Maybe I more permanently anchor it over a conveyer belt. Maybe it sits on a bookshelf and looks adorable. Either way, I wanted it to stream frames to something with a little more oomph for making 4k textures with.</li></ul><ul id="2749d96e-b8a1-8040-a5c4-d8d4b210ba72" class="bulleted-list"><li style="list-style-type:disc"><strong>Voltage Flexible.</strong> I’d like this thing to accept a range of power sources, and be easily serviceable in case I want to try a different sensor suit or camera board.</li></ul><ul id="2749d96e-b8a1-8088-bb0f-f8aaee13a25d" class="bulleted-list"><li style="list-style-type:disc"><strong>Platform geared.</strong> AKA, I want to be able to have a sort of base chassis I can test different cameras and sensors with without radically changing the final CAD model</li></ul></div></details><p id="27e9d96e-b8a1-8004-b841-d59193b1c8af" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

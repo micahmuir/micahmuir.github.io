@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animal Head Camera - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    /* Video embed styling for gallery compatibility */
+    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Animal Head Camera</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="22e9d96e-b8a1-80bc-875a-faa8a87793d9" class="page sans"><header><h1 class="page-title">Animal Head Camera</h1><p class="page-description"></p></header><div><p id="27c9d96e-b8a1-8096-a471-d2fe843345b7" class="">
+</p><figure id="27c9d96e-b8a1-80ee-8bf1-e5ecb1fbfa41" class="link-to-page"><a href="Background and Motivation.html">Background and Motivation</a></figure><figure id="2749d96e-b8a1-8064-a70a-d8946b72518a" class="link-to-page"><a href="First Prototype.html">First Prototype</a></figure><figure id="2749d96e-b8a1-806c-89b0-c5312878ef13" class="link-to-page"><a href="Version 2 Development.html">Version 2 Development</a></figure><p id="27c9d96e-b8a1-805d-969b-db5c7e82e310" class="">
+</p><figure id="27c9d96e-b8a1-80f1-a4a7-c04f5aa39ad9"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/NanE1DEooPE" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div><figcaption>Dual ToF version of the head.</figcaption></figure><figure id="27c9d96e-b8a1-80bf-9670-e6999542a336"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/7RPBYiTumeU" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div><figcaption>My point cloud visualizer I created from a depth map stream in Touchdesigner</figcaption></figure><h1 id="2749d96e-b8a1-8037-8a12-f0556e1e8ebf" class="">Current Form <time>@September 29, 2025</time> </h1><p id="27c9d96e-b8a1-8057-a55f-f63102898d3b" class="">I created a design for a teddy bear head that acts as a learning and development platform for machine vision, and as a useful tool for Touchdesigner project input. <br/><br/>These represent the evolution of learning from a number of smaller projects, such as the time lapse camera and the depth image mirroring on my luminaire lamp. <br/><br/>Each head hosts a ToF sensor in one eye and an RGB camera in the other. It can stream pixels from both over a UDP connection at 30 fps, allowing me to patch the image input into Touchdesigner to perform  graphics card applications in real time. <br/><br/>Is this a industrial grade, certified solution? No. <br/><br/>Does it work? Yes. <br/><br/>Was it fun to build? <br/><br/>Also yes. </p><div id="27e9d96e-b8a1-80a4-bdd6-c1791dd70cdb" class="column-list"><div id="27e9d96e-b8a1-804b-a4cf-c8b6b78b666e" style="width:50%" class="column"><figure id="27c9d96e-b8a1-80ad-be2d-d8cb5aa5c327" class="image"><a href="photo.png"><div class="image-with-caption">
+  <img alt="" src="photo.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>Blackbear and greenbear after almost complete assembly</figcaption></figure></div><div id="27e9d96e-b8a1-8008-8496-e1423d75be62" style="width:50%" class="column"><figure id="27c9d96e-b8a1-80a5-9d79-d76b2e19625f" class="image"><a href="photo 1.png"><div class="image-with-caption">
+  <img alt="" src="photo 1.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>Greenbear has the global shutter RGB camera</figcaption></figure></div></div><h1 id="27e9d96e-b8a1-8035-8e76-ff422a97e204" class="">Switch to Bear</h1><p id="27e9d96e-b8a1-80a5-9730-fa04e046e30e" class="">Although this whole thing started off with the vision of a rabbit, I had a problem. </p><p id="27c9d96e-b8a1-80b2-b4c9-e695cd2d4c21" class="">
+</p><figure id="27c9d96e-b8a1-809e-bbfc-e21c6ee48310" class="image"><a href="photo 2.png"><div class="image-with-caption">
+  <img alt="" src="photo 2.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>Blackbear has the high resolution, autofocus rolling shutter camera. That still needs to be integrated into the CAD model. </figcaption></figure><details open=""><summary style="font-weight:600;font-size:1.5em;line-height:1.3;margin:0">Touchdesigner Integration</summary><div class="indented"><p id="27e9d96e-b8a1-80e4-82ad-f50624345bb6" class="">
+</p><figure id="27e9d96e-b8a1-807a-a262-cd23ebfa3e59" class="image"><a href="image.png"><div class="image-with-caption">
+  <img alt="" src="image.png"/>
+  <div class="caption"></div>
+</div></a></figure><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-8045-83e9-c45e2dcf83ee" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">def onReceive(dat, rowIndex, message, byteData, peer):
+	global packet_buffer, expected_chunks, all_data
+	
+	if len(byteData) &lt; 4:
+		return
+	
+	index = int.from_bytes(byteData[0:2], &#x27;big&#x27;)
+	total = int.from_bytes(byteData[2:4], &#x27;big&#x27;)
+	chunk = byteData[4:]
+
+	packet_buffer[index] = chunk
+	expected_chunks = total
+
+	if len(packet_buffer) == expected_chunks:
+		all_data = b&#x27;&#x27;.join(packet_buffer[i] for i in range(expected_chunks))
+		packet_buffer.clear()
+		return 1
+
+	</code></pre><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-8002-bcf8-e06d0d44294a" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all"># rows - a list of row indices
+# cols - a list of column indices
+# cells - the list of cells that have changed content
+# prev - the list of previous string contents of the changed cells
+# 
+# Make sure the corresponding toggle is enabled in the DAT Execute DAT.
+# 
+# If rows or columns are deleted, sizeChange will be called instead of row/col/cellChange.
+# me - this DAT
+# scriptOp - the OP which is cooking
+
+import numpy
+import rabbit_udp_in as rabbit
+import socket
+import zlib
+import numpy as np
+import cv2
+import time
+
+last_time = time.time()
+smoothed_fps = 0
+alpha = 0.9  # for exponential moving average of FPS
+
+DEPTH_SHAPE = (180, 240)  # float32
+GRAY_SHAPE = (240, 320)   # uint8
+
+# Initialize an empty list to store previous frames
+previous_xyz_list = []
+
+def extract_images(decompressed: bytes):
+    depth_len = int.from_bytes(decompressed[0:4], &#x27;big&#x27;)
+    gray_len = int.from_bytes(decompressed[4:8], &#x27;big&#x27;)
+
+    depth_bytes = decompressed[8:8 + depth_len]
+    gray_bytes = decompressed[8 + depth_len:8 + depth_len + gray_len]
+
+    depth = np.frombuffer(depth_bytes, dtype=np.float32).reshape(DEPTH_SHAPE)
+    gray = np.frombuffer(gray_bytes, dtype=np.uint8).reshape(GRAY_SHAPE)
+
+    return depth, gray
+
+
+
+
+def optimized_depth_image_to_xyz(depth_image, fov_x, fov_y):
+	# Image dimensions
+	height, width = depth_image.shape
+
+
+	# Precompute the focal lengths in pixels from the FOV (constant)
+	fx = width / (2 * np.tan(np.deg2rad(fov_x) / 2))
+	fy = height / (2 * np.tan(np.deg2rad(fov_y) / 2))
+
+	# Create a mesh grid of pixel coordinates (x, y) (constant)
+	x_grid, y_grid = np.meshgrid(np.arange(width), np.arange(height))
+
+	# Normalize pixel coordinates to [-1, 1] and scale by the focal length (constant)
+	x_norm = (x_grid - width / 2) / fx
+	y_norm = (y_grid - height / 2) / fy
+
+	# Now we perform the computation in a single step
+	# The array of Z values (depth values) comes directly from the depth image
+	Z = depth_image
+
+	# Compute X and Y directly using vectorized operations
+	X = x_norm * Z  # X = x_normalized * depth
+	Y = y_norm * Z  # Y = y_normalized * depth
+
+	# Stack X, Y, and Z into a single (height, width, 3) array in an efficient manner
+	xyz_depth_buffer = np.dstack((X, Y, Z))
+
+	return xyz_depth_buffer
+
+
+
+
+
+def moving_average_xyz(current_xyz, previous_xyz_list, window_size):
+    &quot;&quot;&quot;
+    Calculate the moving average of XYZ arrays.
+    
+    Parameters:
+    - current_xyz: The current XYZ array (height, width, 3).
+    - previous_xyz_list: A list of previous XYZ arrays (each of shape (height, width, 3)).
+    - window_size: The number of frames/arrays to include in the moving average.
+    
+    Returns:
+    - averaged_xyz: The moving average of the XYZ arrays.
+    &quot;&quot;&quot;
+    # Add the current XYZ to the list of previous ones
+    all_xyz = previous_xyz_list[-(window_size-1):] + [current_xyz]
+    
+    # Stack the arrays along a new dimension (the frame dimension)
+    stacked_xyz = np.stack(all_xyz, axis=0)
+    
+    # Compute the mean across the frame dimension (axis=0)
+    averaged_xyz = np.mean(stacked_xyz, axis=0)
+    
+    return averaged_xyz
+
+def onTableChange(dat):
+	return
+
+def onRowChange(dat, rows):
+	return
+
+def onColChange(dat, cols):
+	return
+
+def onCellChange(dat, cells, prev):
+	return
+
+def onSizeChange(dat):
+	return
+
+def onCook(scriptOp):
+	global previous_xyz_list, last_time, smoothed_fps, center_point, alpha
+
+	dlim = 4.0  # depth limit
+	valMax = 65535
+	valMax32 = 4294967295
+	data = op(&#x27;rabbit_udp_in&#x27;).module.all_data  # raw float values
+
+	fov_x = 58.51
+	fov_y = 45.58
+
+	if data is not None:
+		# === FPS COUNTER ===
+		current_time = time.time()
+		delta = current_time - last_time
+		if delta &gt; 0:
+			fps = 1.0 / delta
+			smoothed_fps = alpha * smoothed_fps + (1 - alpha) * fps
+			last_time = current_time
+		
+		# ====================
+
+		decompressed = zlib.decompress(data)
+		depth, gray = extract_images(decompressed)
+
+		# Normalize depth values (0 to 4000mm -&gt; 0.0 to 1.0)
+		depth_norm = np.clip(depth / 4000.0, 0.0, 1.0)
+		
+		# Create alpha channel: near -&gt; 1, far -&gt; 0
+		alpha = 1.0 - depth_norm
+		
+		# Hide invalid depth values (set alpha to 0 where depth &lt;= 0)
+		alpha = np.where(depth &gt; 0.0, alpha, 0.0)
+
+		xyz_depth_buffer = optimized_depth_image_to_xyz(depth_norm, fov_x, fov_y)
+		xyz_depth_buffer = xyz_depth_buffer.astype(np.float32)
+		center_point = xyz_depth_buffer[120,90,2]*4000
+	
+
+		# Prepare RGBA image: RGB=0 (black), A=alpha (depth information)
+		H, W = depth.shape
+		rgba = np.zeros((H, W, 4), dtype=np.float32)
+		rgba[:, :, 3] = alpha  # Only alpha channel carries depth info
+
+		scriptOp.copyNumpyArray(rgba)
+
+		data = None
+
+	data = None
+	return</code></pre><p id="27e9d96e-b8a1-800b-ac75-e43c49063161" class="">
+</p><figure id="27e9d96e-b8a1-807b-ac5b-f40f830ccf90" class="image"><a href="image%201.png"><div class="image-with-caption">
+  <img alt="" src="image 1.png"/>
+  <div class="caption"></div>
+</div></a></figure><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-80bf-8591-d2818d221bee" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">uniform float uFovXDeg;
+uniform float uFovYDeg;
+uniform bool  uDepthIs01;
+uniform bool  uDepthIsRange;  // NEW: true if depth is RANGE along the ray
+uniform float uDepthMaxUnits;
+uniform float uDepthScale;
+uniform bool  uFlipY;
+uniform float uCx;            // NEW: principal point x in [0,1], default 0.5
+uniform float uCy;            // NEW: principal point y in [0,1], default 0.5
+
+uniform float uIntensityClip;
+uniform float uFloorClip;
+
+uniform bool  uPack01;
+uniform float uMaxAbsX, uMaxAbsY, uMaxAbsZ;
+
+out vec4 fragColor;
+
+float DEPTH_FROM(vec4 c) { 
+    // Input texture only has alpha channel with depth information
+    return c.a; 
+}
+
+void main() {
+    vec2 uv = vUV.st;
+    if (uFlipY) uv.y = 1.0 - uv.y;
+
+    // Sample monochrome depth input
+    vec4 inColor = texture(sTD2DInputs[0], uv);
+    float zSamp = DEPTH_FROM(inColor);
+    float d = (uDepthIs01 ? (zSamp * uDepthMaxUnits) : zSamp) * uDepthScale;
+
+    // For monochrome input, use the depth value as alpha check
+    // or check if depth is valid (non-zero)
+    // Also skip pixels at the furthest distance (maximum depth)
+    if (d &lt; uFloorClip || zSamp == 0.0 || d &gt;= uDepthMaxUnits * uDepthScale) {
+        // Output black RGB for invalid/clipped pixels
+        fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
+    // Calculate half-angle tangents for field of view
+    float tanHalfFovX = tan(radians(uFovXDeg * 0.5));
+    float tanHalfFovY = tan(radians(uFovYDeg * 0.5));
+
+    // Convert UV coordinates to normalized device coordinates centered on principal point
+    // Map from [0,1] to [-1,1] range, centered on principal point
+    vec2 ndc = vec2(
+        (uv.x - uCx) * 2.0,  // Convert to [-1,1] range around principal point
+        (uv.y - uCy) * 2.0   // Convert to [-1,1] range around principal point
+    );
+
+    // Calculate 3D ray direction from camera through this pixel
+    // Using pinhole camera model with field of view
+    vec3 rayDir = vec3(
+        ndc.x * tanHalfFovX,  // X component based on horizontal FoV
+        ndc.y * tanHalfFovY,  // Y component based on vertical FoV
+        1.0                   // Z points forward (into the scene)
+    );
+
+    // Convert depth to 3D world coordinates
+    vec3 xyz;
+    if (uDepthIsRange) {
+        // If depth represents distance along the ray (range)
+        xyz = normalize(rayDir) * d;
+    } else {
+        // If depth represents Z-distance from camera plane
+        xyz = rayDir * d;
+    }
+
+    // Output XYZ coordinates as RGB channels
+    if (!uPack01) {
+        // Direct mapping: R=X, G=Y, B=Z (values can be negative/large)
+        // Alpha = 1.0 to ensure full opacity in RGB output
+        fragColor = vec4(xyz.x, xyz.y, xyz.z, 1.0);
+        return;
+    }
+
+    // Pack XYZ into [0,1] range for standard RGB output
+    // Normalize by maximum absolute values and map to [0,1]
+    vec3 maxAbs = vec3(max(uMaxAbsX, 1e-6), max(uMaxAbsY, 1e-6), max(uMaxAbsZ, 1e-6));
+    vec3 packed = clamp(xyz / maxAbs * 0.5 + 0.5, 0.0, 1.0);
+    // Final RGB output: R=X, G=Y, B=Z (normalized to [0,1])
+    fragColor = vec4(packed.x, packed.y, packed.z, 1.0);
+}
+</code></pre><figure id="27e9d96e-b8a1-8093-bbd7-ebd692e89d6d" class="image"><a href="image%202.png"><div class="image-with-caption">
+  <img alt="" src="image 2.png"/>
+  <div class="caption"></div>
+</div></a></figure></div></details></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

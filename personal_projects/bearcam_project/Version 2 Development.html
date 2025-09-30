@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Version 2 Development - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Project-specific image grid styling */
+    .image-grid {
+      display: grid;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .image-grid.two-column {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .image-with-caption {
+      text-align: center;
+    }
+    
+    .image-with-caption img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--border-radius-small);
+      box-shadow: var(--shadow-medium);
+      transition: transform var(--transition-medium);
+    }
+    
+    .image-with-caption img:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    /* Video embed styling for gallery compatibility */
+    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-heavy);
+    }
+    
+    .caption {
+      font-size: 0.9rem;
+      color: var(--text-medium);
+      font-style: italic;
+      margin-top: 1rem;
+      line-height: 1.4;
+    }
+    
+    /* Project content styling */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="project-detail">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <section class="hero" style="padding: 4rem 0 2rem;">
+      <div class="container">
+        <h1>Version 2 Development</h1>
+      </div>
+    </section>
+
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="2749d96e-b8a1-806c-89b0-c5312878ef13" class="page sans"><header><h1 class="page-title">Version 2 Development</h1><p class="page-description"></p></header><div><p id="27c9d96e-b8a1-8006-85bf-c1fd3a28ed9c" class=""><a href="Animal Head Camera.html">Animal Head Camera</a> </p><details open=""><summary style="font-weight:600;font-size:1.25em;line-height:1.3;margin:0">Goals</summary><div class="indented"><p id="27e9d96e-b8a1-8049-808e-c4d4a4941b5f" class="">Exploration state is over. We have proven that all the components work together and can output to Touchdesigner. Now you can focus on streamlining and optimization.</p><ul id="27e9d96e-b8a1-8073-a9e9-eed3ddb3be6c" class="bulleted-list"><li style="list-style-type:disc">Actually make this look like something</li></ul><ul id="27e9d96e-b8a1-8068-bbd4-c349272a6ec6" class="bulleted-list"><li style="list-style-type:disc">Standardize the parts so you can make more of these </li></ul><ul id="27e9d96e-b8a1-807b-89cf-d08fbf5029c7" class="bulleted-list"><li style="list-style-type:disc">Introduce the ear physical geoemetry</li></ul><p id="27e9d96e-b8a1-8002-9b45-c1d013ce3c6c" class="">
+</p></div></details><details open=""><summary style="font-weight:600;font-size:1.25em;line-height:1.3;margin:0">Ideation</summary><div class="indented"><ul id="2749d96e-b8a1-8092-99cf-f0a7235b9743" class="bulleted-list"><li style="list-style-type:disc">Can we make this thing look like  a rabbit… What would the ears do? Oh man, wouldn’t it be cool if the ears were actually useful for scanning the environment? I’ve always wanted an excuse for pogo pins and magnetic connectors. </li></ul><figure id="2749d96e-b8a1-80ad-b30b-d0c7b051a721" class="image"><a href="Untitled.png"><div class="image-with-caption">
+  <img alt="" src="Untitled.png"/>
+  <div class="caption"></div>
+</div></a></figure></div></details><details open=""><summary style="font-weight:600;font-size:1.25em;line-height:1.3;margin:0">Execution</summary><div class="indented"><div id="2769d96e-b8a1-80cb-9552-cbfc27213edf" class="column-list"><div id="2769d96e-b8a1-80ca-88eb-f74e9d4aeadd" style="width:50%" class="column"><p id="2769d96e-b8a1-80fc-8edf-ff2d8f3e643e" class="">
+</p><figure id="2759d96e-b8a1-80ec-88ed-ccf33db4e0b7" class="image"><a href="image%203.png"><div class="image-with-caption">
+  <img alt="" src="image 3.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>I first laid out the major profiles what I wanted the end form to look like, and floated some components to begin finding room for everything</figcaption></figure><figure id="2769d96e-b8a1-80bf-81ae-dbe77778cb6e" class="image"><a href="image%204.png"><div class="image-with-caption">
+  <img alt="" src="image 4.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>It was a tight fit, but we were able to fit everything from V1 </figcaption></figure><figure id="2769d96e-b8a1-806a-83e1-f41bd3fdf9a0" class="image"><a href="image%205.png"><div class="image-with-caption">
+  <img alt="" src="image 5.png"/>
+  <div class="caption"></div>
+</div></a></figure></div><div id="2769d96e-b8a1-80ac-a0c0-dd61b02d3b3c" style="width:50%" class="column"><p id="2769d96e-b8a1-8018-99d7-d52e3c878061" class="">
+</p><figure id="2759d96e-b8a1-80e8-800e-c68936c24fa0" class="image"><a href="image%206.png"><div class="image-with-caption">
+  <img alt="" src="image 6.png"/>
+  <div class="caption"></div>
+</div></a><figcaption>The outer shell was formed with a elliptical revolve for the top part of the head, and a lofted volume with spline guide curves blended into the elliptical volume.</figcaption></figure><figure id="2769d96e-b8a1-80cf-b222-d173438980c1" class="image"><a href="image%207.png"><div class="image-with-caption">
+  <img alt="" src="image 7.png"/>
+  <div class="caption"></div>
+</div></a></figure><p id="2769d96e-b8a1-80a4-bcb8-c60c5ff8fe3e" class="">
+</p><figure id="2769d96e-b8a1-80d5-901b-c2f1a91a948e" class="image"><a href="image%208.png"><div class="image-with-caption">
+  <img alt="" src="image 8.png"/>
+  <div class="caption"></div>
+</div></a></figure></div></div><figure id="2769d96e-b8a1-8031-8357-fe32e6517958" class="image"><a href="image%209.png"><div class="image-with-caption">
+  <img alt="" src="image 9.png"/>
+  <div class="caption"></div>
+</div></a></figure><figure id="2769d96e-b8a1-80e2-9339-e98c55ed085f" class="image"><a href="image%2010.png"><div class="image-with-caption">
+  <img alt="" src="image 10.png"/>
+  <div class="caption"></div>
+</div></a></figure><figure id="2769d96e-b8a1-8031-a67a-d3f9b542f7ca" class="image"><a href="image%2011.png"><div class="image-with-caption">
+  <img alt="" src="image 11.png"/>
+  <div class="caption"></div>
+</div></a></figure></div></details><details open=""><summary style="font-weight:600;font-size:1.5em;line-height:1.3;margin:0">Notes</summary><div class="indented"><p id="27e9d96e-b8a1-80d5-a2ad-ead267bdc518" class="">
+</p><p id="27e9d96e-b8a1-802f-a981-d2f112b10510" class="">These are references for the radar hookup. I’m going to get the cameras working first and then come back for the radar integration</p><table id="2779d96e-b8a1-800a-ba57-d7f48aeec2ca" class="simple-table"><thead class="simple-table-header"><tr id="2779d96e-b8a1-80f6-924a-e5ba31cb8b49"><th id="Gn]K" class="simple-table-header-color simple-table-header">v1.1 Breakout Pin</th><th id=";;tp" class="simple-table-header-color simple-table-header">v1.0 Breakout Pin</th><th id="uBYR" class="simple-table-header-color simple-table-header">Raspberry Pi Pin Name</th><th id="g=M{" class="simple-table-header-color simple-table-header">RasPi Hardware Pin Number</th></tr></thead><tbody><tr id="2779d96e-b8a1-803c-8004-da824aa01828"><td id="Gn]K" class="">CS</td><td id=";;tp" class="">CS</td><td id="uBYR" class="">SPI0 CS0</td><td id="g=M{" class="">24</td></tr><tr id="2779d96e-b8a1-80f6-98c9-ff007909f053"><td id="Gn]K" class="">SCLK</td><td id=";;tp" class="">SCLK</td><td id="uBYR" class="">SPI0 SCLK</td><td id="g=M{" class="">23</td></tr><tr id="2779d96e-b8a1-8057-83a8-e2b0e64d6f69"><td id="Gn]K" class="">MISO</td><td id=";;tp" class="">MISO</td><td id="uBYR" class="">SPI0 MISO</td><td id="g=M{" class="">21</td></tr><tr id="2779d96e-b8a1-80c4-9b57-f8f6c2dd9ba2"><td id="Gn]K" class="">MOSI</td><td id=";;tp" class="">MOSI</td><td id="uBYR" class="">SPI0 MOSI</td><td id="g=M{" class="">19</td></tr><tr id="2779d96e-b8a1-8029-83c4-ca0afb141325"><td id="Gn]K" class="">INT</td><td id=";;tp" class="">INT</td><td id="uBYR" class="">GPIO25</td><td id="g=M{" class="">22</td></tr><tr id="2779d96e-b8a1-8077-aef4-f9a3137c8178"><td id="Gn]K" class="">EN</td><td id=";;tp" class="">EN</td><td id="uBYR" class="">GPIO27</td><td id="g=M{" class="">13</td></tr><tr id="2779d96e-b8a1-807f-9e9f-db39a8c74e96"><td id="Gn]K" class="">VCCIO</td><td id=";;tp" class=""></td><td id="uBYR" class=""><strong>3.3V</strong></td><td id="g=M{" class="">1, 17</td></tr><tr id="2779d96e-b8a1-807b-9c3d-fd1a986656e8"><td id="Gn]K" class="">GND</td><td id=";;tp" class="">GND</td><td id="uBYR" class="">GND</td><td id="g=M{" class="">6, 14, 20, etc.</td></tr><tr id="2779d96e-b8a1-8029-a2a8-f924f13f05b8"><td id="Gn]K" class="">VIN</td><td id=";;tp" class="">5V</td><td id="uBYR" class=""><strong>5V</strong></td><td id="g=M{" class="">2, 4</td></tr></tbody></table><p id="2779d96e-b8a1-802e-abb8-cffd72bcceaf" class="">
+</p><figure id="2779d96e-b8a1-80ca-8658-e855493ab3f4" class="image"><a href="Raspberry-Pi-A111-Pulsed-Radar-HAT-_Stacked.jpg"><div class="image-with-caption">
+  <img alt="" src="Raspberry-Pi-A111-Pulsed-Radar-HAT-_Stacked.jpg"/>
+  <div class="caption"></div>
+</div></a></figure><figure id="2779d96e-b8a1-80a0-ad89-e6cafba4aabe" class="image"><a href="Pulsed_Radar_Breakout_A111_Voltage_Regulator.jpg"><div class="image-with-caption">
+  <img alt="" src="Pulsed_Radar_Breakout_A111_Voltage_Regulator.jpg"/>
+  <div class="caption"></div>
+</div></a></figure><figure id="2779d96e-b8a1-80b6-a91e-e99e35271a5e" class="image"><a href="gpio-layout-adobe.png"><div class="image-with-caption">
+  <img alt="" src="gpio-layout-adobe.png"/>
+  <div class="caption"></div>
+</div></a></figure></div></details><p id="2779d96e-b8a1-809b-b62a-ff3769dd5a92" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

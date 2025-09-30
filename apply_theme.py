@@ -440,12 +440,16 @@ class WebsiteThemeApplicator:
         
         print("    🎥 Processing YouTube links...")
         
-        # YouTube URL patterns to match (including shorts)
+        # Skip processing if content already has YouTube iframes (from HTML bundle extractor)
+        if 'youtube.com/embed/' in content and '<iframe' in content:
+            print("    ℹ️  Content already has embedded YouTube iframes, skipping conversion")
+            return content
+        
+        # YouTube URL patterns to match (excluding embed URLs to avoid double-processing)
         youtube_patterns = [
             r'https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
             r'https?://(?:www\.)?youtube\.com/watch\?.*?v=([a-zA-Z0-9_-]{11})',
             r'https?://youtu\.be/([a-zA-Z0-9_-]{11})',
-            r'https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
             r'https?://(?:www\.)?youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
         ]
         
@@ -514,12 +518,11 @@ class WebsiteThemeApplicator:
             full_match = match.group(0)
             href_value = match.group(1)
             
-            # Check if this is a YouTube URL
+            # Check if this is a YouTube URL (excluding embed URLs to avoid conflicts)
             for pattern in [
                 r'https?://(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})',
                 r'https?://(?:www\.)?youtube\.com/watch\?.*?v=([a-zA-Z0-9_-]{11})',
                 r'https?://youtu\.be/([a-zA-Z0-9_-]{11})',
-                r'https?://(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]{11})',
                 r'https?://(?:www\.)?youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
             ]:
                 video_match = re.search(pattern, href_value)

@@ -17,32 +17,20 @@
   --primary-rgb: 44, 62, 80;       /* Primary color in RGB */
   --secondary-rgb: 52, 152, 219;   /* Secondary color in RGB */
   --accent-rgb: 231, 76, 60;       /* Accent color in RGB */
-  --neutral-rgb: 236, 240, 241;    /* Neutral background in RGB */
+  --neutral-rgb: 52, 73, 94;       /* Darker neutral background in RGB */
   
   /* ADAPTIVE GRADIENT COLORS - Can be overridden per page */
   --page-primary: var(--primary-rgb);
   --page-secondary: var(--secondary-rgb);
   --page-accent: var(--accent-rgb);
   
-  /* RGB VALUES FOR GRADIENTS */
-  --primary-rgb: 44, 62, 80;       /* Primary color in RGB */
-  --secondary-rgb: 52, 152, 219;   /* Secondary color in RGB */
-  --accent-rgb: 231, 76, 60;       /* Accent color in RGB */
-  --neutral-rgb: 236, 240, 241;    /* Neutral background in RGB */
-  
-  /* RGB VALUES FOR GRADIENTS */
-  --primary-rgb: 44, 62, 80;       /* Primary color in RGB */
-  --secondary-rgb: 52, 152, 219;   /* Secondary color in RGB */
-  --accent-rgb: 231, 76, 60;       /* Accent color in RGB */
-  --neutral-rgb: 236, 240, 241;    /* Neutral background in RGB */
-  
   /* NEUTRAL COLORS */
   --text-dark: #2c3e50;            /* Main text color */
   --text-medium: #7f8c8d;          /* Secondary text */
   --text-light: #bdc3c7;           /* Light text on dark backgrounds */
-  --bg-light: #ffffff;             /* Light backgrounds */
-  --bg-medium: #f8f9fa;            /* Medium backgrounds */
-  --bg-dark: #34495e;              /* Dark backgrounds */
+  --bg-light: #ffffff;             /* Light backgrounds - keeping cards bright */
+  --bg-medium: #ecf0f1;            /* Slightly darker medium backgrounds */
+  --bg-dark: #2c3e50;              /* Darker backgrounds */
   
   /* GRADIENT BACKGROUNDS */
   --gradient-primary: linear-gradient(135deg, 
@@ -90,9 +78,9 @@ html {
   font-size: 16px;
   scroll-behavior: smooth;
   background: linear-gradient(135deg, 
-    rgba(var(--page-primary), 0.15) 0%, 
-    rgba(var(--page-secondary), 0.12) 50%, 
-    rgba(var(--neutral-rgb), 0.25) 100%);
+    rgba(var(--page-primary), 0.25) 0%, 
+    rgba(var(--page-secondary), 0.20) 50%, 
+    rgba(var(--neutral-rgb), 0.45) 100%);
   background-attachment: fixed;
   min-height: 100vh;
 }
