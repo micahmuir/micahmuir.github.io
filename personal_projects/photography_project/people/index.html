@@ -70,11 +70,17 @@
       color: var(--secondary-color);
       text-decoration: none;
       margin-bottom: 2rem;
-      transition: color var(--transition-fast);
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--teal-color);
+      border-radius: var(--border-radius-small);
+      background: var(--bg-light);
+      transition: all var(--transition-fast);
     }
 
     .back-link:hover {
       color: var(--accent-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
     }
 
     /* Gallery header */
@@ -101,7 +107,7 @@
       <ul class="nav-links">
         <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
-        <li><a href="/projects.html" class="active">Projects</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
@@ -118,8 +124,8 @@
 
           <!-- Gallery Header -->
           <div class="gallery-header">
-            <h1>Urban & Travel</h1>
-            <p>Exploring cities and distant places through the lens.</p>
+            <h1>People</h1>
+      
           </div>
 
           <!-- Photo Gallery -->
@@ -133,16 +139,16 @@
             </div>
 
             <div class="photo-item">
-              <img src="mono_lake.png" alt="Mono Lake">
+              <img src="mira_forest.jpg" alt="Mira Forest">
               <div class="photo-overlay">
-                <h3>Mono Lake</h3>
+                <h3>Mira Forest</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="life_itself.png" alt="Life Itself">
+              <img src="chuck.png" alt="Chuck">
               <div class="photo-overlay">
-                <h3>Life Itself</h3>
+                <h3>Chuck</h3>
               </div>
             </div>
 

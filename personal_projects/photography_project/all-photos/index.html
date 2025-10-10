@@ -70,11 +70,17 @@
       color: var(--secondary-color);
       text-decoration: none;
       margin-bottom: 2rem;
-      transition: color var(--transition-fast);
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--teal-color);
+      border-radius: var(--border-radius-small);
+      background: var(--bg-light);
+      transition: all var(--transition-fast);
     }
 
     .back-link:hover {
       color: var(--accent-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
     }
 
     /* Gallery header */
@@ -101,7 +107,7 @@
       <ul class="nav-links">
         <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
-        <li><a href="/projects.html" class="active">Projects</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
@@ -127,63 +133,56 @@
             
             <!-- Nature & Landscape Photos -->
             <div class="photo-item">
-              <img src="../nature-landscape/ice_cathedral.JPG" alt="Ice Cathedral">
+              <img src="../nature/ice_cathedral.JPG" alt="Ice Cathedral">
               <div class="photo-overlay">
                 <h3>Ice Cathedral</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/icy_tamanawas.JPG" alt="Icy Tamanawas Falls">
+              <img src="../nature/icy_tamanawas.JPG" alt="Icy Tamanawas Falls">
               <div class="photo-overlay">
                 <h3>Icy Tamanawas Falls</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/volcano.JPG" alt="Volcanic Peak">
+              <img src="../nature/volcano.JPG" alt="Volcanic Peak">
               <div class="photo-overlay">
                 <h3>Volcanic Peak</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/coldspringcreek.JPG" alt="Cold Spring Creek">
+              <img src="../nature/coldspringcreek.JPG" alt="Cold Spring Creek">
               <div class="photo-overlay">
                 <h3>Cold Spring Creek</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/drycreek.JPG" alt="Dry Creek">
+              <img src="../nature/drycreek.JPG" alt="Dry Creek">
               <div class="photo-overlay">
                 <h3>Dry Creek</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/volcano_real.png" alt="Volcanic Landscape">
+              <img src="../nature/volcano_real.png" alt="Volcanic Landscape">
               <div class="photo-overlay">
                 <h3>Volcanic Landscape</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/mira_forest.jpg" alt="Mira Forest">
-              <div class="photo-overlay">
-                <h3>Mira Forest</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature-landscape/icy_tamanaswas2.JPG" alt="Icy Tamanawas 2">
+              <img src="../nature/icy_tamanaswas2.JPG" alt="Icy Tamanawas 2">
               <div class="photo-overlay">
                 <h3>Icy Tamanawas Alternative View</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../nature-landscape/Tamawanas lower half bright - December 14, 2017-[06-32].JPG" alt="Tamanawas Lower Falls">
+              <img src="../nature/Tamawanas lower half bright - December 14, 2017-[06-32].JPG" alt="Tamanawas Lower Falls">
               <div class="photo-overlay">
                 <h3>Tamanawas Lower Falls</h3>
               </div>
@@ -191,21 +190,21 @@
 
             <!-- Wildlife Photos -->
             <div class="photo-item">
-              <img src="../wildlife/hawk.jpg" alt="Red-tailed Hawk">
+              <img src="../animals/hawk.jpg" alt="Red-tailed Hawk">
               <div class="photo-overlay">
                 <h3>Red-tailed Hawk</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../wildlife/hawk 1.jpg" alt="Hawk in Flight">
+              <img src="../animals/hawk 1.jpg" alt="Hawk in Flight">
               <div class="photo-overlay">
                 <h3>Hawk in Flight</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../wildlife/bearskull.JPG" alt="Bear Skull">
+              <img src="../animals/bearskull.JPG" alt="Bear Skull">
               <div class="photo-overlay">
                 <h3>Nature's Memorial</h3>
               </div>
@@ -213,35 +212,35 @@
 
             <!-- Weather & Sky Photos -->
             <div class="photo-item">
-              <img src="../weather-sky/lightning.jpg" alt="Lightning Strike">
+              <img src="../weather/lightning.jpg" alt="Lightning Strike">
               <div class="photo-overlay">
                 <h3>Lightning Strike</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../weather-sky/eclipse.png" alt="Solar Eclipse">
+              <img src="../weather/eclipse.png" alt="Solar Eclipse">
               <div class="photo-overlay">
                 <h3>Solar Eclipse</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../weather-sky/hood_moon.png" alt="Moonrise over Mount Hood">
+              <img src="../weather/hood_moon.png" alt="Moonrise over Mount Hood">
               <div class="photo-overlay">
                 <h3>Moonrise over Mount Hood</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../weather-sky/heavycloud.JPG" alt="Heavy Clouds">
+              <img src="../weather/heavycloud.JPG" alt="Heavy Clouds">
               <div class="photo-overlay">
                 <h3>Heavy Clouds</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../weather-sky/cloudspotting.JPG" alt="Cloud Formations">
+              <img src="../weather/cloudspotting.JPG" alt="Cloud Formations">
               <div class="photo-overlay">
                 <h3>Cloud Formations</h3>
               </div>
@@ -249,23 +248,58 @@
 
             <!-- Urban & Travel Photos -->
             <div class="photo-item">
-              <img src="../urban-travel/new york.png" alt="New York City">
+              <img src="../people/new york.png" alt="New York City">
               <div class="photo-overlay">
                 <h3>New York City</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../urban-travel/mono_lake.png" alt="Mono Lake">
+              <img src="../nature/mono_lake.png" alt="Mono Lake">
               <div class="photo-overlay">
                 <h3>Mono Lake</h3>
               </div>
             </div>
 
             <div class="photo-item">
-              <img src="../urban-travel/life_itself.png" alt="Life Itself">
+              <img src="../nature/life_itself.png" alt="Life Itself">
               <div class="photo-overlay">
                 <h3>Life Itself</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../people/mira_forest.jpg" alt="Mira Forest">
+              <div class="photo-overlay">
+                <h3>Mira Forest</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../people/chuck.png" alt="Chuck">
+              <div class="photo-overlay">
+                <h3>Chuck</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../animals/jellyfish.png" alt="Jellyfish">
+              <div class="photo-overlay">
+                <h3>Jellyfish</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../animals/three_birds.png" alt="Three Birds">
+              <div class="photo-overlay">
+                <h3>Three Birds</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="../animals/hummingbird.png" alt="Hummingbird">
+              <div class="photo-overlay">
+                <h3>Hummingbird</h3>
               </div>
             </div>
 

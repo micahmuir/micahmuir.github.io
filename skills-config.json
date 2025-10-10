@@ -1,0 +1,9 @@
+{
+  "skills": {
+    "Programming": ["Python", "JavaScript", "C++", "SQL"],
+    "Web Development": ["HTML/CSS", "React", "Node.js", "Django"],
+    "Data Science": ["NumPy", "Pandas", "Matplotlib", "Scikit-learn"],
+    "Tools": ["Git", "Docker", "Linux", "AWS"],
+    "Hardware": ["Arduino", "Raspberry Pi", "3D Printing", "PCB Design"]
+  }
+}

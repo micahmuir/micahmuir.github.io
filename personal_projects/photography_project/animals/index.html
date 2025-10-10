@@ -70,11 +70,17 @@
       color: var(--secondary-color);
       text-decoration: none;
       margin-bottom: 2rem;
-      transition: color var(--transition-fast);
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--teal-color);
+      border-radius: var(--border-radius-small);
+      background: var(--bg-light);
+      transition: all var(--transition-fast);
     }
 
     .back-link:hover {
       color: var(--accent-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
     }
 
     /* Gallery header */
@@ -101,7 +107,7 @@
       <ul class="nav-links">
         <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
-        <li><a href="/projects.html" class="active">Projects</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
@@ -118,8 +124,8 @@
 
           <!-- Gallery Header -->
           <div class="gallery-header">
-            <h1>Wildlife</h1>
-            <p>Moments with the wild inhabitants of Oregon's forests and meadows.</p>
+            <h1>Animals</h1>
+         
           </div>
 
           <!-- Photo Gallery -->
@@ -143,6 +149,27 @@
               <img src="bearskull.JPG" alt="Bear Skull">
               <div class="photo-overlay">
                 <h3>Nature's Memorial</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="jellyfish.png" alt="Jellyfish">
+              <div class="photo-overlay">
+                <h3>Ocean Drifter</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="three_birds.png" alt="Three Birds">
+              <div class="photo-overlay">
+                <h3>Avian Trio</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="hummingbird.png" alt="Hummingbird">
+              <div class="photo-overlay">
+                <h3>Tiny Jewel</h3>
               </div>
             </div>
 

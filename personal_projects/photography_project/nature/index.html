@@ -70,11 +70,17 @@
       color: var(--secondary-color);
       text-decoration: none;
       margin-bottom: 2rem;
-      transition: color var(--transition-fast);
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--teal-color);
+      border-radius: var(--border-radius-small);
+      background: var(--bg-light);
+      transition: all var(--transition-fast);
     }
 
     .back-link:hover {
       color: var(--accent-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
     }
 
     /* Gallery header */
@@ -101,7 +107,7 @@
       <ul class="nav-links">
         <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
-        <li><a href="/projects.html" class="active">Projects</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
@@ -118,9 +124,8 @@
 
           <!-- Gallery Header -->
           <div class="gallery-header">
-            <h1>Nature & Landscape</h1>
-            <p>Capturing the raw beauty of the Pacific Northwest - from frozen waterfalls to volcanic peaks.</p>
-          </div>
+            <h1>The Ground</h1>
+                  </div>
 
           <!-- Photo Gallery -->
           <div class="photo-gallery">
@@ -168,13 +173,6 @@
             </div>
 
             <div class="photo-item">
-              <img src="mira_forest.jpg" alt="Mira Forest">
-              <div class="photo-overlay">
-                <h3>Mira Forest</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
               <img src="icy_tamanaswas2.JPG" alt="Icy Tamanawas 2">
               <div class="photo-overlay">
                 <h3>Icy Tamanawas Alternative View</h3>
@@ -182,9 +180,16 @@
             </div>
 
             <div class="photo-item">
-              <img src="Tamawanas lower half bright - December 14, 2017-[06-32].JPG" alt="Tamanawas Lower Falls">
+              <img src="life_itself.png" alt="Life Itself">
               <div class="photo-overlay">
-                <h3>Tamanawas Lower Falls</h3>
+                <h3>Life Itself</h3>
+              </div>
+            </div>
+
+            <div class="photo-item">
+              <img src="mono_lake.png" alt="Mono Lake">
+              <div class="photo-overlay">
+                <h3>Mono Lake</h3>
               </div>
             </div>
 

@@ -7,49 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/style.css">
   <style>
-    /* Project-specific image grid styling */
-    .image-grid {
-      display: grid;
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    
-    .image-grid.two-column {
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-    
-    .image-with-caption {
-      text-align: center;
-    }
-    
-    .image-with-caption img {
-      width: 100%;
-      height: auto;
-      border-radius: var(--border-radius-small);
-      box-shadow: var(--shadow-medium);
-      transition: transform var(--transition-medium);
-    }
-    
-    .image-with-caption img:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-heavy);
-    }
-    
-    /* Video embed styling for gallery compatibility */
-    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-heavy);
-    }
-    
-    .caption {
-      font-size: 0.9rem;
-      color: var(--text-medium);
-      font-style: italic;
-      margin-top: 1rem;
-      line-height: 1.4;
-    }
-    
-    /* Project content styling */
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
     .project-content h2 {
       color: var(--secondary-color);
       font-size: 1.5rem;
@@ -57,8 +15,6 @@
       padding-bottom: 0.5rem;
       border-bottom: 2px solid var(--secondary-color);
     }
-    
-
     
     .project-content ul {
       list-style: none;

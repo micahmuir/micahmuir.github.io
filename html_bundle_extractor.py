@@ -35,6 +35,7 @@ class HTMLBundleExtractor:
         self.supported_extensions = {'.zip', '.7z', '.rar'}
         self.cleanup_zips = cleanup_zips  # Whether to clean up ZIP files after extraction
         self.filename_mapping = {}  # Track original -> cleaned filename mappings
+        self.already_cleaned_files = set()  # Track files that were created with clean names
     
     def convert_heic_to_png(self, heic_path, output_path):
         """Convert a HEIC file to PNG format"""
@@ -85,17 +86,41 @@ class HTMLBundleExtractor:
         for heic_file in heic_files:
             print(f"Converting: {heic_file.relative_to(directory)}")
             
-            # Create PNG filename
-            png_file = heic_file.with_suffix('.png')
+            # Create PNG filename using cleaned filename logic
+            # First get the relative path and clean it
+            rel_path = heic_file.relative_to(directory)
+            cleaned_rel_path = self.clean_filename(str(rel_path))
+            
+            # Change extension to .png
+            cleaned_path = Path(cleaned_rel_path)
+            if cleaned_path.suffix.lower() in ['.heic', '.heif']:
+                cleaned_png_path = cleaned_path.with_suffix('.png')
+            else:
+                # If the cleaned path doesn't have a HEIC extension, ensure it ends with .png
+                cleaned_png_path = cleaned_path.parent / (cleaned_path.stem + '.png')
+            
+            # Create the full PNG file path
+            png_file = directory / cleaned_png_path
+            
+            # Ensure the directory exists
+            png_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            print(f"    Converting to: {cleaned_png_path}")
             
             if self.convert_heic_to_png(heic_file, png_file):
                 converted_count += 1
-                conversions.append((heic_file, png_file))
+                # Store both original HEIC path and final PNG path for HTML updates
+                conversions.append((heic_file, png_file, cleaned_png_path))
+                
+                # Track this PNG file as already having a clean name
+                rel_png_path = png_file.relative_to(directory)
+                self.already_cleaned_files.add(str(rel_png_path))
                 
                 # Remove the original HEIC file
                 try:
                     heic_file.unlink()
                     print(f"    ✓ Removed original: {heic_file.name}")
+                    print(f"    ✓ Created cleaned PNG: {cleaned_png_path}")
                 except Exception as e:
                     print(f"    ⚠ Could not remove {heic_file.name}: {e}")
             else:
@@ -128,11 +153,19 @@ class HTMLBundleExtractor:
                 original_content = content
                 
                 # Update references for each conversion
-                for heic_file, png_file in conversions:
+                for conversion in conversions:
+                    if len(conversion) == 3:
+                        heic_file, png_file, cleaned_png_path = conversion
+                        # Use the cleaned filename for HTML updates
+                        png_filename = Path(cleaned_png_path).name
+                    else:
+                        # Fallback for older format
+                        heic_file, png_file = conversion
+                        png_filename = png_file.name
+                    
                     # Get relative paths from HTML file
                     try:
                         heic_rel = os.path.relpath(heic_file, html_file.parent)
-                        png_rel = os.path.relpath(png_file, html_file.parent)
                         
                         # Create all possible patterns that might appear in HTML
                         patterns_to_replace = [
@@ -156,12 +189,12 @@ class HTMLBundleExtractor:
                         replacements_made = 0
                         for pattern in patterns_to_replace:
                             if pattern in content:
-                                # Replace with just the PNG filename (relative to HTML file)
-                                content = content.replace(pattern, png_file.name)
+                                # Replace with the cleaned PNG filename
+                                content = content.replace(pattern, png_filename)
                                 replacements_made += 1
                         
                         if replacements_made > 0:
-                            print(f"    ✓ Updated {replacements_made} references to {heic_file.name} in {html_file.name}")
+                            print(f"    ✓ Updated {replacements_made} references to {heic_file.name} -> {png_filename} in {html_file.name}")
                                 
                     except Exception as e:
                         print(f"    ⚠ Could not update reference to {heic_file.name}: {e}")
@@ -688,6 +721,11 @@ class HTMLBundleExtractor:
                 # Get relative path from directory
                 rel_path = file_path.relative_to(directory)
                 original_path_str = str(rel_path)
+                
+                # Skip files that were already created with clean names (like converted PNGs)
+                if original_path_str in self.already_cleaned_files:
+                    print(f"  Skipping already-clean file: {original_path_str}")
+                    continue
                 
                 # Clean the filename
                 cleaned_path_str = self.clean_filename(original_path_str)

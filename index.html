@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Micah Muir - Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body class="about-page">
+<body class="page-about">
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-container">
       <ul class="nav-links">
-        <li><a href="/" class="active">About</a></li>
+        <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
         <li><a href="/projects.html">Projects</a></li>
       </ul>
@@ -22,9 +22,10 @@
   <!-- Main Content -->
   <main class="main-content">
     <!-- Header -->
-    <section class="hero" style="padding: 4rem 0 2rem;">
+    <section class="hero" style="padding: 0% 0 0%;">
       <div class="container">
-        <h1>Micah Muir Thomas</h1>
+        <h1></h1>
+        <p></p>
       </div>
     </section>
 
@@ -32,50 +33,70 @@
     <section class="section">
       <div class="container">
         <div class="paper-panel">
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
-            <!-- Profile Image -->
-            <div style="text-align: center;">
-              <img src="/assets/images/headshot.jpg" alt="Micah Muir Thomas" 
-                   style="width: 280px; height: 280px; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-heavy);">
-            </div>
+          <div style="position: relative;">
+            <!-- Profile Image - Floated within text -->
+            <img src="/assets/images/headshot.jpg" alt="Micah Muir Thomas" 
+                 class="profile-image">
             
-            <!-- Bio Content -->
-            <div style="max-width: 800px; text-align: left;">
-              <h2 style="margin-bottom: 1.5rem;">Hello.</h2>
-              <p> My name is Micah. I'm a mechanical engineer, artist, and tinkerer currently living in Portland, Oregon.  </p>
+            <p class="intro-text"><strong>Hello, I'm Micah.</strong> I'm an engineer, artist, and tinkerer currently based in Portland, Oregon.</p>
 
- <p>I was born in South Africa, and while growing up lived in Singapore, Scotland, and California before settling back in PDX area.  </p>
+            <p>I'm geared by the overlap between science and design, between mechanics and aesthetics, and infinite potential of creative people in small groups. Both my parents were school teachers, and through their international teaching posts I gained an early and deep appreciation for lifelong learning, and the joy of using a broad skillset to tackle unique problems.</p>
 
- <p>Moving around all the time as a kid shaped my desire to bridge techniques and disciplines when it comes to the act of creation. In college, I couldn't decide whether to pursue fine art or get an engineering degree, so I did both. Professionally, I design and integrate hardware for robotic systems. Outside of work, I learn new skills by building different projects that span photography, live visuals, spatial sensing, imaging, and more. There's beauty in the overlap of science, art, and human emotion. Data doesn't have to live and die in a table. My goal is to leverage engineering to make better art, and vice versa.   </p>
+            <p>In college, I couldn't decide whether to pursue fine art or get an engineering degree, so I did both. Professionally, I design and integrate hardware for advanced  robotic systems, but have worked across scales from tiny embedded smart glasses to building-size industrial systems. In and outside of work, I believe all things are connected whether we like it or not, and there's beauty in the overlap of science, art, and human emotion. Data doesn't have to live and die in a table. Broadly, my goal is to make the world safer, more beautiful, and to never stop learning.</p>
 
- <p>These pages are intended to serve as an expansion of my professional resume, as well as a platform to share the things I work on in my spare time.  </p>
+            <p>These pages are intended to serve as an expansion of my professional resume, as well as a platform to share some of the relevant projects I work on in my spare time.</p>
 
- <p>Thanks for stopping by ~  </p>
-            </div>
+            <p>Thanks for stopping by ~</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Contact Information -->
+    <!-- Skills & Interests -->
     <section class="section">
       <div class="container">
-        <div class="paper-panel">
-          <h2 style="margin-bottom: 1.5rem; text-align: center;">Contact</h2>
-          <div style="display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;">
-            <div style="text-align: center;">
-              <h3 style="margin-bottom: 0.5rem; color: var(--primary-color);">Email</h3>
-              <a href="mailto:micah.muir@gmail.com" style="font-size: 1.1rem; text-decoration: none; color: var(--secondary-color);">micah.muir@gmail.com</a>
-            </div>
-         
-            <div style="text-align: center;">
-              <h3 style="margin-bottom: 0.5rem; color: var(--primary-color);">LinkedIn</h3>
-              <a href="https://www.linkedin.com/in/micah-thomas-09249586/" target="_blank" rel="noopener noreferrer" style="font-size: 1.1rem; text-decoration: none; color: var(--secondary-color);">linkedin/micah</a>
-            </div>
+        <div class="card-grid">
+          <div class="card">
+            <h3 class="card-title">Engineering</h3>
+            <p class="card-description">Mechanical design, robotics, automation systems, and precision manufacturing.</p>
+          </div>
+          
+          <div class="card">
+            <h3 class="card-title">Creative Arts</h3>
+            <p class="card-description">Photography, visual design, generative art, and interactive installations.</p>
+          </div>
+          
+          <div class="card">
+            <h3 class="card-title">Technology</h3>
+            <p class="card-description">Software development, computer vision, IoT systems, and hardware integration.</p>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Blurry Animated Shapes - Background Effect -->
+    <div class="bg-animated-shapes">
+      <div class="shape shape1" style="width:320px;height:320px;top:8%;left:10%;animation-delay:0s;"></div>
+      <div class="shape shape2" style="width:260px;height:260px;top:60%;left:70%;animation-delay:1.6s;"></div>
+      <div class="shape shape3" style="width:200px;height:200px;top:40%;left:50%;animation-delay:3.2s;"></div>
+      <div class="shape shape4" style="width:180px;height:180px;top:20%;left:80%;animation-delay:4.8s;"></div>
+      <div class="shape shape5" style="width:220px;height:220px;top:75%;left:30%;animation-delay:6.4s;"></div>
+      <div class="shape shape6" style="width:150px;height:150px;top:55%;left:15%;animation-delay:8s;"></div>
+      <div class="shape shape7" style="width:180px;height:180px;top:30%;left:60%;animation-delay:9.6s;"></div>
+      <div class="shape shape8" style="width:200px;height:200px;top:70%;left:20%;animation-delay:11.2s;"></div>
+      <div class="shape shape9" style="width:170px;height:170px;top:15%;left:75%;animation-delay:12.8s;"></div>
+      <div class="shape shape10" style="width:210px;height:210px;top:80%;left:40%;animation-delay:14.4s;"></div>
+      <div class="shape shape11" style="width:160px;height:160px;top:50%;left:80%;animation-delay:16s;"></div>
+      <div class="shape shape12" style="width:190px;height:190px;top:25%;left:30%;animation-delay:17.6s;"></div>
+      <div class="shape shape13" style="width:220px;height:220px;top:60%;left:60%;animation-delay:19.2s;"></div>
+      <div class="shape shape14" style="width:180px;height:180px;top:35%;left:80%;animation-delay:20.8s;"></div>
+      <div class="shape shape15" style="width:200px;height:200px;top:70%;left:50%;animation-delay:22.4s;"></div>
+      <div class="shape shape16" style="width:170px;height:170px;top:10%;left:25%;animation-delay:24s;"></div>
+      <div class="shape shape17" style="width:210px;height:210px;top:85%;left:60%;animation-delay:25.6s;"></div>
+      <div class="shape shape18" style="width:160px;height:160px;top:45%;left:10%;animation-delay:27.2s;"></div>
+      <div class="shape shape19" style="width:190px;height:190px;top:20%;left:60%;animation-delay:28.8s;"></div>
+      <div class="shape shape20" style="width:220px;height:220px;top:65%;left:80%;animation-delay:30.4s;"></div>
+    </div>
   </main>
 
   <!-- JavaScript for active navigation -->
@@ -84,19 +105,25 @@
       const currentPath = window.location.pathname;
       const navLinks = document.querySelectorAll('.nav-links a');
       
+      // First remove active from all links
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      // Then add active to the correct link
       navLinks.forEach(link => {
         const href = link.getAttribute('href');
-        if (href === currentPath || (currentPath === '/' && href === '/') || 
-            (currentPath.includes('index.html') && href === '/')) {
+        
+        // Check for exact matches or root/index matches
+        if (href === currentPath || 
+            (currentPath === '/' && href === '/') || 
+            (currentPath === '/index.html' && href === '/') ||
+            (currentPath.endsWith('/index.html') && href === '/') ||
+            (currentPath === '' && href === '/')) {
           link.classList.add('active');
-        } else {
-          link.classList.remove('active');
         }
       });
     });
   </script>
-  
-  <!-- Include main.js for navbar auto-hide functionality -->
-  <script src="/assets/js/main.js"></script>
 </body>
 </html>

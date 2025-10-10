@@ -7,49 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/style.css">
   <style>
-    /* Project-specific image grid styling */
-    .image-grid {
-      display: grid;
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    
-    .image-grid.two-column {
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-    
-    .image-with-caption {
-      text-align: center;
-    }
-    
-    .image-with-caption img {
-      width: 100%;
-      height: auto;
-      border-radius: var(--border-radius-small);
-      box-shadow: var(--shadow-medium);
-      transition: transform var(--transition-medium);
-    }
-    
-    .image-with-caption img:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-heavy);
-    }
-    
-    /* Video embed styling for gallery compatibility */
-    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-heavy);
-    }
-    
-    .caption {
-      font-size: 0.9rem;
-      color: var(--text-medium);
-      font-style: italic;
-      margin-top: 1rem;
-      line-height: 1.4;
-    }
-    
-    /* Project content styling */
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
     .project-content h2 {
       color: var(--secondary-color);
       font-size: 1.5rem;
@@ -57,8 +15,6 @@
       padding-bottom: 0.5rem;
       border-bottom: 2px solid var(--secondary-color);
     }
-    
-
     
     .project-content ul {
       list-style: none;
@@ -82,6 +38,7 @@
   </style>
 </head>
 <body class="project-detail">
+  
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-container">
@@ -125,21 +82,9 @@
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
         allowfullscreen>
     </iframe>
-</div><figcaption>My point cloud visualizer I created from a depth map stream in Touchdesigner</figcaption></figure><h1 id="2749d96e-b8a1-8037-8a12-f0556e1e8ebf" class="">Current Form <time>@September 29, 2025</time> </h1><p id="27c9d96e-b8a1-8057-a55f-f63102898d3b" class="">I created a design for a teddy bear head that acts as a learning and development platform for machine vision, and as a useful tool for Touchdesigner project input. <br/><br/>These represent the evolution of learning from a number of smaller projects, such as the time lapse camera and the depth image mirroring on my luminaire lamp. <br/><br/>Each head hosts a ToF sensor in one eye and an RGB camera in the other. It can stream pixels from both over a UDP connection at 30 fps, allowing me to patch the image input into Touchdesigner to perform  graphics card applications in real time. <br/><br/>Is this a industrial grade, certified solution? No. <br/><br/>Does it work? Yes. <br/><br/>Was it fun to build? <br/><br/>Also yes. </p><div id="27e9d96e-b8a1-80a4-bdd6-c1791dd70cdb" class="column-list"><div id="27e9d96e-b8a1-804b-a4cf-c8b6b78b666e" style="width:50%" class="column"><figure id="27c9d96e-b8a1-80ad-be2d-d8cb5aa5c327" class="image"><a href="photo.png"><div class="image-with-caption">
-  <img alt="" src="photo.png"/>
-  <div class="caption"></div>
-</div></a><figcaption>Blackbear and greenbear after almost complete assembly</figcaption></figure></div><div id="27e9d96e-b8a1-8008-8496-e1423d75be62" style="width:50%" class="column"><figure id="27c9d96e-b8a1-80a5-9d79-d76b2e19625f" class="image"><a href="photo 1.png"><div class="image-with-caption">
-  <img alt="" src="photo 1.png"/>
-  <div class="caption"></div>
-</div></a><figcaption>Greenbear has the global shutter RGB camera</figcaption></figure></div></div><h1 id="27e9d96e-b8a1-8035-8e76-ff422a97e204" class="">Switch to Bear</h1><p id="27e9d96e-b8a1-80a5-9730-fa04e046e30e" class="">Although this whole thing started off with the vision of a rabbit, I had a problem. </p><p id="27c9d96e-b8a1-80b2-b4c9-e695cd2d4c21" class="">
-</p><figure id="27c9d96e-b8a1-809e-bbfc-e21c6ee48310" class="image"><a href="photo 2.png"><div class="image-with-caption">
-  <img alt="" src="photo 2.png"/>
-  <div class="caption"></div>
-</div></a><figcaption>Blackbear has the high resolution, autofocus rolling shutter camera. That still needs to be integrated into the CAD model. </figcaption></figure><details open=""><summary style="font-weight:600;font-size:1.5em;line-height:1.3;margin:0">Touchdesigner Integration</summary><div class="indented"><p id="27e9d96e-b8a1-80e4-82ad-f50624345bb6" class="">
-</p><figure id="27e9d96e-b8a1-807a-a262-cd23ebfa3e59" class="image"><a href="image.png"><div class="image-with-caption">
-  <img alt="" src="image.png"/>
-  <div class="caption"></div>
-</div></a></figure><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-8045-83e9-c45e2dcf83ee" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">def onReceive(dat, rowIndex, message, byteData, peer):
+</div><figcaption>My point cloud visualizer I created from a depth map stream in Touchdesigner</figcaption></figure><h1 id="2749d96e-b8a1-8037-8a12-f0556e1e8ebf" class="">Current Form <time>@September 29, 2025</time> </h1><p id="27c9d96e-b8a1-8057-a55f-f63102898d3b" class="">I created a design for a teddy bear head that acts as a learning and development platform for machine vision, and as a useful tool for Touchdesigner project input. <br/><br/>These represent the evolution of learning from a number of smaller projects, such as the time lapse camera and the depth image mirroring on my luminaire lamp. <br/><br/>Each head hosts a ToF sensor in one eye and an RGB camera in the other. It can stream pixels from both over a UDP connection at 30 fps, allowing me to patch the image input into Touchdesigner to perform  graphics card applications in real time. <br/><br/>Is this a industrial grade, certified solution? No. <br/><br/>Does it work? Yes. <br/><br/>Was it fun to build? <br/><br/>Also yes. </p><div id="27e9d96e-b8a1-80a4-bdd6-c1791dd70cdb" class="column-list"><div id="27e9d96e-b8a1-804b-a4cf-c8b6b78b666e" style="width:50%" class="column"><figure id="27c9d96e-b8a1-80ad-be2d-d8cb5aa5c327" class="image"><a href="photo.png"><img style="width:600px" src="photo.png"/></a><figcaption>Blackbear and greenbear after almost complete assembly</figcaption></figure></div><div id="27e9d96e-b8a1-8008-8496-e1423d75be62" style="width:50%" class="column"><figure id="27c9d96e-b8a1-80a5-9d79-d76b2e19625f" class="image"><a href="photo 1.png"><img style="width:600px" src="photo 1.png"/></a><figcaption>Greenbear has the global shutter RGB camera</figcaption></figure></div></div><h1 id="27e9d96e-b8a1-8035-8e76-ff422a97e204" class="">Switch to Bear</h1><p id="27e9d96e-b8a1-80a5-9730-fa04e046e30e" class="">Although this whole thing started off with the vision of a rabbit, I had a problem. </p><p id="27c9d96e-b8a1-80b2-b4c9-e695cd2d4c21" class="">
+</p><figure id="27c9d96e-b8a1-809e-bbfc-e21c6ee48310" class="image"><a href="photo 2.png"><img style="width:600px" src="photo 2.png"/></a><figcaption>Blackbear has the high resolution, autofocus rolling shutter camera. That still needs to be integrated into the CAD model. </figcaption></figure><details open=""><summary style="font-weight:600;font-size:1.5em;line-height:1.3;margin:0">Touchdesigner Integration</summary><div class="indented"><p id="27e9d96e-b8a1-80e4-82ad-f50624345bb6" class="">
+</p><figure id="27e9d96e-b8a1-807a-a262-cd23ebfa3e59" class="image"><a href="image.png"><img style="width:623.125px" src="image.png"/></a></figure><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-8045-83e9-c45e2dcf83ee" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">def onReceive(dat, rowIndex, message, byteData, peer):
 	global packet_buffer, expected_chunks, all_data
 	
 	if len(byteData) &lt; 4:
@@ -322,10 +267,7 @@ def onCook(scriptOp):
 
 	data = None
 	return</code></pre><p id="27e9d96e-b8a1-800b-ac75-e43c49063161" class="">
-</p><figure id="27e9d96e-b8a1-807b-ac5b-f40f830ccf90" class="image"><a href="image%201.png"><div class="image-with-caption">
-  <img alt="" src="image 1.png"/>
-  <div class="caption"></div>
-</div></a></figure><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-80bf-8591-d2818d221bee" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">uniform float uFovXDeg;
+</p><figure id="27e9d96e-b8a1-807b-ac5b-f40f830ccf90" class="image"><a href="image%201.png"><img class="wide-image" style="width:2777px" src="image 1.png"/></a></figure><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27e9d96e-b8a1-80bf-8591-d2818d221bee" class="code code-wrap"><code class="language-JavaScript" style="white-space:pre-wrap;word-break:break-all">uniform float uFovXDeg;
 uniform float uFovYDeg;
 uniform bool  uDepthIs01;
 uniform bool  uDepthIsRange;  // NEW: true if depth is RANGE along the ray
@@ -410,10 +352,7 @@ void main() {
     // Final RGB output: R=X, G=Y, B=Z (normalized to [0,1])
     fragColor = vec4(packed.x, packed.y, packed.z, 1.0);
 }
-</code></pre><figure id="27e9d96e-b8a1-8093-bbd7-ebd692e89d6d" class="image"><a href="image%202.png"><div class="image-with-caption">
-  <img alt="" src="image 2.png"/>
-  <div class="caption"></div>
-</div></a></figure></div></details></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+</code></pre><figure id="27e9d96e-b8a1-8093-bbd7-ebd692e89d6d" class="image"><a href="image%202.png"><img style="width:653.1339721679688px" src="image 2.png"/></a></figure></div></details></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
           </div>
         </div>
         

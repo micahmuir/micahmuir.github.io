@@ -70,11 +70,17 @@
       color: var(--secondary-color);
       text-decoration: none;
       margin-bottom: 2rem;
-      transition: color var(--transition-fast);
+      padding: 0.75rem 1.5rem;
+      border: 2px solid var(--teal-color);
+      border-radius: var(--border-radius-small);
+      background: var(--bg-light);
+      transition: all var(--transition-fast);
     }
 
     .back-link:hover {
       color: var(--accent-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
     }
 
     /* Gallery header */
@@ -101,7 +107,7 @@
       <ul class="nav-links">
         <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
-        <li><a href="/projects.html" class="active">Projects</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
@@ -118,8 +124,7 @@
 
           <!-- Gallery Header -->
           <div class="gallery-header">
-            <h1>Weather & Sky</h1>
-            <p>Dramatic skies, storms, and celestial events above the Oregon landscape.</p>
+            <h1>The Sky</h1>
           </div>
 
           <!-- Photo Gallery -->

@@ -2,250 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Projects - Micah Muir</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body class="projects-page">
+<body class="page-projects">
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-container">
       <ul class="nav-links">
         <li><a href="/">About</a></li>
         <li><a href="/resume.html">Resume</a></li>
-        <li><a href="/projects.html" class="active">Projects</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
+
+  <!-- Blurry Animated Shapes Background -->
+  <div class="bg-animated-shapes">
+    <div class="shape shape1" style="width:320px;height:320px;top:8%;left:10%;animation-delay:0s;"></div>
+    <div class="shape shape2" style="width:260px;height:260px;top:60%;left:70%;animation-delay:1.6s;"></div>
+    <div class="shape shape3" style="width:200px;height:200px;top:40%;left:50%;animation-delay:3.2s;"></div>
+    <div class="shape shape4" style="width:180px;height:180px;top:20%;left:80%;animation-delay:4.8s;"></div>
+    <div class="shape shape5" style="width:220px;height:220px;top:75%;left:30%;animation-delay:6.4s;"></div>
+    <div class="shape shape6" style="width:150px;height:150px;top:55%;left:15%;animation-delay:8s;"></div>
+    <div class="shape shape7" style="width:180px;height:180px;top:30%;left:60%;animation-delay:9.6s;"></div>
+    <div class="shape shape8" style="width:200px;height:200px;top:70%;left:20%;animation-delay:11.2s;"></div>
+    <div class="shape shape9" style="width:170px;height:170px;top:15%;left:75%;animation-delay:12.8s;"></div>
+    <div class="shape shape10" style="width:210px;height:210px;top:80%;left:40%;animation-delay:14.4s;"></div>
+    <div class="shape shape11" style="width:160px;height:160px;top:50%;left:80%;animation-delay:16s;"></div>
+    <div class="shape shape12" style="width:190px;height:190px;top:25%;left:30%;animation-delay:17.6s;"></div>
+    <div class="shape shape13" style="width:220px;height:220px;top:60%;left:60%;animation-delay:19.2s;"></div>
+    <div class="shape shape14" style="width:180px;height:180px;top:35%;left:80%;animation-delay:20.8s;"></div>
+    <div class="shape shape15" style="width:200px;height:200px;top:70%;left:50%;animation-delay:22.4s;"></div>
+    <div class="shape shape16" style="width:170px;height:170px;top:10%;left:25%;animation-delay:24s;"></div>
+    <div class="shape shape17" style="width:210px;height:210px;top:85%;left:60%;animation-delay:25.6s;"></div>
+    <div class="shape shape18" style="width:160px;height:160px;top:45%;left:10%;animation-delay:27.2s;"></div>
+    <div class="shape shape19" style="width:190px;height:190px;top:20%;left:60%;animation-delay:28.8s;"></div>
+    <div class="shape shape20" style="width:220px;height:220px;top:65%;left:80%;animation-delay:30.4s;"></div>
+  </div>
 
   <!-- Main Content -->
   <main class="main-content">
     <!-- Header -->
     <section class="hero" style="padding: 4rem 0 2rem;">
       <div class="container">
-        <!-- Search Bar -->
-        <div class="search-container">
-          <input type="text" class="search-bar" id="projectSearch" placeholder="Search projects by name, description, or tags...">
-        </div>
+
         
         <!-- Project Type Navigation -->
         <div class="project-nav">
           <button class="project-nav-item" data-section="personal">Personal Projects</button>
           <button class="project-nav-item active" data-section="professional">Professional Projects</button>
         </div>
-        
-        <!-- Filter Tags -->
-        <div class="filter-tags" id="filterTags">
-          <button class="filter-tag active" data-filter="all">All</button>
-          <button class="filter-tag" data-filter="hardware">Hardware</button>
-          <button class="filter-tag" data-filter="software">Software</button>
-          <button class="filter-tag" data-filter="robotics">Robotics</button>
-          <button class="filter-tag" data-filter="photography">Photography</button>
-          <button class="filter-tag" data-filter="nature">Nature</button>
-          <button class="filter-tag" data-filter="landscape">Landscape</button>
-          <button class="filter-tag" data-filter="wildlife">Wildlife</button>
-          <button class="filter-tag" data-filter="astronomy">Astronomy</button>
-          <button class="filter-tag" data-filter="automation">Automation</button>
-          <button class="filter-tag" data-filter="electronics">Electronics</button>
-          <button class="filter-tag" data-filter="mechanical">Mechanical</button>
-          <button class="filter-tag" data-filter="optics">Optics</button>
-          <button class="filter-tag" data-filter="creative">Creative</button>
-          <button class="filter-tag" data-filter="iot">IoT</button>
-          <button class="filter-tag" data-filter="urban">Urban</button>
-          <button class="filter-tag" data-filter="weather">Weather</button>
-        </div>
       </div>
     </section>
 
     <!-- Personal Projects Section -->
-
-
-
-    
     <section class="projects-section hidden" id="personalSection">
-
-      
       <div class="container">
-
-        
         <div class="card-grid" id="personalProjects">
-
-               <a href="/personal_projects/bearcam_project/Animal Head Camera.html" class="card" data-tags="robotics,hardware,electronics,mechanical,creative">
-            <div class="card-image" style="background-image: url('personal_projects/bearcam_project/photo 1.png');"></div>
-            <h3 class="card-title">Animal Head Camera</h3>
-            <p class="card-description">Experiments with building camera streaming systems.</p>
-            <div class="project-tags">
-              <span class="project-tag">Robotics</span>
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Electronics</span>
-              <span class="project-tag">Mechanical</span>
-              <span class="project-tag">Creative</span>
-            </div>
-          </a>
-
-     <a href="/personal_projects/touchdesigner.html" class="card" data-tags="software,creative,interactive">
-            <div class="card-image" style="background-image: url('personal_projects/touchdesigner.png');"></div>
-            <h3 class="card-title">TouchDesigner Projects</h3>
-            <p class="card-description">Interactive visual experiences and generative art projects.</p>
-            <div class="project-tags">
-              <span class="project-tag">Software</span>
-              <span class="project-tag">Creative</span>
-              <span class="project-tag">Interactive</span>
-            </div>
-          </a>
-
-
-
-          <a href="/personal_projects/photography.html" class="card" data-tags="photography,creative">
-            <div class="card-image" style="background-image: url('/assets/images/photography/volcano.JPG');"></div>
-            <h3 class="card-title">Photography Portfolio</h3>
-            <p class="card-description"></p>
-            <div class="project-tags">
-              <span class="project-tag">Photography</span>
-              <span class="project-tag">Creative</span>
-            </div>
-          </a>
-
-          <a href="/personal_projects/stairlight.html" class="card" data-tags="hardware,electronics,automation,iot,lighting">
+          <a href="/personal_projects/stairlight_project/Companion Stairlight.html" class="card">
             <div class="card-image" style="background-image: url('https://img.youtube.com/vi/VXFYuCdimaI/hqdefault.jpg');"></div>
             <h3 class="card-title">Companion Stairlight</h3>
-            <p class="card-description">An intelligent lighting system that responds to movement and ambient conditions.</p>
-            <div class="project-tags">
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Electronics</span>
-              <span class="project-tag">Automation</span>
-              <span class="project-tag">IoT</span>
-            </div>
-          </a>
-          
-
-          <a href="/personal_projects/timelapse_project/Time Lapse Camera.html" class="card" data-tags="hardware,software,photography,automation,electronics">
-            <div class="card-image" style="background-image: url('https://img.youtube.com/vi/UCMqOSOKHzI/hqdefault.jpg');"></div>
-            <h3 class="card-title">Timelapse Camera</h3>
-            <p class="card-description">Automated camera system for capturing long-term timelapse photography.</p>
-            <div class="project-tags">
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Software</span>
-              <span class="project-tag">Photography</span>
-              <span class="project-tag">Automation</span>
-            </div>
+            <p class="card-description">An intelligent lighting system that moves with you.</p>
           </a>
 
-                    <a href="/personal_projects/coasters_project/Terrain Coasters.html" class="card" data-tags="hardware,electronics,creative,mechanical">
-            <div class="card-image" style="background-image: url('/personal_projects/coasters_project/terrain_insert.png');"></div>
-            <h3 class="card-title">Terrain Coasters</h3>
-            <p class="card-description">2024 White Elephant gifts.</p>
-            <div class="project-tags">
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Electronics</span>
-              <span class="project-tag">Creative</span>
-              <span class="project-tag">Mechanical</span>
-            </div>
+          <a href="/personal_projects/mat_project/Interactive Mat.html" class="card">
+            <div class="card-image" style="background-image: url('https://img.youtube.com/vi/otG2o5SEMO0/hqdefault.jpg');"></div>
+            <h3 class="card-title">Multitouch Floor Mat</h3>
+            <p class="card-description">A scalable canvas for interactive visual projects.</p>
           </a>
 
-          <a href="/personal_projects/small_projects.html" class="card" data-tags="hardware,electronics,creative,mechanical">
-            <div class="card-image" style="background-image: url('https://img.youtube.com/vi/aI-L-cnE9OY/hqdefault.jpg');"></div>
-            <h3 class="card-title">Small Projects</h3>
-            <p class="card-description">A collection of smaller experiments and creative solutions.</p>
-            <div class="project-tags">
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Electronics</span>
-              <span class="project-tag">Creative</span>
-              <span class="project-tag">Mechanical</span>
-            </div>
+         
+          <a href="/personal_projects/bearcam_project/Animal Head Camera.html" class="card" data-tags="hardware,electronics,photography,automation,iot">
+            <div class="card-image" style="background-image: url('/personal_projects/bearcam_project/photo.png');"></div>
+            <h3 class="card-title">Animal Head Camera</h3>
+            <p class="card-description">Robust, flexible network camera solution.</p>
           </a>
-
 
      
-     
-          <!-- Individual Photography Cards Removed -->
-
-
+          <a href="/personal_projects/photography_project/index.html" class="card" data-tags="photography,creative">
+            <div class="card-image" style="background-image: url('/assets/images/photography/volcano.JPG');"></div>
+            <h3 class="card-title">Photography Portfolio</h3>
+            <p class="card-description"> A selection of some of my favorite shots.</p>
+          </a>
         </div>
       </div>
+      
     </section>
 
     <!-- Professional Projects Section -->
     <section class="projects-section visible" id="professionalSection">
       <div class="container">
         <div class="card-grid" id="professionalProjects">
-          <a href="/professional_projects/combiner/combiner.html" class="card" data-tags="robotics,mechanical,hardware,automation">
+          <a href="/professional_projects/combiner_project/Palletizing Robot.html" class="card" data-tags="robotics,mechanical,hardware,automation">
             <div class="card-image" style="background-image: url('/assets/images/combiner1.png');"></div>
             <h3 class="card-title">Palletizing Robot</h3>
             <p class="card-description">Quad-parallel palletizing solution with steel superstructure and dual XYZT gantry system.</p>
-            <div class="project-tags">
-              <span class="project-tag">Robotics</span>
-              <span class="project-tag">Mechanical</span>
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Automation</span>
-            </div>
+           
           </a>
 
-          <a href="/professional_projects\3D_Printed_Vacuum_Gripper_project\3D Printed Vacuum Gripper.html" class="card" data-tags="robotics,mechanical,hardware,automation">
+          <a href="/professional_projects/gripper_project/3D Printed Vacuum Gripper.html" class="card" data-tags="robotics,mechanical,hardware,automation">
             <div class="card-image" style="background-image: url('/assets/images/gripper_01.png');"></div>
             <h3 class="card-title">Vacuum Suction Gripper</h3>
-            <p class="card-description">FDM-printed vacuum gripper for automated warehouse box handling operations.</p>
-            <div class="project-tags">
-              <span class="project-tag">Robotics</span>
-              <span class="project-tag">Mechanical</span>
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Automation</span>
-            </div>
+            <p class="card-description">FDM-printed 12-cup, 4-zone vacuum gripper for automated warehouse box handling operations.</p>
+        
           </a>
-    
 
-               <a href="/professional_projects/Toolhead Camera Mount_project/Toolhead Camera Mount.html" class="card" data-tags="robotics,mechanical,hardware,automation">
-            <div class="card-image" style="background-image: url('/professional_projects/Toolhead Camera Mount_project/Vision_SM_Bracket_Assembly_(4).png');"></div>
+          <a href="/professional_projects/plover_project/Plover Contour Wash.html" class="card" data-tags="robotics,mechanical,hardware,automation,manufacturing">
+            <div class="card-image" style="background-image: url('/assets/images/plover_logo.png');"></div>
+            <h3 class="card-title">Plover Contour Wash</h3>
+            <p class="card-description">Advanced contour washing system for precision manufacturing applications.</p>
+           
+          </a>
+
+          <a href="/professional_projects/toolhead_project/Toolhead Camera Mount.html" class="card" data-tags="hardware,mechanical,optics,manufacturing">
+            <div class="card-image" style="background-image: url('/professional_projects/toolhead_project/Vision_SM_Bracket_Assembly_(4).png');"></div>
             <h3 class="card-title">Toolhead Camera Mount</h3>
-            <p class="card-description">Lightweight camera mount for precise toolhead positioning.</p>
-            <div class="project-tags">
-              <span class="project-tag">Robotics</span>
-              <span class="project-tag">Mechanical</span>
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Automation</span>
-            </div>
+            <p class="card-description">Precision camera mounting system for manufacturing equipment vision systems.</p>
+        
           </a>
-                   <a href="/professional_projects/plover_project/Plover Contour Wash.html" class="card" data-tags="robotics,mechanical,hardware,automation">
-            <div class="card-image" style="background-image: url('/professional_projects/plover_project/ploverlogo.png');"></div>
-            <h3 class="card-title">Contour Wash</h3>
-            <p class="card-description">5 Axis touchless car wash.</p>
-            <div class="project-tags">
-              <span class="project-tag">Robotics</span>
-              <span class="project-tag">Mechanical</span>
-              <span class="project-tag">Hardware</span>
-              <span class="project-tag">Automation</span>
-            </div>
-          </a>
-    
-
-        <!-- No Results Message -->
-        <div class="no-results" id="noResults">
-          <p>No projects found matching your search criteria.</p>
-          <p>Try adjusting your search terms or filters.</p>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- JavaScript for search, filtering, and navigation -->
+  <!-- JavaScript for navigation -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize navigation
       const currentPath = window.location.pathname;
       const navLinks = document.querySelectorAll('.nav-links a');
       
+      // First remove active from all links
       navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        if (href === currentPath || currentPath.includes(href.substring(1))) {
-          link.classList.add('active');
-        } else {
-          link.classList.remove('active');
-        }
+        link.classList.remove('active');
       });
       
-      // Initialize search and filter functionality
-      initializeProjectFiltering();
+      // Then add active to the correct link
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        
+        // Check for exact matches
+        if (href === currentPath) {
+          link.classList.add('active');
+        }
+      });
       
       // Initialize section switching
       initializeSectionSwitching();
@@ -256,14 +159,9 @@
       const personalSection = document.getElementById('personalSection');
       const professionalSection = document.getElementById('professionalSection');
       
-      // Check for saved preference, default to professional projects
+      // Check for saved preference, default to professional only on first visit
       const savedSection = localStorage.getItem('lastProjectSection');
       const initialSection = savedSection || 'professional';
-      
-      // If no preference is saved, set professional as the default
-      if (!savedSection) {
-        localStorage.setItem('lastProjectSection', 'professional');
-      }
       
       // Set initial state based on saved preference or default
       setActiveSection(initialSection);
@@ -281,6 +179,11 @@
       });
       
       function setActiveSection(section) {
+        // Update body class for theme switching
+        const body = document.body;
+        body.classList.remove('professional-active', 'personal-active');
+        body.classList.add(section + '-active');
+        
         // Update active nav item
         navItems.forEach(nav => nav.classList.remove('active'));
         document.querySelector(`[data-section="${section}"]`).classList.add('active');
@@ -308,82 +211,6 @@
         }, 200);
       }
     }
-    
-    function initializeProjectFiltering() {
-      const searchBar = document.getElementById('projectSearch');
-      const filterTags = document.querySelectorAll('.filter-tag');
-      const noResults = document.getElementById('noResults');
-      
-      let currentFilter = 'all';
-      let currentSearch = '';
-      
-      // Search functionality
-      searchBar.addEventListener('input', function(e) {
-        currentSearch = e.target.value.toLowerCase().trim();
-        filterProjects();
-      });
-      
-      // Filter tag functionality
-      filterTags.forEach(tag => {
-        tag.addEventListener('click', function() {
-          // Update active filter
-          filterTags.forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          
-          currentFilter = this.getAttribute('data-filter');
-          filterProjects();
-        });
-      });
-      
-      function filterProjects() {
-        // Get currently visible section
-        const visibleSection = document.querySelector('.projects-section.visible');
-        if (!visibleSection) return;
-        
-        const projectCards = visibleSection.querySelectorAll('.card[data-tags]');
-        let visibleCount = 0;
-        
-        projectCards.forEach(card => {
-          const tags = card.getAttribute('data-tags').toLowerCase();
-          const title = card.querySelector('.card-title').textContent.toLowerCase();
-          const description = card.querySelector('.card-description').textContent.toLowerCase();
-          
-          // Check if card matches search
-          const matchesSearch = currentSearch === '' || 
-            title.includes(currentSearch) || 
-            description.includes(currentSearch) || 
-            tags.includes(currentSearch);
-          
-          // Check if card matches filter
-          const matchesFilter = currentFilter === 'all' || tags.includes(currentFilter);
-          
-          // Show/hide card based on both criteria
-          if (matchesSearch && matchesFilter) {
-            card.style.display = 'block';
-            card.classList.remove('fade-out');
-            card.classList.add('fade-in');
-            visibleCount++;
-          } else {
-            card.style.display = 'none';
-            card.classList.add('fade-out');
-            card.classList.remove('fade-in');
-          }
-        });
-        
-        // Show/hide no results message
-        if (visibleCount === 0) {
-          noResults.classList.add('show');
-        } else {
-          noResults.classList.remove('show');
-        }
-      }
-      
-      // Initial filter
-      filterProjects();
-    }
   </script>
-  
-  <!-- Include main.js for navbar auto-hide functionality -->
-  <script src="/assets/js/main.js"></script>
 </body>
 </html>

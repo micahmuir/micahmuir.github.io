@@ -15,10 +15,11 @@ import re
 import argparse
 
 class WebsiteThemeApplicator:
-    def __init__(self):
+    def __init__(self, preserve_layout=True):
         self.website_root = Path("f:/Backpack/Vault/Amber Osprey Code/micahmuir.github.io")
         # Use a generic template instead of combiner-specific one
         self.template_path = None  # Will use built-in generic template
+        self.preserve_layout = preserve_layout
         
     def select_directory(self):
         """Show dialog to select directory to process"""
@@ -49,72 +50,7 @@ class WebsiteThemeApplicator:
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/style.css">
   <style>
-    /* Project-specific image grid styling */
-    .image-grid {
-      display: grid;
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    
-    .image-grid.two-column {
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-    
-    .image-grid.three-column {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-    
-    .image-grid.four-column {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
-    
-    /* Responsive grid adjustments */
-    @media (max-width: 768px) {
-      .image-grid.three-column,
-      .image-grid.four-column {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .image-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-    }
-    
-    .image-with-caption {
-      text-align: center;
-    }
-    
-    .image-with-caption img {
-      width: 100%;
-      height: auto;
-      border-radius: var(--border-radius-small);
-      box-shadow: var(--shadow-medium);
-      transition: transform var(--transition-medium);
-    }
-    
-    .image-with-caption img:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-heavy);
-    }
-    
-    /* Video embed styling for gallery compatibility */
-    .image-with-caption div[style*="padding-bottom: 56.25%"]:hover {
-      transform: scale(1.02);
-      box-shadow: var(--shadow-heavy);
-    }
-    
-    .caption {
-      font-size: 0.9rem;
-      color: var(--text-medium);
-      font-style: italic;
-      margin-top: 1rem;
-      line-height: 1.4;
-    }
-    
-    /* Project content styling */
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
     .project-content h2 {
       color: var(--secondary-color);
       font-size: 1.5rem;
@@ -122,8 +58,6 @@ class WebsiteThemeApplicator:
       padding-bottom: 0.5rem;
       border-bottom: 2px solid var(--secondary-color);
     }
-    
-
     
     .project-content ul {
       list-style: none;
@@ -160,13 +94,6 @@ class WebsiteThemeApplicator:
 
   <!-- Main Content -->
   <main class="main-content">
-    <!-- Header -->
-    <section class="hero" style="padding: 4rem 0 2rem;">
-      <div class="container">
-        <h1>{{TITLE}}</h1>
-      </div>
-    </section>
-
     <!-- Project Content -->
     <section class="section">
       <div class="container">
@@ -201,12 +128,16 @@ class WebsiteThemeApplicator:
 </body>
 </html>'''
     
-    def copy_and_fix_images(self, html_content, source_dir, target_dir):
-        """Copy images from nested directories and return fixed HTML content"""
+    def copy_and_fix_images(self, html_content, source_dir, target_dir, preserve_layout=True):
+        """Copy images from nested directories and return fixed HTML content with layout preservation"""
         import urllib.parse
         
         source_dir = Path(source_dir)
         target_dir = Path(target_dir)
+        
+        # If preserving layout, use the Notion-specific preservation method
+        if preserve_layout:
+            return self.preserve_notion_export_structure(html_content, source_dir, target_dir)
         
         # Find all image references in the HTML
         img_pattern = r'src="([^"]*)"'
@@ -259,7 +190,7 @@ class WebsiteThemeApplicator:
                     copied_images.append((img_src, filename))
                     print(f"    ✓ Copied image: {filename}")
                 except Exception as e:
-                    print(f"    ⚠ Failed to copy {filename}: {e}")
+                    print(f"    ✗ Failed to copy {filename}: {e}")
             else:
                 print(f"    ⚠ Image not found: {decoded_src}")
         
@@ -280,6 +211,177 @@ class WebsiteThemeApplicator:
             # Also remove the figure/link wrapper if it exists
             figure_pattern = f'<figure[^>]*>.*?<a[^>]*href="[^"]*{re.escape(filename)}"[^>]*>.*?</a>.*?</figure>'
             updated_content = re.sub(figure_pattern, replacement, updated_content, flags=re.DOTALL)
+        
+        return updated_content
+    
+    def preserve_original_image_layout(self, html_content, source_dir, target_dir):
+        """Preserve original HTML image layout while only updating paths as needed"""
+        import urllib.parse
+        
+        source_dir = Path(source_dir)
+        target_dir = Path(target_dir)
+        
+        print("    🎨 Preserving original image layout structure")
+        
+        # Find all image tags and their contexts
+        img_pattern = r'<img[^>]*src="([^"]*)"[^>]*>'
+        
+        def replace_img_path(match):
+            full_img_tag = match.group(0)
+            img_src = match.group(1)
+            
+            if not img_src:
+                return full_img_tag
+            
+            # URL decode the path
+            decoded_src = urllib.parse.unquote(img_src)
+            
+            # Check if it's an unsupported format
+            file_ext = Path(decoded_src).suffix.lower()
+            if file_ext in ['.heic', '.heif']:
+                print(f"    ⚠ Skipping unsupported format: {Path(decoded_src).name}")
+                return f'<!-- UNSUPPORTED IMAGE FORMAT: {Path(decoded_src).name} -->'
+            
+            # Try to find the actual image file
+            potential_paths = [
+                source_dir / decoded_src,
+                source_dir / Path(decoded_src).name,
+            ]
+            
+            # Also search in nested directories
+            for root, dirs, files in os.walk(source_dir):
+                root_path = Path(root)
+                filename = Path(decoded_src).name
+                if filename in files:
+                    potential_paths.append(root_path / filename)
+            
+            # Find the first existing file
+            source_file = None
+            for path in potential_paths:
+                if path.exists():
+                    source_file = path
+                    break
+            
+            if source_file:
+                # Copy to target directory with just the filename
+                filename = source_file.name
+                target_file = target_dir / filename
+                
+                try:
+                    if not target_file.exists():  # Only copy if not already present
+                        shutil.copy2(source_file, target_file)
+                        print(f"    ✓ Copied image: {filename}")
+                    
+                    # Update only the src attribute, preserve everything else
+                    new_src = filename
+                    updated_tag = full_img_tag.replace(f'src="{img_src}"', f'src="{new_src}"')
+                    return updated_tag
+                    
+                except Exception as e:
+                    print(f"    ✗ Failed to copy {filename}: {e}")
+                    return full_img_tag
+            else:
+                print(f"    ⚠ Image not found: {decoded_src}")
+                return full_img_tag
+        
+        # Update image paths while preserving all HTML structure
+        updated_content = re.sub(img_pattern, replace_img_path, html_content)
+        
+        return updated_content
+    
+    def preserve_notion_export_structure(self, html_content, source_dir, target_dir):
+        """Preserve exact Notion export structure including column-list layouts"""
+        import urllib.parse
+        
+        source_dir = Path(source_dir)
+        target_dir = Path(target_dir)
+        
+        print("    📐 Preserving exact Notion export structure")
+        
+        # First, copy images and update paths while preserving all styling
+        img_pattern = r'<img([^>]*?)src="([^"]*)"([^>]*?)>'
+        
+        def replace_img_with_preserved_styling(match):
+            pre_src = match.group(1)
+            img_src = match.group(2)
+            post_src = match.group(3)
+            
+            if not img_src:
+                return match.group(0)
+            
+            # URL decode the path
+            decoded_src = urllib.parse.unquote(img_src)
+            
+            # Check if it's an unsupported format
+            file_ext = Path(decoded_src).suffix.lower()
+            if file_ext in ['.heic', '.heif']:
+                print(f"    ⚠ Skipping unsupported format: {Path(decoded_src).name}")
+                return f'<!-- UNSUPPORTED IMAGE FORMAT: {Path(decoded_src).name} -->'
+            
+            # Try to find the actual image file
+            potential_paths = [
+                source_dir / decoded_src,
+                source_dir / Path(decoded_src).name,
+            ]
+            
+            # Also search in nested directories
+            for root, dirs, files in os.walk(source_dir):
+                root_path = Path(root)
+                filename = Path(decoded_src).name
+                if filename in files:
+                    potential_paths.append(root_path / filename)
+            
+            # Find the first existing file
+            source_file = None
+            for path in potential_paths:
+                if path.exists():
+                    source_file = path
+                    break
+            
+            if source_file:
+                # Copy to target directory with just the filename
+                filename = source_file.name
+                target_file = target_dir / filename
+                
+                try:
+                    if not target_file.exists():
+                        shutil.copy2(source_file, target_file)
+                        print(f"    ✓ Copied image: {filename}")
+                    
+                    # Check if this is a wide/panoramic image by examining the style attribute
+                    full_tag = f'<img{pre_src}src="{img_src}"{post_src}>'
+                    width_match = re.search(r'width:\s*(\d+)px', full_tag)
+                    
+                    is_wide_image = False
+                    if width_match:
+                        width_px = int(width_match.group(1))
+                        # Only consider images wider than 2000px as truly wide/panoramic
+                        # This ensures column images (typically 300-800px) stay within columns
+                        if width_px > 2000:
+                            is_wide_image = True
+                            print(f"    📐 Detected wide panoramic image: {filename} ({width_px}px wide)")
+                    
+                    # Preserve ALL original styling, just update the src
+                    new_tag = f'<img{pre_src}src="{filename}"{post_src}>'
+                    
+                    # Add a CSS class for wide images to help with styling
+                    if is_wide_image:
+                        if 'class="' in new_tag:
+                            new_tag = new_tag.replace('class="', 'class="wide-image ')
+                        else:
+                            new_tag = new_tag.replace('<img', '<img class="wide-image"')
+                    
+                    return new_tag
+                    
+                except Exception as e:
+                    print(f"    ✗ Failed to copy {filename}: {e}")
+                    return match.group(0)
+            else:
+                print(f"    ⚠ Image not found: {decoded_src}")
+                return match.group(0)
+        
+        # Update image paths while preserving ALL original styling
+        updated_content = re.sub(img_pattern, replace_img_with_preserved_styling, html_content)
         
         return updated_content
     
@@ -341,7 +443,7 @@ class WebsiteThemeApplicator:
         updated_content = re.sub(href_pattern, replace_href, html_content)
         return updated_content
     
-    def extract_content_from_html(self, html_content, file_path):
+    def extract_content_from_html(self, html_content, file_path, preserve_original_structure=True):
         """Extract title and main content from existing HTML while preserving layout structure"""
         file_path = Path(file_path)
         
@@ -379,7 +481,27 @@ class WebsiteThemeApplicator:
         # Remove script tags
         content = re.sub(r'<script[^>]*>.*?</script>', '', content, flags=re.DOTALL | re.IGNORECASE)
         
-        # PRESERVE LAYOUT STRUCTURES - Look for existing column/grid layouts
+        if preserve_original_structure:
+            print("    🎯 Preserving original HTML structure and layouts")
+            
+            # Only make minimal essential changes for theme compatibility
+            
+            # Clean up common wrapper elements (but preserve layout-related ones)
+            content = re.sub(r'<div[^>]*class="[^"]*notion[^"]*"[^>]*>', '<div>', content, flags=re.IGNORECASE)
+            content = re.sub(r'<div[^>]*class="[^"]*page[^"]*"[^>]*>', '<div>', content, flags=re.IGNORECASE)
+            
+            # Process YouTube links only
+            content = self.convert_youtube_links_to_gallery_embeds(content)
+            
+            # Add grid classes to existing grid-like structures only if they don't already have them
+            content = self.add_theme_grid_classes_to_existing_layouts(content)
+            
+            return {
+                'title': title,
+                'content': content.strip()
+            }
+        
+        # ORIGINAL LOGIC - PRESERVE LAYOUT STRUCTURES - Look for existing column/grid layouts
         has_columns = self.detect_column_layout(content)
         original_layout_preserved = False
         
@@ -635,12 +757,88 @@ class WebsiteThemeApplicator:
         )
         
         return content
-        
-        return {
-            'title': title,
-            'content': content.strip()
-        }
     
+    def add_theme_grid_classes_to_existing_layouts(self, content):
+        """Add theme-compatible grid classes to existing layouts without restructuring"""
+        
+        # Look for existing CSS Grid containers and add theme classes
+        def add_grid_class(match):
+            div_tag = match.group(0)
+            
+            # Check if it already has our theme grid classes
+            if 'image-grid' in div_tag or 'photo-grid' in div_tag or 'video-grid' in div_tag:
+                return div_tag
+            
+            # Count images to determine appropriate grid class
+            content_inside = match.group(1) if len(match.groups()) > 0 else ""
+            img_count = content_inside.count('<img')
+            
+            grid_class = "image-grid"
+            if img_count >= 4:
+                grid_class += " four-column"
+            elif img_count == 3:
+                grid_class += " three-column"
+            elif img_count == 2:
+                grid_class += " two-column"
+            
+            # Add our grid class to existing class attribute
+            if 'class="' in div_tag:
+                updated_tag = div_tag.replace('class="', f'class="{grid_class} ')
+            else:
+                # Add class attribute
+                updated_tag = div_tag.replace('<div', f'<div class="{grid_class}"')
+            
+            return updated_tag
+        
+        # Find divs with grid-related CSS
+        content = re.sub(
+            r'<div[^>]*(?:display:\s*grid|grid-template-columns)[^>]*>(.*?)</div>',
+            add_grid_class,
+            content,
+            flags=re.DOTALL | re.IGNORECASE
+        )
+        
+        # Find divs with multiple images that look like galleries
+        def add_gallery_grid_class(match):
+            div_tag = match.group(0)
+            div_content = match.group(1)
+            
+            # Check if it already has our theme grid classes
+            if 'image-grid' in div_tag or 'photo-grid' in div_tag or 'video-grid' in div_tag:
+                return div_tag
+            
+            # Count images
+            img_count = div_content.count('<img')
+            
+            if img_count >= 2:  # Only add grid class if multiple images
+                grid_class = "image-grid"
+                if img_count >= 4:
+                    grid_class += " four-column"
+                elif img_count == 3:
+                    grid_class += " three-column"
+                else:
+                    grid_class += " two-column"
+                
+                # Add our grid class
+                if 'class="' in div_tag:
+                    updated_tag = div_tag.replace('class="', f'class="{grid_class} ')
+                else:
+                    updated_tag = div_tag.replace('<div', f'<div class="{grid_class}"')
+                
+                return updated_tag
+            
+            return div_tag
+        
+        # Find divs containing multiple images (likely galleries)
+        content = re.sub(
+            r'<div([^>]*)>((?:[^<]|<(?!div))*?(?:<img[^>]*>(?:[^<]|<(?!div))*?){2,})</div>',
+            add_gallery_grid_class,
+            content,
+            flags=re.DOTALL | re.IGNORECASE
+        )
+        
+        return content
+        
     def convert_youtube_links_to_gallery_embeds(self, content):
         """Convert YouTube links to embedded gallery items"""
         import re
@@ -829,12 +1027,12 @@ class WebsiteThemeApplicator:
             with open(html_file, 'r', encoding='utf-8') as f:
                 original_content = f.read()
             
-            # Copy images and fix paths
+            # Copy images and fix paths - PRESERVE ORIGINAL LAYOUT based on setting
             source_dir = html_file.parent
-            updated_content = self.copy_and_fix_images(original_content, source_dir, source_dir)
+            updated_content = self.copy_and_fix_images(original_content, source_dir, source_dir, preserve_layout=self.preserve_layout)
             
-            # Extract content from the updated HTML
-            extracted = self.extract_content_from_html(updated_content, html_file)
+            # Extract content from the updated HTML - PRESERVE ORIGINAL STRUCTURE based on setting
+            extracted = self.extract_content_from_html(updated_content, html_file, preserve_original_structure=self.preserve_layout)
             
             # Apply template
             themed_content = template.replace('{{TITLE}}', extracted['title'])
@@ -882,14 +1080,14 @@ class WebsiteThemeApplicator:
                 target_filename = html_file.name
                 target_dir = html_file.parent
             
-            # Copy images and fix image paths
-            updated_content = self.copy_and_fix_images(original_content, html_file.parent, target_dir)
+            # Copy images and fix image paths - PRESERVE ORIGINAL LAYOUT based on setting
+            updated_content = self.copy_and_fix_images(original_content, html_file.parent, target_dir, preserve_layout=self.preserve_layout)
             
             # Fix internal navigation links
             updated_content = self.fix_internal_links(updated_content, subpage_mapping, html_file)
             
-            # Extract content from the updated HTML
-            extracted = self.extract_content_from_html(updated_content, html_file)
+            # Extract content from the updated HTML - PRESERVE ORIGINAL STRUCTURE based on setting
+            extracted = self.extract_content_from_html(updated_content, html_file, preserve_original_structure=self.preserve_layout)
             
             # Apply template
             themed_content = template.replace('{{TITLE}}', extracted['title'])
@@ -1340,10 +1538,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python apply_theme.py                           # Interactive mode - creates project structure
-  python apply_theme.py /path/to/html/directory   # Create project structure from directory
-  python apply_theme.py --in-place /path/dir     # Process files in-place (original behavior)
-  python apply_theme.py --no-backup --in-place   # In-place without backups
+  python apply_theme.py                           # Interactive mode - creates project structure (preserves layout)
+  python apply_theme.py /path/to/html/directory   # Create project structure from directory (preserves layout)
+  python apply_theme.py --in-place /path/dir     # Process files in-place (preserves layout)
+  python apply_theme.py --no-preserve-layout     # Use legacy restructuring behavior
+  python apply_theme.py --no-backup --in-place   # In-place without backups (preserves layout)
         """
     )
     
@@ -1365,9 +1564,25 @@ Examples:
         help='Process files in-place instead of creating a project structure'
     )
     
+    parser.add_argument(
+        '--preserve-layout',
+        action='store_true',
+        default=True,
+        help='Preserve original HTML layout structures (default: True)'
+    )
+    
+    parser.add_argument(
+        '--no-preserve-layout',
+        action='store_true',
+        help='Use legacy behavior that restructures HTML content'
+    )
+    
     args = parser.parse_args()
     
-    applicator = WebsiteThemeApplicator()
+    # Determine preserve_layout setting
+    preserve_layout = not args.no_preserve_layout  # Default True unless --no-preserve-layout is specified
+    
+    applicator = WebsiteThemeApplicator(preserve_layout=preserve_layout)
     
     if args.directory:
         # Command line mode

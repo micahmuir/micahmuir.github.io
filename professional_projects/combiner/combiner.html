@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Palletizing Robot - Micah Muir</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
   <style>
     /* Project-specific image grid styling */
     .image-grid {
@@ -44,16 +44,6 @@
     }
     
     /* Project content styling */
-    .project-content h2 {
-      color: var(--secondary-color);
-      font-size: 1.5rem;
-      margin: 2rem 0 1rem 0;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--secondary-color);
-    }
-    
-
-    
     .project-content ul {
       list-style: none;
       padding-left: 0;
@@ -73,16 +63,46 @@
       position: absolute;
       left: 0;
     }
+
+    /* Background animation shapes */
+    .bg-animated-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+    
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: float 30s linear infinite;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-20px) scale(1.1);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
   </style>
 </head>
-<body class="project-detail">
+<body>
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-container">
       <ul class="nav-links">
-        <li><a href="../../index.html">About</a></li>
-        <li><a href="../../resume.html">Resume</a></li>
-        <li><a href="../../projects.html">Projects</a></li>
+        <li><a href="/">About</a></li>
+        <li><a href="/resume.html">Resume</a></li>
+        <li><a href="/projects.html">Projects</a></li>
       </ul>
     </div>
   </nav>
@@ -93,6 +113,7 @@
     <section class="hero" style="padding: 4rem 0 2rem;">
       <div class="container">
         <h1>Palletizing Robot</h1>
+        <p>Mechanical design and hardware integration for quad-parallel palletizing solution</p>
       </div>
     </section>
 
@@ -101,37 +122,73 @@
       <div class="container">
         <div class="paper-panel">
           <div class="project-content">
-            <article id="2339d96e-b8a1-8034-8d2c-cd6cdae36e1a" class="page sans"><header><h1 class="page-title">Palletizing Robot</h1><p class="page-description"></p></header><div><p id="2769d96e-b8a1-805f-90d7-e7364f003bb9" class="">I designed the metal superstructure for quad-parallel palletizing solution, and acted as mechanical engineering lead for the project from installation onwards. </p><p id="27c9d96e-b8a1-8025-85a4-e70c7ed2d1ed" class="">I designed, simulated, and integrated the steel superstructure for this robot so that the company could begin populating the volume with off-the-shelf components. The structure had to be rigid enough to allow the upper dual XYZT gantry to accelerate fast enough to palletize four pallets simultaneously. This was successful, and the system was able to palletize at a rate of up to 900 CPH.</p><p id="27c9d96e-b8a1-80cf-97bd-cb51f4214f30" class="">This was a R&amp;D project, and I worked closely with it from conception through numerous upgrades and improvements as we utilized it in real-world inbound product scenarios. I saw this system through several key system upgrades such as:</p><p id="27b9d96e-b8a1-80b0-8959-cbb9527af6f2" class="">
-</p><ul id="2769d96e-b8a1-808a-a692-d5c491e85f88" class="bulleted-list"><li style="list-style-type:disc">3D machine vision camera EOAT integration</li></ul><ul id="2769d96e-b8a1-80c8-89e8-f071f925c0d8" class="bulleted-list"><li style="list-style-type:disc">Numerous crash protection safety systems</li></ul><ul id="2769d96e-b8a1-8022-8e04-cd0e3555ecb6" class="bulleted-list"><li style="list-style-type:disc">Axis modifications and upgrades</li></ul><ul id="2769d96e-b8a1-800f-b1f4-c1560a960cf6" class="bulleted-list"><li style="list-style-type:disc">Safety compliance systems</li></ul><hr id="2769d96e-b8a1-80e8-891a-e2547b5e8cdf"/><p id="2769d96e-b8a1-80ed-b5f8-e672b1ccf141" class="">
-</p><figure id="2769d96e-b8a1-80c9-8bfa-d71ce46cb4c4" class="image"><a href="combiner1.png"><div class="image-with-caption">
-  <img alt="" src="combiner1.png"/>
-  <div class="caption"></div>
-</div></a><figcaption>Rendered view of an early version of the robot. Dual product lanes with built-in singulation ability on every conveyer section allows precise and smart picking by the gantry,</figcaption></figure><figure id="2769d96e-b8a1-8019-a4ce-c417c52cf25a" class="image"><a href="combiner2.png"><div class="image-with-caption">
-  <img alt="" src="combiner2.png"/>
-  <div class="caption"></div>
-</div></a><figcaption>Shown with ramp connected to human-height conveyer. </figcaption></figure><p id="2769d96e-b8a1-80cd-b065-d0b2d50f9c1c" class="">
-</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+            <p>I acted as mechanical engineer, then eventually hardware lead on a unique palletizing robot. I designed the metal superstructure for quad-parallel palletizing solution. I worked closely with this machine from concept through to final installation, and provided many additional hardware improvements as we learned more about how this novel system operated in the real world.</p>
+
+            <p>I designed, simulated, and integrated the steel superstructure for this robot so that the company could begin populating the volume with off-the-shelf components. The structure had to be strong enough to allow the upper dual XYZT gantry to accelerate fast enough to palletize four pallets simultaneously.</p>
+
+            <p>This was a R&D project, and I worked closely with it from conception through numerous upgrades and improvements as we utilized it in real-world inbound product scenarios. I worked with this machine through concept and commissioning, as well as through several key system upgrades such as:</p>
+
+            <ul>
+              <li>3D machine vision camera EOAT integration</li>
+              <li>Numerous crash protection safety systems</li>
+              <li>Axis modifications and upgrades</li>
+              <li>Safety compliance systems</li>
+            </ul>
+
+            <!-- Image Gallery -->
+            <div class="image-grid two-column">
+              <div class="image-with-caption">
+                <img alt="Rendered view of palletizing robot" src="combiner_01.png"/>
+                <div class="caption">Rendered view of an early version of the robot. Dual product lanes with built-in singulation ability on every conveyor section allows precise and smart picking by the gantry.</div>
+              </div>
+              <div class="image-with-caption">
+                <img alt="Robot with conveyor ramp" src="combiner_02.png"/>
+                <div class="caption">Shown with ramp connected to human-height conveyor.</div>
+              </div>
+            </div>
           </div>
         </div>
         
         <!-- Back to Projects -->
         <div class="text-center mt-3">
-          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+          <a href="/projects.html" class="btn btn-secondary">← Back to Projects</a>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Main JavaScript -->
-  <script src="../../assets/js/main.js"></script>
-  
+  <!-- Background Animated Shapes -->
+  <div class="bg-animated-shapes">
+    <div class="shape shape1" style="width:320px;height:320px;top:8%;left:10%;animation-delay:0s;"></div>
+    <div class="shape shape2" style="width:260px;height:260px;top:60%;left:70%;animation-delay:1.6s;"></div>
+    <div class="shape shape3" style="width:200px;height:200px;top:40%;left:50%;animation-delay:3.2s;"></div>
+    <div class="shape shape4" style="width:180px;height:180px;top:20%;left:80%;animation-delay:4.8s;"></div>
+    <div class="shape shape5" style="width:220px;height:220px;top:75%;left:30%;animation-delay:6.4s;"></div>
+    <div class="shape shape6" style="width:150px;height:150px;top:55%;left:15%;animation-delay:8s;"></div>
+    <div class="shape shape7" style="width:180px;height:180px;top:30%;left:60%;animation-delay:9.6s;"></div>
+    <div class="shape shape8" style="width:200px;height:200px;top:70%;left:20%;animation-delay:11.2s;"></div>
+    <div class="shape shape9" style="width:170px;height:170px;top:15%;left:75%;animation-delay:12.8s;"></div>
+    <div class="shape shape10" style="width:210px;height:210px;top:80%;left:40%;animation-delay:14.4s;"></div>
+    <div class="shape shape11" style="width:160px;height:160px;top:50%;left:80%;animation-delay:16s;"></div>
+    <div class="shape shape12" style="width:190px;height:190px;top:25%;left:30%;animation-delay:17.6s;"></div>
+    <div class="shape shape13" style="width:220px;height:220px;top:60%;left:60%;animation-delay:19.2s;"></div>
+    <div class="shape shape14" style="width:180px;height:180px;top:35%;left:80%;animation-delay:20.8s;"></div>
+    <div class="shape shape15" style="width:200px;height:200px;top:70%;left:50%;animation-delay:22.4s;"></div>
+    <div class="shape shape16" style="width:170px;height:170px;top:10%;left:25%;animation-delay:24s;"></div>
+    <div class="shape shape17" style="width:210px;height:210px;top:85%;left:60%;animation-delay:25.6s;"></div>
+    <div class="shape shape18" style="width:160px;height:160px;top:45%;left:10%;animation-delay:27.2s;"></div>
+    <div class="shape shape19" style="width:190px;height:190px;top:20%;left:60%;animation-delay:28.8s;"></div>
+    <div class="shape shape20" style="width:220px;height:220px;top:65%;left:80%;animation-delay:30.4s;"></div>
+  </div>
+
   <!-- JavaScript for active navigation -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const navLinks = document.querySelectorAll('.nav-links a');
       navLinks.forEach(link => {
-        if (link.getAttribute('href') === '../../projects.html') {
+        if (link.getAttribute('href') === '/projects.html') {
           link.classList.add('active');
+          link.textContent = 'Back to Projects';
         }
       });
     });

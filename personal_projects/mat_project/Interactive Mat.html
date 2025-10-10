@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Mat - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
+    .project-content h2 {
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-content li::before {
+      content: '▸';
+      color: var(--secondary-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+<body class="page-projects">
+  <!-- Subtle animated blurry background shapes -->
+  <div class="bg-animated-shapes">
+    <div class="shape shape1" style="width:320px;height:320px;top:8%;left:10%;animation-delay:0s;"></div>
+    <div class="shape shape2" style="width:260px;height:260px;top:60%;left:70%;animation-delay:1.6s;"></div>
+    <div class="shape shape3" style="width:200px;height:200px;top:40%;left:50%;animation-delay:3.2s;"></div>
+    <div class="shape shape4" style="width:180px;height:180px;top:20%;left:80%;animation-delay:4.8s;"></div>
+    <div class="shape shape5" style="width:220px;height:220px;top:75%;left:30%;animation-delay:6.4s;"></div>
+    <div class="shape shape6" style="width:150px;height:150px;top:55%;left:15%;animation-delay:8s;"></div>
+    <div class="shape shape7" style="width:180px;height:180px;top:30%;left:60%;animation-delay:9.6s;"></div>
+    <div class="shape shape8" style="width:200px;height:200px;top:70%;left:20%;animation-delay:11.2s;"></div>
+    <div class="shape shape9" style="width:170px;height:170px;top:15%;left:75%;animation-delay:12.8s;"></div>
+    <div class="shape shape10" style="width:210px;height:210px;top:80%;left:40%;animation-delay:14.4s;"></div>
+    <div class="shape shape11" style="width:160px;height:160px;top:50%;left:80%;animation-delay:16s;"></div>
+    <div class="shape shape12" style="width:190px;height:190px;top:25%;left:30%;animation-delay:17.6s;"></div>
+    <div class="shape shape13" style="width:220px;height:220px;top:60%;left:60%;animation-delay:19.2s;"></div>
+    <div class="shape shape14" style="width:180px;height:180px;top:35%;left:80%;animation-delay:20.8s;"></div>
+    <div class="shape shape15" style="width:200px;height:200px;top:70%;left:50%;animation-delay:22.4s;"></div>
+    <div class="shape shape16" style="width:170px;height:170px;top:10%;left:25%;animation-delay:24s;"></div>
+    <div class="shape shape17" style="width:210px;height:210px;top:85%;left:60%;animation-delay:25.6s;"></div>
+    <div class="shape shape18" style="width:160px;height:160px;top:45%;left:10%;animation-delay:27.2s;"></div>
+    <div class="shape shape19" style="width:190px;height:190px;top:20%;left:60%;animation-delay:28.8s;"></div>
+    <div class="shape shape20" style="width:220px;height:220px;top:65%;left:80%;animation-delay:30.4s;"></div>
+  </div>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Project Content -->
+    <section class="section">
+      <div class="container">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="27f9d96e-b8a1-80b5-a1eb-ff9dac818d21" class="page sans"><header><h1 class="page-title">Interactive Mat </h1><p class="page-description"></p></header><div><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/otG2o5SEMO0" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div></figure><div id="27f9d96e-b8a1-8051-8f93-e41e4a58090a" class="column-list"><div id="27f9d96e-b8a1-8057-9a53-c5d0197de64d" style="width:50%" class="column"><figure id="27f9d96e-b8a1-81cd-b59b-d8dac2956c62" class="image"><a href="diagram.png"><img style="width:349.9392466585663px" src="diagram.png"/></a></figure></div><div id="27f9d96e-b8a1-80f7-afb2-c79daf7a58d1" style="width:50%" class="column"><p id="27f9d96e-b8a1-8028-b627-d172afb427f2" class="">I created a projection pipeline using a lidar sensor to provide live object detection to a TouchDesigner network, and used some simple GLSL shaders to generate a variety of live visuals which are then projected onto the area of a yoga mat. </p><p id="2879d96e-b8a1-80a9-b78b-c576096a59aa" class="">Effectively, it becomes a scalable multitouch display that people can interact with. </p><p id="2879d96e-b8a1-8071-96ef-c1dec13f0f4c" class="">
+</p><p id="27f9d96e-b8a1-80a7-8457-f55bcce67ea1" class="">
+</p></div></div><h3 id="27f9d96e-b8a1-806e-b022-cf4e0d2be7c4" class="">Background and Motivation </h3><p id="27f9d96e-b8a1-80c5-bfbd-f59eaf279e6b" class="">I’m avid benefits of physical activity for general wellbeing. I originally started designing the system as a positioning aid for yoga poses, where a number of static and foot locations could be queued up like a slideshow, but over time and through incremental education and improvement it has  evolved into a platform for all kinds of spatial interaction and projection mapping experiments.</p><h3 id="27f9d96e-b8a1-804b-ab2b-efaf53a87815" class="">Execution</h3><p id="27f9d96e-b8a1-8019-a9c8-c3b749efd739" class="">Before I got the cinegrey mat I had a length of beige canvas as a projection surface and a 300 lumen miniprojector. The below video shows an early experiment with interactive floor projection. I simulated the particle system and wrote a basic force interaction model, so that the leap motion device on the floor in front of me could act as attractors and colliders, depending on how tightly I clenched my fist. </p><p id="2879d96e-b8a1-806e-872b-c22bd44c3433" class="">
+</p><figure id="27f9d96e-b8a1-8041-91c5-dd6e4a9144e3"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/8Lr2bAI5sjk" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div></figure><p id="27f9d96e-b8a1-80cc-96dc-d1290570b848" class="">
+</p><p id="27f9d96e-b8a1-81c9-95ca-db645d999d59" class="">From a previous project, I had access to a VLP-16 puck, which was drastic overkill for mapping my office floor. Ultimately I wanted this pipeline to be lidar-agnostic, so that I could mix and match different lidars depending on the room size, and whether of not I needed multiple lidar units to detect objects in the infrared shadow of other units.</p><p id="27f9d96e-b8a1-80fc-8090-dcf1a481b8f1" class="">
+</p><h3 id="27f9d96e-b8a1-8053-911c-df6fe94806bc" class="">LiDAR Integration</h3><p id="2809d96e-b8a1-808f-abec-e11ed65eb75c" class="">Below shows a set of objects in the scan zone, and their corresponding return map. I generated this map visual by converting the cartesian coordinates of a 360 degree scan to RGBA components of a 1 x number of points in the cloud texture. This was to instance a single circle  across the entire point cloud to “thicken” the cloud, and make it more suitable for blob detection.</p><p id="27f9d96e-b8a1-805b-b60c-e478636e4841" class="">
+</p><figure id="27f9d96e-b8a1-802b-b343-dc28e6d56c1c" class="image"><a href="lidar_chops.png"><img style="width:710px" src="lidar_chops.png"/></a><figcaption>Operator sequence encoding XYZ position data as an image frame</figcaption></figure><div id="27f9d96e-b8a1-80bd-88e9-d9afec5d3766" class="column-list"><div id="27f9d96e-b8a1-80b3-a09d-ff8d586fa095" style="width:50%" class="column"><figure id="27f9d96e-b8a1-80d0-832a-cda6ee437500" class="image"><a href="lidar_objects.png"><img style="width:388.8213851761847px" src="lidar_objects.png"/></a><figcaption>Physical objects used to quickly align lidar</figcaption></figure><p id="2809d96e-b8a1-80c2-84e2-d119e6473557" class="">
+</p><p id="2809d96e-b8a1-8091-833a-d12e56dc31dd" class="">
+</p></div><div id="27f9d96e-b8a1-80ca-8e91-e076044e8534" style="width:50%" class="column"><figure id="27f9d96e-b8a1-808c-9e87-f19724377216" class="image"><a href="image.png"><img style="width:331.9910888671875px" src="image.png"/></a><figcaption>Resulting lidar outlines</figcaption></figure><p id="27f9d96e-b8a1-80ed-8a44-c7727342822d" class="">
+</p></div></div><p id="27f9d96e-b8a1-80ee-90bc-f199b3f38864" class="">Below shows the blob detection routine in action as I walk around the objects. I transcribed the U, V, width, and height values of each blob again into the RGBA channels of an image, with a pixel count equal to the current number of detected blobs.</p><p id="2809d96e-b8a1-8024-822e-c3227025887a" class="">
+</p><p id="2809d96e-b8a1-80ee-9b91-d0cd6d1ae354" class="">
+</p><figure id="27f9d96e-b8a1-8085-bd52-f546139ed72c"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/-x52zNiNcaI" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div></figure><p id="2809d96e-b8a1-802a-bdbc-f015000be72e" class="">
+</p><p id="27f9d96e-b8a1-8019-9e46-d2ffc21fb8a2" class="">From there, I had positional information I could overlay over my projection area to drive other real-time visuals I’ve designed. Below shows the detection output as the XY location of attractors and collider inputs to a simple particle simulation I made. I now have a flexible system where I can acquire raw sensor output, process it into usable interaction data, and pipe it into interactive installations at 35-60 FPS. </p><p id="2809d96e-b8a1-805c-bdcd-c57bbee790c6" class="">
+</p><figure id="27f9d96e-b8a1-80da-a416-f6bb186ad457"><div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%; margin: 1rem 0;">
+    <iframe 
+        src="https://www.youtube.com/embed/tef3gADUe9g" 
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+    </iframe>
+</div></figure><p id="2809d96e-b8a1-8034-9943-f6f97df03ccf" class="">
+</p><p id="27f9d96e-b8a1-80dc-b0a0-ef4d44cee79c" class=""><br/></p><p id="2879d96e-b8a1-808d-869c-e031df2c6586" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+        
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

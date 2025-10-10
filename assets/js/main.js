@@ -20,6 +20,17 @@ function initNavigation() {
     const href = link.getAttribute('href');
     link.classList.remove('active');
     
+    // Check if we're in a project page and this is the projects link
+    const isProjectPage = currentPath.includes('/personal_projects/') || 
+                          currentPath.includes('/professional_projects/');
+    const isProjectsLink = href.includes('projects.html');
+    
+    if (isProjectPage && isProjectsLink) {
+      link.classList.add('active');
+      link.textContent = 'Back to Projects';
+      return; // Early return to avoid other checks
+    }
+    
     // Handle different path matching scenarios
     if (href === currentPath) {
       // Exact match
