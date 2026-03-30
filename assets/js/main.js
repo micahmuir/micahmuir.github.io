@@ -6,9 +6,10 @@ document.addEventListener('DOMContentLoaded', function() {
   initNavigation();
   initNavbarAutoHide();
   initAnimations();
-  initSmoothScrollling();
+  initSmoothScrolling();
   initProjectSectionMemory();
   initGallerySystem();
+  initParticleSimulation();
 });
 
 // Navigation highlighting
@@ -100,8 +101,8 @@ function initAnimations() {
   }
 }
 
-// Smooth scrollling for anchor links
-function initSmoothScrollling() {
+// Smooth scrolling for anchor links
+function initSmoothScrolling() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       e.preventDefault();
@@ -115,123 +116,6 @@ function initSmoothScrollling() {
     });
   });
 }
-
-// Color scheme management utilities
-const ColorScheme = {
-  // Easy way to change the entire site's color scheme
-  themes: {
-    default: {
-      '--primary-color': '#2c3e50',
-      '--secondary-color': '#3498db',
-      '--accent-color': '#e74c3c',
-      '--success-color': '#27ae60'
-    },
-    warm: {
-      '--primary-color': '#8b4513',
-      '--secondary-color': '#d2691e',
-      '--accent-color': '#ff6347',
-      '--success-color': '#32cd32'
-    },
-    cool: {
-      '--primary-color': '#2f4f4f',
-      '--secondary-color': '#4682b4',
-      '--accent-color': '#6a5acd',
-      '--success-color': '#20b2aa'
-    },
-    dark: {
-      '--primary-color': '#1a1a1a',
-      '--secondary-color': '#4a9eff',
-      '--accent-color': '#ff4757',
-      '--success-color': '#2ed573'
-    }
-  },
-  
-  // Apply a theme by name
-  apply: function(themeName) {
-    const theme = this.themes[themeName];
-    if (!theme) return;
-    
-    const root = document.documentElement;
-    Object.entries(theme).forEach(([property, value]) => {
-      root.style.setProperty(property, value);
-    });
-    
-    // Save preference if localStorage is available
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('preferred-theme', themeName);
-    }
-  },
-  
-  // Load saved theme
-  loadSaved: function() {
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('preferred-theme');
-      if (saved && this.themes[saved]) {
-        this.apply(saved);
-      }
-    }
-  }
-};
-
-// Load saved color scheme on page load
-ColorScheme.loadSaved();
-
-// Export for console access
-window.ColorScheme = ColorScheme;
-
-// Project Search and Filter Utilities
-const ProjectSearch = {
-  // Highlight matching text in search results
-  highlightText: function(text, searchTerm) {
-    if (!searchTerm) return text;
-    
-    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(regex, '<mark>$1</mark>');
-  },
-  
-  // Advanced search with multiple terms
-  advancedSearch: function(cards, searchTerms) {
-    const terms = searchTerms.toLowerCase().split(' ').filter(term => term.length > 0);
-    
-    return Array.from(cards).map(card => {
-      const tags = card.getAttribute('data-tags')?.toLowerCase() || '';
-      const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
-      const description = card.querySelector('.card-description')?.textContent.toLowerCase() || '';
-      
-      const content = `${title} ${description} ${tags}`;
-      
-      // Calculate relevance score
-      let score = 0;
-      terms.forEach(term => {
-        if (title.includes(term)) score += 3; // Title matches are most important
-        if (tags.includes(term)) score += 2;  // Tag matches are important
-        if (description.includes(term)) score += 1; // Description matches are least important
-      });
-      
-      return { card, score, matches: score > 0 };
-    }).filter(result => result.matches)
-      .sort((a, b) => b.score - a.score);
-  },
-  
-  // Get all unique tags from project cards
-  getAllTags: function(cards) {
-    const tagSet = new Set();
-    
-    Array.from(cards).forEach(card => {
-      const tags = card.getAttribute('data-tags');
-      if (tags) {
-        tags.split(',').forEach(tag => {
-          tagSet.add(tag.trim().toLowerCase());
-        });
-      }
-    });
-    
-    return Array.from(tagSet).sort();
-  }
-};
-
-// Export search utilities
-window.ProjectSearch = ProjectSearch;
 
 // Project Section Memory System
 function initProjectSectionMemory() {
@@ -563,3 +447,469 @@ window.Gallery = {
   close: closeGallery,
   refresh: makeMediaClickable
 };
+
+// =======================================================================================
+// 2D PARTICLE SIMULATION WITH ATTRACTORS & REPULSORS
+// =======================================================================================
+
+function initParticleSimulation() {
+
+  // ===================================================================================
+  // SIMULATION SETTINGS — Tweak these to change the look and feel
+  // ===================================================================================
+
+  var SIM = {
+    // -- Particles --
+    particleCount:        100,       // Total number of particles
+    particleMinRadius:    8,        // Smallest particle radius (px)
+    particleMaxRadius:    16,       // Largest particle radius (px)  (10% of force field ~120-160px)
+    particleOpacity:      1.0,      // Particle fill opacity (0..1, 1 = fully solid)
+    particleSoftness:     0.0,      // Edge softness (0 = hard circle, 1 = fully feathered to transparent)
+    particleInitSpeed:    0.3,      // Initial random velocity magnitude
+    particleDamping:      0.985,    // Velocity multiplier per frame (0..1, lower = more friction)
+    particleMaxSpeed:     1.8,      // Hard speed cap (px per frame)
+
+    // -- Attractors (pull particles in) --
+    attractorCount:       3,        // Number of attractors
+    attractorStrengths:   [0.3, 0.7, 0.5],       // Strength per attractor
+    attractorRadii:       [750, 200, 380],        // Influence radius per attractor (px)
+    attractorForceMult:   0.05,     // Global multiplier on attractor force
+    attractorVisualSize:  50,       // Visual draw radius for attractors (px, 0 = invisible)
+    attractorOpacity:     0.98,     // Fill opacity for attractor glow (0..1)
+    attractorSoftness:    0.95,      // Edge softness (0 = hard circle, 1 = fully feathered)
+    attractorColor:       null,     // Color override (null = use page theme, or e.g. '#ff0000')
+
+    // -- Repulsors / Emitters (push particles away) --
+    repulsorCount:        2,        // Number of repulsors
+    repulsorStrengths:    [0.2, 0.6],             // Strength per repulsor
+    repulsorRadii:        [520, 280],             // Influence radius per repulsor (px)
+    repulsorForceMult:    0.1,      // Global multiplier on repulsor force
+    repulsorVisualSize:   50,       // Visual draw radius for repulsors (px, 0 = invisible)
+    repulsorOpacity:      0.94,     // Fill opacity for repulsor glow (0..1)
+    repulsorSoftness:     0.95,     // Edge softness (0 = hard circle, 1 = fully feathered)
+    repulsorColor:        null,     // Color override (null = use page theme, or e.g. '#0000ff')
+
+    // -- Force Point Orbits (how attractors/repulsors drift around the screen) --
+    orbitSpeedMin:        0.0008,   // Minimum angular speed
+    orbitSpeedMax:        0.0023,   // Maximum angular speed (min + range)
+    orbitRadiusXMin:      0.08,     // Min orbit X radius (fraction of screen width)
+    orbitRadiusXMax:      0.23,     // Max orbit X radius
+    orbitRadiusYMin:      0.08,     // Min orbit Y radius (fraction of screen height)
+    orbitRadiusYMax:      0.23,     // Max orbit Y radius
+
+    // -- Force Point Interactions (attractors & repulsors affect each other) --
+    fpInteraction:        true,     // Enable force points pushing/pulling each other
+    fpInteractionMult:    0.02,     // How strongly force points affect each other's orbits
+    fpInitSpeed:          0.4,      // Initial random velocity for force points (px/frame)
+    fpDamping:            0.995,    // Velocity damping for force points
+    fpMaxSpeed:           1.2,      // Speed cap for force point drift
+    roleSwapInterval:     10,       // Seconds between attractor<->repulsor role swap (0 = disabled)
+
+    // -- Particle Connection Lines --
+    connectionDistance:   300,      // Max distance (px) to draw a line between two particles
+    connectionOpacity:    1.0,      // Line opacity at zero distance
+    connectionWidth:      5.0,      // Line width in px
+    connectionColor:      null,     // Line color (null = use particle color, or e.g. '#ffffff')
+
+    // -- Rendering --
+    blurCSS:              '12px',   // CSS blur applied to the canvas
+    blendMode:            'lighten' // CSS mix-blend-mode for the canvas
+  };
+
+  // ===================================================================================
+  // END SETTINGS
+  // ===================================================================================
+
+  // Hide existing CSS shapes
+  var existingShapes = document.querySelector('.bg-animated-shapes');
+  if (existingShapes) {
+    var shapeChildren = existingShapes.querySelectorAll('.shape');
+    shapeChildren.forEach(function(s) { s.style.display = 'none'; });
+  }
+
+  // Create canvas
+  var canvas = document.createElement('canvas');
+  canvas.id = 'particle-canvas';
+  canvas.style.filter = 'blur(' + SIM.blurCSS + ')';
+  canvas.style.mixBlendMode = SIM.blendMode;
+  document.body.appendChild(canvas);
+
+  var ctx = canvas.getContext('2d');
+  var W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    // Reposition force point orbit centers on resize
+    forcePoints.forEach(function(fp) {
+      fp.cx = W * fp.cxRatio;
+      fp.cy = H * fp.cyRatio;
+      fp.orbitRx = W * fp.rxRatio;
+      fp.orbitRy = H * fp.ryRatio;
+    });
+  }
+
+  // --- Color palettes per page theme ---
+  var colorPalettes = {
+    'page-about': [
+      '#00897b', '#26a69a', '#004d40', '#00bfae', '#009688',
+      '#4dd0e1', '#006064', '#80cbc4', '#26c6da', '#00838f'
+    ],
+    'page-resume': [
+      '#ff9800', '#f57c00', '#e65100', '#ffb74d', '#ff6f00',
+      '#ffa726', '#ffd54f', '#ff8f00', '#ffcc80', '#ffb300'
+    ],
+    'page-projects': [
+      '#ffd21c', '#ffe066', '#fff3b0', '#ffd21c', '#ffe066',
+      '#fff3b0', '#ffd21c', '#ffe066'
+    ],
+    'page-projects-professional': [
+      '#1976d2', '#1565c0', '#0d47a1', '#42a5f5', '#1e88e5',
+      '#90caf9', '#64b5f6', '#2196f3', '#bbdefb'
+    ],
+    'projects-page': [
+      '#ffd21c', '#ffe066', '#fff3b0', '#ffd21c', '#ffe066'
+    ],
+    'default': [
+      '#888888', '#aaaaaa', '#666666', '#999999', '#777777'
+    ]
+  };
+
+  function getColors() {
+    var body = document.body;
+    if (body.classList.contains('page-projects') && body.classList.contains('professional-active')) {
+      return colorPalettes['page-projects-professional'];
+    }
+    if (body.classList.contains('page-about')) return colorPalettes['page-about'];
+    if (body.classList.contains('page-resume')) return colorPalettes['page-resume'];
+    if (body.classList.contains('page-projects')) return colorPalettes['page-projects'];
+    if (body.classList.contains('projects-page')) return colorPalettes['projects-page'];
+    return colorPalettes['default'];
+  }
+
+  function hexToRgb(hex) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return [r, g, b];
+  }
+
+  // --- Particle ---
+  var particles = [];
+
+  function createParticle() {
+    var colors = getColors();
+    return {
+      x: Math.random() * (W || window.innerWidth),
+      y: Math.random() * (H || window.innerHeight),
+      vx: (Math.random() - 0.5) * SIM.particleInitSpeed,
+      vy: (Math.random() - 0.5) * SIM.particleInitSpeed,
+      radius: SIM.particleMinRadius + Math.random() * (SIM.particleMaxRadius - SIM.particleMinRadius),
+      color: colors[Math.floor(Math.random() * colors.length)],
+      opacity: SIM.particleOpacity
+    };
+  }
+
+  function updateParticle(p) {
+    // Forces from attractors
+    for (var i = 0; i < attractors.length; i++) {
+      var a = attractors[i];
+      var dx = a.x - p.x;
+      var dy = a.y - p.y;
+      var dist = Math.sqrt(dx * dx + dy * dy) + 1;
+      if (dist < a.influenceRadius) {
+        var falloff = 1 - (dist / a.influenceRadius);
+        var force = a.strength * falloff * SIM.attractorForceMult;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
+    }
+
+    // Forces from repulsors
+    for (var j = 0; j < repulsors.length; j++) {
+      var r = repulsors[j];
+      var rdx = r.x - p.x;
+      var rdy = r.y - p.y;
+      var rDist = Math.sqrt(rdx * rdx + rdy * rdy) + 1;
+      if (rDist < r.influenceRadius) {
+        var rFalloff = 1 - (rDist / r.influenceRadius);
+        var rForce = r.strength * rFalloff * SIM.repulsorForceMult;
+        p.vx -= (rdx / rDist) * rForce;
+        p.vy -= (rdy / rDist) * rForce;
+      }
+    }
+
+    // Damping
+    p.vx *= SIM.particleDamping;
+    p.vy *= SIM.particleDamping;
+
+    // Speed limit
+    var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+    if (speed > SIM.particleMaxSpeed) {
+      p.vx = (p.vx / speed) * SIM.particleMaxSpeed;
+      p.vy = (p.vy / speed) * SIM.particleMaxSpeed;
+    }
+
+    // Update position
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Wrap around edges with margin
+    var margin = p.radius;
+    if (p.x < -margin) p.x = W + margin;
+    if (p.x > W + margin) p.x = -margin;
+    if (p.y < -margin) p.y = H + margin;
+    if (p.y > H + margin) p.y = -margin;
+  }
+
+  function drawParticle(p) {
+    var rgb = hexToRgb(p.color);
+    var softness = SIM.particleSoftness;
+    if (softness > 0.01) {
+      // Soft-edged particle via radial gradient
+      var solidStop = 1 - softness;  // fraction of radius that is solid
+      var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+      grad.addColorStop(0, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + p.opacity + ')');
+      grad.addColorStop(Math.max(0, solidStop), 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + p.opacity + ')');
+      grad.addColorStop(1, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0)');
+      ctx.fillStyle = grad;
+    } else {
+      // Hard-edged particle
+      ctx.fillStyle = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+      ctx.globalAlpha = p.opacity;
+    }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawForcePoint(fp, visualSize, opacity, softness, colorOverride) {
+    if (visualSize <= 0) return;
+    var colors = getColors();
+    var hex = colorOverride || colors[0];
+    var rgb = hexToRgb(hex);
+    if (softness > 0.01) {
+      var solidStop = 1 - softness;
+      var grad = ctx.createRadialGradient(fp.x, fp.y, 0, fp.x, fp.y, visualSize);
+      grad.addColorStop(0, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + opacity + ')');
+      grad.addColorStop(Math.max(0, solidStop), 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + opacity + ')');
+      grad.addColorStop(1, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0)');
+      ctx.fillStyle = grad;
+    } else {
+      ctx.fillStyle = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+      ctx.globalAlpha = opacity;
+    }
+    ctx.beginPath();
+    ctx.arc(fp.x, fp.y, visualSize, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // --- Force Points (attractors & repulsors) ---
+  var forcePoints = [];
+  var attractors = [];
+  var repulsors = [];
+
+  function createForcePoint(strength, influenceRadius, isAttractor) {
+    var cxR = 0.15 + Math.random() * 0.7;
+    var cyR = 0.15 + Math.random() * 0.7;
+    var rxR = SIM.orbitRadiusXMin + Math.random() * (SIM.orbitRadiusXMax - SIM.orbitRadiusXMin);
+    var ryR = SIM.orbitRadiusYMin + Math.random() * (SIM.orbitRadiusYMax - SIM.orbitRadiusYMin);
+    var startW = W || window.innerWidth;
+    var startH = H || window.innerHeight;
+    // Random initial trajectory
+    var angle = Math.random() * Math.PI * 2;
+    return {
+      x: startW * cxR,
+      y: startH * cyR,
+      vx: Math.cos(angle) * SIM.fpInitSpeed,
+      vy: Math.sin(angle) * SIM.fpInitSpeed,
+      strength: strength,
+      influenceRadius: influenceRadius,
+      isAttractor: isAttractor,
+      cxRatio: cxR,
+      cyRatio: cyR,
+      rxRatio: rxR,
+      ryRatio: ryR,
+      cx: startW * cxR,
+      cy: startH * cyR,
+      orbitRx: startW * rxR,
+      orbitRy: startH * ryR,
+      orbitAngle: Math.random() * Math.PI * 2,
+      speed: SIM.orbitSpeedMin + Math.random() * (SIM.orbitSpeedMax - SIM.orbitSpeedMin),
+      freqX: 0.7 + Math.random() * 0.6,
+      freqY: 0.5 + Math.random() * 0.7,
+      phaseX: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2
+    };
+  }
+
+  function updateForcePoint(fp, allForcePoints) {
+    // Orbit pull — gently steers toward the Lissajous path
+    fp.orbitAngle += fp.speed;
+    var targetX = fp.cx + Math.sin(fp.orbitAngle * fp.freqX + fp.phaseX) * fp.orbitRx;
+    var targetY = fp.cy + Math.cos(fp.orbitAngle * fp.freqY + fp.phaseY) * fp.orbitRy;
+    fp.vx += (targetX - fp.x) * 0.003;
+    fp.vy += (targetY - fp.y) * 0.003;
+
+    // Force-point-on-force-point interactions
+    if (SIM.fpInteraction) {
+      for (var i = 0; i < allForcePoints.length; i++) {
+        var other = allForcePoints[i];
+        if (other === fp) continue;
+        var dx = other.x - fp.x;
+        var dy = other.y - fp.y;
+        var dist = Math.sqrt(dx * dx + dy * dy) + 1;
+        var maxDist = Math.max(fp.influenceRadius, other.influenceRadius);
+        if (dist < maxDist) {
+          var falloff = 1 - (dist / maxDist);
+          var sign = other.isAttractor ? 1 : -1;
+          var f = sign * other.strength * falloff * SIM.fpInteractionMult;
+          fp.vx += (dx / dist) * f;
+          fp.vy += (dy / dist) * f;
+        }
+      }
+    }
+
+    // Damping & speed limit
+    fp.vx *= SIM.fpDamping;
+    fp.vy *= SIM.fpDamping;
+    var spd = Math.sqrt(fp.vx * fp.vx + fp.vy * fp.vy);
+    if (spd > SIM.fpMaxSpeed) {
+      fp.vx = (fp.vx / spd) * SIM.fpMaxSpeed;
+      fp.vy = (fp.vy / spd) * SIM.fpMaxSpeed;
+    }
+
+    fp.x += fp.vx;
+    fp.y += fp.vy;
+
+    // Soft bounce off edges
+    var margin = 50;
+    if (fp.x < margin)     fp.vx += 0.1;
+    if (fp.x > W - margin) fp.vx -= 0.1;
+    if (fp.y < margin)     fp.vy += 0.1;
+    if (fp.y > H - margin) fp.vy -= 0.1;
+  }
+
+  function drawConnections() {
+    if (SIM.connectionDistance <= 0) return;
+    var maxDist = SIM.connectionDistance;
+    var maxDistSq = maxDist * maxDist;
+    ctx.lineWidth = SIM.connectionWidth;
+
+    for (var i = 0; i < particles.length; i++) {
+      var a = particles[i];
+      for (var j = i + 1; j < particles.length; j++) {
+        var b = particles[j];
+        var dx = a.x - b.x;
+        var dy = a.y - b.y;
+        var distSq = dx * dx + dy * dy;
+        if (distSq < maxDistSq) {
+          var dist = Math.sqrt(distSq);
+          var alpha = (1 - dist / maxDist) * SIM.connectionOpacity;
+          var rgb;
+          if (SIM.connectionColor) {
+            rgb = hexToRgb(SIM.connectionColor);
+          } else {
+            rgb = hexToRgb(a.color);
+          }
+          ctx.strokeStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // --- Initialize force points from SIM settings ---
+  for (var ai = 0; ai < SIM.attractorCount; ai++) {
+    var aStr = SIM.attractorStrengths[ai] !== undefined ? SIM.attractorStrengths[ai] : 0.5;
+    var aRad = SIM.attractorRadii[ai] !== undefined ? SIM.attractorRadii[ai] : 300;
+    attractors.push(createForcePoint(aStr, aRad, true));
+    forcePoints.push(attractors[ai]);
+  }
+  for (var ri = 0; ri < SIM.repulsorCount; ri++) {
+    var rStr = SIM.repulsorStrengths[ri] !== undefined ? SIM.repulsorStrengths[ri] : 0.5;
+    var rRad = SIM.repulsorRadii[ri] !== undefined ? SIM.repulsorRadii[ri] : 280;
+    repulsors.push(createForcePoint(rStr, rRad, false));
+    forcePoints.push(repulsors[ri]);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (var i = 0; i < SIM.particleCount; i++) {
+    particles.push(createParticle());
+  }
+
+  // --- Watch for class changes on body (e.g. professional-active toggle) ---
+  var currentColorKey = getColors().join(',');
+  var classObserver = new MutationObserver(function() {
+    var newColors = getColors();
+    var newKey = newColors.join(',');
+    if (newKey !== currentColorKey) {
+      currentColorKey = newKey;
+      particles.forEach(function(p) {
+        p.color = newColors[Math.floor(Math.random() * newColors.length)];
+      });
+    }
+  });
+  classObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  // --- Role swap timer: flip attractors <-> repulsors periodically ---
+  if (SIM.roleSwapInterval > 0) {
+    setInterval(function() {
+      for (var si = 0; si < forcePoints.length; si++) {
+        forcePoints[si].isAttractor = !forcePoints[si].isAttractor;
+      }
+      // Swap the arrays so drawing uses the right visual settings
+      var temp = attractors.slice();
+      attractors.length = 0;
+      Array.prototype.push.apply(attractors, repulsors.slice());
+      repulsors.length = 0;
+      Array.prototype.push.apply(repulsors, temp);
+    }, SIM.roleSwapInterval * 1000);
+  }
+
+  // --- Animation loop ---
+  var animFrameId;
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Update and draw force points (with mutual interaction)
+    for (var fi = 0; fi < forcePoints.length; fi++) {
+      updateForcePoint(forcePoints[fi], forcePoints);
+    }
+    for (var adi = 0; adi < attractors.length; adi++) {
+      drawForcePoint(attractors[adi], SIM.attractorVisualSize, SIM.attractorOpacity, SIM.attractorSoftness, SIM.attractorColor);
+    }
+    for (var rei = 0; rei < repulsors.length; rei++) {
+      drawForcePoint(repulsors[rei], SIM.repulsorVisualSize, SIM.repulsorOpacity, SIM.repulsorSoftness, SIM.repulsorColor);
+    }
+
+    // Update and draw particles
+    for (var pi = 0; pi < particles.length; pi++) {
+      updateParticle(particles[pi]);
+      drawParticle(particles[pi]);
+    }
+
+    // Draw connection lines between nearby particles
+    drawConnections();
+
+    animFrameId = requestAnimationFrame(animate);
+  }
+
+  // Pause when tab not visible for performance
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      cancelAnimationFrame(animFrameId);
+    } else {
+      animate();
+    }
+  });
+
+  animate();
+}

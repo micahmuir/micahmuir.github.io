@@ -122,31 +122,10 @@
     </section>
   </main>
 
-  <!-- JavaScript for navigation -->
+  <!-- JavaScript -->
+  <script src="/assets/js/main.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize navigation
-      const currentPath = window.location.pathname;
-      const navLinks = document.querySelectorAll('.nav-links a');
-      
-      // First remove active from all links
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-      });
-      
-      // Then add active to the correct link
-      navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        
-        // Check for exact matches
-        if (href === currentPath) {
-          link.classList.add('active');
-        }
-      });
-      
-      // Initialize section switching
-      initializeSectionSwitching();
-    });
+    document.addEventListener('DOMContentLoaded', initializeSectionSwitching);
     
     function initializeSectionSwitching() {
       const navItems = document.querySelectorAll('.project-nav-item');

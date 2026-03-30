@@ -99,31 +99,6 @@
     </div>
   </main>
 
-  <!-- JavaScript for active navigation -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const currentPath = window.location.pathname;
-      const navLinks = document.querySelectorAll('.nav-links a');
-      
-      // First remove active from all links
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-      });
-      
-      // Then add active to the correct link
-      navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        
-        // Check for exact matches or root/index matches
-        if (href === currentPath || 
-            (currentPath === '/' && href === '/') || 
-            (currentPath === '/index.html' && href === '/') ||
-            (currentPath.endsWith('/index.html') && href === '/') ||
-            (currentPath === '' && href === '/')) {
-          link.classList.add('active');
-        }
-      });
-    });
-  </script>
+  <script src="/assets/js/main.js"></script>
 </body>
 </html>

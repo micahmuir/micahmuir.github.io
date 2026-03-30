@@ -236,37 +236,6 @@
       }
     }
 
-    /* Background animation styles */
-    .bg-animated-shapes {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .shape {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      animation: float 20s infinite;
-      filter: blur(50px);
-    }
-
-    @keyframes float {
-      0% {
-        transform: translate(0, 0);
-      }
-      50% {
-        transform: translate(-30px, -30px);
-      }
-      100% {
-        transform: translate(0, 0);
-      }
-    }
   </style>
 </head>
 <body class="page-resume">
@@ -407,26 +376,6 @@
   </main>
 
   <!-- JavaScript for active navigation -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const currentPath = window.location.pathname;
-      const navLinks = document.querySelectorAll('.nav-links a');
-      
-      // First remove active from all links
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-      });
-      
-      // Then add active to the correct link
-      navLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        
-        // Check for exact matches
-        if (href === currentPath) {
-          link.classList.add('active');
-        }
-      });
-    });
-  </script>
+  <script src="/assets/js/main.js"></script>
 </body>
 </html>
