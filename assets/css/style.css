@@ -7,12 +7,11 @@
    COLOR SCHEME VARIABLES - E-INK THEME WITH PAGE-SPECIFIC COLORS
 ======================================================================================= */
 :root {
-  /* PAGE-SPECIFIC THEME COLORS */
-  --teal-color: #00695c;           /* Teal for About page */
-  --orange-color: #e65100;         /* Orange for Resume page */
-  --green-color: #ffd21c;          /* Green for Projects page */
-  --blue-color: #1565c0;           /* Blue for Professional projects */
-  --dark-red-color: #ffd21c;       /* Dark red for Personal projects */
+  /* PAGE-SPECIFIC THEME COLORS — matched chroma/luminance across hues */
+  --teal-color: #0d7c6e;           /* Teal for About page */
+  --orange-color: #c85a1a;         /* Burnt amber for Resume page */
+  --plum-color: #8e3a8a;           /* Plum for Projects (Personal) */
+  --blue-color: #1565c0;           /* Steel blue for Projects (Professional) */
   /* */
   /* MATERIAL E-INK THEME COLORS - Bold and Simple */
   --primary-color: #000000;        /* Default black, overridden per page */
@@ -81,7 +80,7 @@
 .page-about {
   --primary-color: #000000;
   --theme-color: var(--teal-color);
-  --bg-anim-color: 0, 105, 92;  /* Teal: #00695c */
+  --bg-anim-color: 13, 124, 110;  /* Teal: #0d7c6e */
 }
 
 /* About page paper panel - ensure solid background */
@@ -93,11 +92,11 @@
   box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
 }
 
-/* Resume Page - Orange Theme */
+/* Resume Page - Burnt Amber Theme */
 .page-resume {
   --primary-color: #000000;
   --theme-color: var(--orange-color);
-  --bg-anim-color: 230, 81, 0;  /* Orange: #e65100 */
+  --bg-anim-color: 200, 90, 26;  /* Burnt amber: #c85a1a */
 }
 
 /* Resume page timeline content - ensure solid background */
@@ -129,11 +128,11 @@
   box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
 }
 
-/* Projects Page - Green Theme */
+/* Projects Page - Plum Theme (default / Personal) */
 .page-projects {
   --primary-color: #000000;
-  --theme-color: var(--green-color);
-  --bg-anim-color: 46, 125, 50;  /* Green: #2e7d32 */
+  --theme-color: var(--plum-color);
+  --bg-anim-color: 142, 58, 138;  /* Plum: #8e3a8a */
 }
 
 /* Projects Page - Professional Section (Blue) */
@@ -143,12 +142,12 @@
   --bg-anim-color: 21, 101, 192;  /* Blue: #1565c0 */
 }
 
-/* Photography project pages - warm brown tones */
+/* Photography project pages - share Personal plum theme */
 .photography-project,
 .projects-page {
   --primary-color: #000000;
-  --theme-color: var(--green-color);  /* Use same green as main projects */
-  --bg-anim-color: 46, 125, 50;  /* Green: #2e7d32 */
+  --theme-color: var(--plum-color);
+  --bg-anim-color: 142, 58, 138;  /* Plum: #8e3a8a */
 }
 
 /* Hardware project pages - steel blue tones */
@@ -165,10 +164,11 @@
   --bg-anim-color: 56, 142, 60;  /* Green background animation */
 }
 
-/* Projects Page - Personal Section (Dark Red) */
+/* Projects Page - Personal Section (Plum) */
 .page-projects.personal-active {
   --primary-color: #000000;
-  --theme-color: var(--dark-red-color);
+  --theme-color: var(--plum-color);
+  --bg-anim-color: 142, 58, 138;  /* Plum: #8e3a8a */
 }
 
 /* Projects page content - ensure proper grid and background */
@@ -777,6 +777,52 @@ a:hover {
   33%  { transform: translate(-20px, -30px) scale(1.05); }
   66%  { transform: translate(20px, -15px) scale(0.95); }
   100% { transform: translate(0, 0) scale(1); }
+}
+
+/* PAGE TRANSITIONS */
+/* Dissolve: content fades out, background shows through, new page fades in */
+.navbar,
+.main-content {
+  transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+}
+
+body.page-leaving .navbar,
+body.page-leaving .main-content {
+  opacity: 0;
+  transform: scale(0.985);
+  filter: blur(4px);
+}
+
+/* Fade-in on page load */
+.main-content {
+  animation: pageEnter 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.navbar {
+  animation: navEnter 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  animation-delay: 0.1s;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes navEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-on-scroll {
@@ -1519,7 +1565,7 @@ figure.link-to-page a:hover {
 
 /* Page-specific background colors to match border highlight */
 .page-about {
-  background-color: #0a1815 !important;
+  background-color: #071310 !important;
 }
 
 .page-resume {
@@ -1528,7 +1574,7 @@ figure.link-to-page a:hover {
 
 .page-projects,
 .projects-page {
-  background-color: #101a12 !important;
+  background-color: #160f1a !important;
 }
 
 .page-projects.professional-active {
@@ -1609,45 +1655,45 @@ figure.link-to-page a:hover {
 .page-resume .bg-animated-shapes .shape20 { background: #ff8f00; }
 
 .page-projects .bg-animated-shapes .shape1,
-.projects-page .bg-animated-shapes .shape1 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape1 { background: #8e3a8a; }
 .page-projects .bg-animated-shapes .shape2,
-.projects-page .bg-animated-shapes .shape2 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape2 { background: #a451a0; }
 .page-projects .bg-animated-shapes .shape3,
-.projects-page .bg-animated-shapes .shape3 { background: #fff3b0; }
+.projects-page .bg-animated-shapes .shape3 { background: #6a2c6a; }
 .page-projects .bg-animated-shapes .shape4,
-.projects-page .bg-animated-shapes .shape4 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape4 { background: #ba6fb5; }
 .page-projects .bg-animated-shapes .shape5,
-.projects-page .bg-animated-shapes .shape5 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape5 { background: #4d1f4d; }
 .page-projects .bg-animated-shapes .shape6,
-.projects-page .bg-animated-shapes .shape6 { background: #fff3b0; }
+.projects-page .bg-animated-shapes .shape6 { background: #d08cca; }
 .page-projects .bg-animated-shapes .shape7,
-.projects-page .bg-animated-shapes .shape7 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape7 { background: #8e3a8a; }
 .page-projects .bg-animated-shapes .shape8,
-.projects-page .bg-animated-shapes .shape8 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape8 { background: #a451a0; }
 .page-projects .bg-animated-shapes .shape9,
-.projects-page .bg-animated-shapes .shape9 { background: #fff3b0; }
+.projects-page .bg-animated-shapes .shape9 { background: #e7b6e2; }
 .page-projects .bg-animated-shapes .shape10,
-.projects-page .bg-animated-shapes .shape10 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape10 { background: #6a2c6a; }
 .page-projects .bg-animated-shapes .shape11,
-.projects-page .bg-animated-shapes .shape11 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape11 { background: #8e3a8a; }
 .page-projects .bg-animated-shapes .shape12,
-.projects-page .bg-animated-shapes .shape12 { background: #fff3b0; }
+.projects-page .bg-animated-shapes .shape12 { background: #ba6fb5; }
 .page-projects .bg-animated-shapes .shape13,
-.projects-page .bg-animated-shapes .shape13 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape13 { background: #a451a0; }
 .page-projects .bg-animated-shapes .shape14,
-.projects-page .bg-animated-shapes .shape14 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape14 { background: #4d1f4d; }
 .page-projects .bg-animated-shapes .shape15,
-.projects-page .bg-animated-shapes .shape15 { background: #fff3b0; }
+.projects-page .bg-animated-shapes .shape15 { background: #d08cca; }
 .page-projects .bg-animated-shapes .shape16,
-.projects-page .bg-animated-shapes .shape16 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape16 { background: #8e3a8a; }
 .page-projects .bg-animated-shapes .shape17,
-.projects-page .bg-animated-shapes .shape17 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape17 { background: #6a2c6a; }
 .page-projects .bg-animated-shapes .shape18,
-.projects-page .bg-animated-shapes .shape18 { background: #fff3b0; }
+.projects-page .bg-animated-shapes .shape18 { background: #ba6fb5; }
 .page-projects .bg-animated-shapes .shape19,
-.projects-page .bg-animated-shapes .shape19 { background: #ffe066; }
+.projects-page .bg-animated-shapes .shape19 { background: #a451a0; }
 .page-projects .bg-animated-shapes .shape20,
-.projects-page .bg-animated-shapes .shape20 { background: #ffd21c; }
+.projects-page .bg-animated-shapes .shape20 { background: #8e3a8a; }
 
 .page-projects.professional-active .bg-animated-shapes .shape1 { background: #1976d2; }
 .page-projects.professional-active .bg-animated-shapes .shape2 { background: #1565c0; }

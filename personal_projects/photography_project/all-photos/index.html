@@ -6,99 +6,7 @@
   <title>All Photos - Photography Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
-  <style>
-    /* Photography gallery grid */
-    .photo-gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1rem;
-      margin: 2rem 0;
-    }
-
-    .photo-item {
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-medium);
-      transition: all var(--transition-medium);
-      cursor: pointer;
-    }
-
-    .photo-item:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-heavy);
-    }
-
-    .photo-item img {
-      width: 100%;
-      height: auto;
-      display: block;
-      transition: transform var(--transition-medium);
-    }
-
-    .photo-item:hover img {
-      transform: scale(1.02);
-    }
-
-    .photo-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(transparent, rgba(0,0,0,0.8));
-      color: white;
-      padding: 2rem 1rem 1rem;
-      transform: translateY(100%);
-      transition: transform var(--transition-medium);
-    }
-
-    .photo-item:hover .photo-overlay {
-      transform: translateY(0);
-    }
-
-    .photo-overlay h3 {
-      font-size: 1.2rem;
-      margin: 0;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-
-    /* Back button */
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--secondary-color);
-      text-decoration: none;
-      margin-bottom: 2rem;
-      padding: 0.75rem 1.5rem;
-      border: 2px solid var(--teal-color);
-      border-radius: var(--border-radius-small);
-      background: var(--bg-light);
-      transition: all var(--transition-fast);
-    }
-
-    .back-link:hover {
-      color: var(--accent-color);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
-    }
-
-    /* Gallery header */
-    .gallery-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .gallery-header h1 {
-      color: var(--primary-color);
-      margin-bottom: 1rem;
-    }
-
-    .gallery-header p {
-      color: var(--text-medium);
-      font-size: 1.1rem;
-    }
-  </style>
+  <link rel="stylesheet" href="../photo-view.css">
 </head>
 <body class="projects-page">
   <!-- Navigation -->
@@ -112,204 +20,50 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="main-content">
-    <section class="section">
-      <div class="container">
-        <div class="paper-panel">
-          <!-- Back link -->
-          <a href="../index.html" class="back-link">
-            ← Back to Photography Portfolio
-          </a>
+    <div class="stage" id="slideshow">
+      <img class="slide active" src="../nature/icy_tamanawas.JPG" alt="Icy Tamanawas Falls">
+      <img class="slide" src="../animals/hawk.jpg" alt="Red-tailed Hawk">
+      <img class="slide" src="../weather/lightning.jpg" alt="Lightning Strike">
+      <img class="slide" src="../people/mira_forest.jpg" alt="Mira Forest">
+      <img class="slide" src="../nature/mono_lake.png" alt="Mono Lake">
+      <img class="slide" src="../nature/ice_cathedral.JPG" alt="Ice Cathedral">
+      <img class="slide" src="../animals/hummingbird.png" alt="Hummingbird">
+      <img class="slide" src="../weather/eclipse.png" alt="Solar Eclipse">
+      <img class="slide" src="../nature/volcano.JPG" alt="Volcanic Peak">
+      <img class="slide" src="../people/new york.png" alt="New York City">
+      <img class="slide" src="../animals/three_birds.png" alt="Three Birds">
+      <img class="slide" src="../nature/life_itself.png" alt="Life Itself">
+      <img class="slide" src="../weather/hood_moon.png" alt="Moonrise over Mount Hood">
+      <img class="slide" src="../animals/hawk 1.jpg" alt="Hawk in Flight">
+      <img class="slide" src="../nature/coldspringcreek.JPG" alt="Cold Spring Creek">
+      <img class="slide" src="../people/chuck.png" alt="Chuck">
+      <img class="slide" src="../animals/bearskull.JPG" alt="Bear Skull">
+      <img class="slide" src="../weather/heavycloud.JPG" alt="Heavy Clouds">
+      <img class="slide" src="../nature/drycreek.JPG" alt="Dry Creek">
+      <img class="slide" src="../animals/jellyfish.png" alt="Jellyfish">
+      <img class="slide" src="../nature/volcano_real.png" alt="Volcanic Landscape">
+      <img class="slide" src="../weather/cloudspotting.JPG" alt="Cloud Formations">
+      <img class="slide" src="../nature/icy_tamanaswas2.JPG" alt="Icy Tamanawas 2">
+    </div>
 
-          <!-- Gallery Header -->
-          <div class="gallery-header">
-            <h1>All Photos</h1>
-            <p>Complete collection of photography from all albums.</p>
-          </div>
+    <button class="slide-arrow prev" id="slidePrev" aria-label="Previous photo">&#10094;</button>
+    <button class="slide-arrow next" id="slideNext" aria-label="Next photo">&#10095;</button>
 
-          <!-- Photo Gallery -->
-          <div class="photo-gallery">
-            
-            <!-- Nature & Landscape Photos -->
-            <div class="photo-item">
-              <img src="../nature/ice_cathedral.JPG" alt="Ice Cathedral">
-              <div class="photo-overlay">
-                <h3>Ice Cathedral</h3>
-              </div>
-            </div>
+    <a class="title-pill" href="../index.html">&larr; Photography / All</a>
 
-            <div class="photo-item">
-              <img src="../nature/icy_tamanawas.JPG" alt="Icy Tamanawas Falls">
-              <div class="photo-overlay">
-                <h3>Icy Tamanawas Falls</h3>
-              </div>
-            </div>
+    <div class="thumb-ribbon" id="thumbRibbon" aria-label="Photo thumbnails"></div>
 
-            <div class="photo-item">
-              <img src="../nature/volcano.JPG" alt="Volcanic Peak">
-              <div class="photo-overlay">
-                <h3>Volcanic Peak</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/coldspringcreek.JPG" alt="Cold Spring Creek">
-              <div class="photo-overlay">
-                <h3>Cold Spring Creek</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/drycreek.JPG" alt="Dry Creek">
-              <div class="photo-overlay">
-                <h3>Dry Creek</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/volcano_real.png" alt="Volcanic Landscape">
-              <div class="photo-overlay">
-                <h3>Volcanic Landscape</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/icy_tamanaswas2.JPG" alt="Icy Tamanawas 2">
-              <div class="photo-overlay">
-                <h3>Icy Tamanawas Alternative View</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/Tamawanas lower half bright - December 14, 2017-[06-32].JPG" alt="Tamanawas Lower Falls">
-              <div class="photo-overlay">
-                <h3>Tamanawas Lower Falls</h3>
-              </div>
-            </div>
-
-            <!-- Wildlife Photos -->
-            <div class="photo-item">
-              <img src="../animals/hawk.jpg" alt="Red-tailed Hawk">
-              <div class="photo-overlay">
-                <h3>Red-tailed Hawk</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../animals/hawk 1.jpg" alt="Hawk in Flight">
-              <div class="photo-overlay">
-                <h3>Hawk in Flight</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../animals/bearskull.JPG" alt="Bear Skull">
-              <div class="photo-overlay">
-                <h3>Nature's Memorial</h3>
-              </div>
-            </div>
-
-            <!-- Weather & Sky Photos -->
-            <div class="photo-item">
-              <img src="../weather/lightning.jpg" alt="Lightning Strike">
-              <div class="photo-overlay">
-                <h3>Lightning Strike</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../weather/eclipse.png" alt="Solar Eclipse">
-              <div class="photo-overlay">
-                <h3>Solar Eclipse</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../weather/hood_moon.png" alt="Moonrise over Mount Hood">
-              <div class="photo-overlay">
-                <h3>Moonrise over Mount Hood</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../weather/heavycloud.JPG" alt="Heavy Clouds">
-              <div class="photo-overlay">
-                <h3>Heavy Clouds</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../weather/cloudspotting.JPG" alt="Cloud Formations">
-              <div class="photo-overlay">
-                <h3>Cloud Formations</h3>
-              </div>
-            </div>
-
-            <!-- Urban & Travel Photos -->
-            <div class="photo-item">
-              <img src="../people/new york.png" alt="New York City">
-              <div class="photo-overlay">
-                <h3>New York City</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/mono_lake.png" alt="Mono Lake">
-              <div class="photo-overlay">
-                <h3>Mono Lake</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../nature/life_itself.png" alt="Life Itself">
-              <div class="photo-overlay">
-                <h3>Life Itself</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../people/mira_forest.jpg" alt="Mira Forest">
-              <div class="photo-overlay">
-                <h3>Mira Forest</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../people/chuck.png" alt="Chuck">
-              <div class="photo-overlay">
-                <h3>Chuck</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../animals/jellyfish.png" alt="Jellyfish">
-              <div class="photo-overlay">
-                <h3>Jellyfish</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../animals/three_birds.png" alt="Three Birds">
-              <div class="photo-overlay">
-                <h3>Three Birds</h3>
-              </div>
-            </div>
-
-            <div class="photo-item">
-              <img src="../animals/hummingbird.png" alt="Hummingbird">
-              <div class="photo-overlay">
-                <h3>Hummingbird</h3>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </section>
+    <nav class="album-links" aria-label="Photo albums">
+      <a class="album-link" href="../animals/">Animals</a>
+      <a class="album-link" href="../nature/">Nature</a>
+      <a class="album-link" href="../people/">People</a>
+      <a class="album-link" href="../weather/">Weather</a>
+      <a class="album-link current" href="../all-photos/">All</a>
+    </nav>
   </main>
 
-  <!-- Include main.js for navbar auto-hide functionality -->
   <script src="/assets/js/main.js"></script>
+  <script src="../photo-view.js"></script>
 </body>
 </html>

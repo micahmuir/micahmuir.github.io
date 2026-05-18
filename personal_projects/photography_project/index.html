@@ -6,365 +6,9 @@
   <title>Photography Portfolio - Micah Muir</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
-  <style>
-    /* Portfolio album grid */
-    .album-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-      padding: 0 2rem;
-    }
-
-    /* Album card styling - simplified to transparent container */
-    .album-card {
-      position: relative;
-      text-decoration: none;
-      color: inherit;
-      cursor: pointer;
-      display: block;
-    }
-
-    .album-card:hover {
-      color: inherit;
-    }
-
-    /* Photo stack container */
-    .photo-stack {
-      position: relative;
-      height: 200px;
-      margin-bottom: 1.5rem;
-      perspective: 1000px;
-    }
-
-    /* Individual photos in stack */
-    .stack-photo {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: var(--border-radius-small);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      transition: all var(--transition-medium);
-      transform-origin: center bottom;
-    }
-
-    /* Stack positioning - creates layered effect */
-    .stack-photo:nth-child(1) {
-      z-index: 3;
-      transform: rotate(-2deg) translateY(0px);
-    }
-
-    .stack-photo:nth-child(2) {
-      z-index: 2;
-      transform: rotate(1deg) translateY(8px);
-    }
-
-    .stack-photo:nth-child(3) {
-      z-index: 1;
-      transform: rotate(-1deg) translateY(16px);
-    }
-
-    /* Hover effects - photos fan out slightly */
-    .album-card:hover .stack-photo:nth-child(1) {
-      transform: rotate(-4deg) translateY(-10px) translateX(-5px);
-    }
-
-    .album-card:hover .stack-photo:nth-child(2) {
-      transform: rotate(2deg) translateY(2px) translateX(5px);
-    }
-
-    .album-card:hover .stack-photo:nth-child(3) {
-      transform: rotate(-2deg) translateY(12px) translateX(-3px);
-    }
-
-    /* Album info */
-    .album-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--primary-color);
-      margin-top: 1rem;
-      text-align: center;
-    }
-
-    .album-description {
-      display: none;
-    }
-
-    .album-count {
-      display: none;
-    }
-
-    /* Header styling */
-    .portfolio-header {
-      text-align: center;
-      margin: 2rem 0 3rem;
-    }
-
-    .portfolio-header h1 {
-      color: var(--primary-color);
-      margin-bottom: 1rem;
-    }
-
-    .portfolio-header p {
-      color: var(--text-medium);
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* Animated background shapes */
-    .bg-animated-shapes {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: -1;
-    }
-
-    .shape {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.6;
-      animation: float 6s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-20px);
-      }
-    }
-
-    /* Specific shapes with different sizes and animations */
-    .shape1 {
-      width: 200px;
-      height: 200px;
-      background: rgba(255, 255, 255, 0.2);
-      top: 10%;
-      left: 10%;
-      animation-delay: 0s;
-    }
-
-    .shape2 {
-      width: 300px;
-      height: 300px;
-      background: rgba(255, 255, 255, 0.3);
-      top: 20%;
-      right: 15%;
-      animation-delay: 2s;
-    }
-
-    .shape3 {
-      width: 250px;
-      height: 250px;
-      background: rgba(255, 255, 255, 0.25);
-      bottom: 10%;
-      left: 20%;
-      animation-delay: 4s;
-    }
-
-    /* Additional shapes for animation */
-    .shape1, .shape2, .shape3 {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.6;
-      animation: float 6s ease-in-out infinite;
-    }
-
-    .shape1 {
-      width: 320px;
-      height: 320px;
-      top: 8%;
-      left: 10%;
-      animation-delay: 0s;
-    }
-
-    .shape2 {
-      width: 260px;
-      height: 260px;
-      top: 60%;
-      left: 70%;
-      animation-delay: 1.6s;
-    }
-
-    .shape3 {
-      width: 200px;
-      height: 200px;
-      top: 40%;
-      left: 50%;
-      animation-delay: 3.2s;
-    }
-
-    .shape4 {
-      width: 180px;
-      height: 180px;
-      top: 20%;
-      left: 80%;
-      animation-delay: 4.8s;
-    }
-
-    .shape5 {
-      width: 220px;
-      height: 220px;
-      top: 75%;
-      left: 30%;
-      animation-delay: 6.4s;
-    }
-
-    .shape6 {
-      width: 150px;
-      height: 150px;
-      top: 55%;
-      left: 15%;
-      animation-delay: 8s;
-    }
-
-    .shape7 {
-      width: 180px;
-      height: 180px;
-      top: 30%;
-      left: 60%;
-      animation-delay: 9.6s;
-    }
-
-    .shape8 {
-      width: 200px;
-      height: 200px;
-      top: 70%;
-      left: 20%;
-      animation-delay: 11.2s;
-    }
-
-    .shape9 {
-      width: 170px;
-      height: 170px;
-      top: 15%;
-      left: 75%;
-      animation-delay: 12.8s;
-    }
-
-    .shape10 {
-      width: 210px;
-      height: 210px;
-      top: 80%;
-      left: 40%;
-      animation-delay: 14.4s;
-    }
-
-    .shape11 {
-      width: 160px;
-      height: 160px;
-      top: 50%;
-      left: 80%;
-      animation-delay: 16s;
-    }
-
-    .shape12 {
-      width: 190px;
-      height: 190px;
-      top: 25%;
-      left: 30%;
-      animation-delay: 17.6s;
-    }
-
-    .shape13 {
-      width: 220px;
-      height: 220px;
-      top: 60%;
-      left: 60%;
-      animation-delay: 19.2s;
-    }
-
-    .shape14 {
-      width: 180px;
-      height: 180px;
-      top: 35%;
-      left: 80%;
-      animation-delay: 20.8s;
-    }
-
-    .shape15 {
-      width: 200px;
-      height: 200px;
-      top: 70%;
-      left: 50%;
-      animation-delay: 22.4s;
-    }
-
-    .shape16 {
-      width: 170px;
-      height: 170px;
-      top: 10%;
-      left: 25%;
-      animation-delay: 24s;
-    }
-
-    .shape17 {
-      width: 210px;
-      height: 210px;
-      top: 85%;
-      left: 60%;
-      animation-delay: 25.6s;
-    }
-
-    .shape18 {
-      width: 160px;
-      height: 160px;
-      top: 45%;
-      left: 10%;
-      animation-delay: 27.2s;
-    }
-
-    .shape19 {
-      width: 190px;
-      height: 190px;
-      top: 20%;
-      left: 60%;
-      animation-delay: 28.8s;
-    }
-
-    .shape20 {
-      width: 220px;
-      height: 220px;
-      top: 65%;
-      left: 80%;
-      animation-delay: 30.4s;
-    }
-  </style>
+  <link rel="stylesheet" href="photo-view.css">
 </head>
 <body class="page-projects">
-  <!-- Subtle animated blurry background shapes -->
-  <div class="bg-animated-shapes">
-    <div class="shape shape1" style="width:320px;height:320px;top:8%;left:10%;animation-delay:0s;"></div>
-    <div class="shape shape2" style="width:260px;height:260px;top:60%;left:70%;animation-delay:1.6s;"></div>
-    <div class="shape shape3" style="width:200px;height:200px;top:40%;left:50%;animation-delay:3.2s;"></div>
-    <div class="shape shape4" style="width:180px;height:180px;top:20%;left:80%;animation-delay:4.8s;"></div>
-    <div class="shape shape5" style="width:220px;height:220px;top:75%;left:30%;animation-delay:6.4s;"></div>
-    <div class="shape shape6" style="width:150px;height:150px;top:55%;left:15%;animation-delay:8s;"></div>
-    <div class="shape shape7" style="width:180px;height:180px;top:30%;left:60%;animation-delay:9.6s;"></div>
-    <div class="shape shape8" style="width:200px;height:200px;top:70%;left:20%;animation-delay:11.2s;"></div>
-    <div class="shape shape9" style="width:170px;height:170px;top:15%;left:75%;animation-delay:12.8s;"></div>
-    <div class="shape shape10" style="width:210px;height:210px;top:80%;left:40%;animation-delay:14.4s;"></div>
-    <div class="shape shape11" style="width:160px;height:160px;top:50%;left:80%;animation-delay:16s;"></div>
-    <div class="shape shape12" style="width:190px;height:190px;top:25%;left:30%;animation-delay:17.6s;"></div>
-    <div class="shape shape13" style="width:220px;height:220px;top:60%;left:60%;animation-delay:19.2s;"></div>
-    <div class="shape shape14" style="width:180px;height:180px;top:35%;left:80%;animation-delay:20.8s;"></div>
-    <div class="shape shape15" style="width:200px;height:200px;top:70%;left:50%;animation-delay:22.4s;"></div>
-    <div class="shape shape16" style="width:170px;height:170px;top:10%;left:25%;animation-delay:24s;"></div>
-    <div class="shape shape17" style="width:210px;height:210px;top:85%;left:60%;animation-delay:25.6s;"></div>
-    <div class="shape shape18" style="width:160px;height:160px;top:45%;left:10%;animation-delay:27.2s;"></div>
-    <div class="shape shape19" style="width:190px;height:190px;top:20%;left:60%;animation-delay:28.8s;"></div>
-    <div class="shape shape20" style="width:220px;height:220px;top:65%;left:80%;animation-delay:30.4s;"></div>
-  </div>
-
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-container">
@@ -376,11 +20,37 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="main-content">
+    <div class="stage" id="slideshow">
+      <img class="slide active" src="nature/icy_tamanawas.JPG" alt="">
+      <img class="slide" src="animals/hawk.jpg" alt="">
+      <img class="slide" src="weather/lightning.jpg" alt="">
+      <img class="slide" src="people/mira_forest.jpg" alt="">
+      <img class="slide" src="nature/mono_lake.png" alt="">
+      <img class="slide" src="animals/hummingbird.png" alt="">
+      <img class="slide" src="weather/eclipse.png" alt="">
+      <img class="slide" src="nature/volcano.JPG" alt="">
+      <img class="slide" src="animals/three_birds.png" alt="">
+      <img class="slide" src="nature/life_itself.png" alt="">
+      <img class="slide" src="weather/hood_moon.png" alt="">
+      <img class="slide" src="people/new york.png" alt="">
+    </div>
+
+    <button class="slide-arrow prev" id="slidePrev" aria-label="Previous photo">&#10094;</button>
+    <button class="slide-arrow next" id="slideNext" aria-label="Next photo">&#10095;</button>
+
+    <div class="title-pill">Photography Portfolio</div>
+
+    <nav class="album-links" aria-label="Photo albums">
+      <a class="album-link" href="animals/">Animals</a>
+      <a class="album-link" href="nature/">Nature</a>
+      <a class="album-link" href="people/">People</a>
+      <a class="album-link" href="weather/">Weather</a>
+      <a class="album-link" href="all-photos/">All</a>
+    </nav>
   </main>
 
-  <!-- Include main.js for navbar auto-hide functionality -->
   <script src="/assets/js/main.js"></script>
+  <script src="photo-view.js"></script>
 </body>
 </html>

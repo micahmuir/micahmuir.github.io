@@ -3,6 +3,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize all functionality
+  initPageTransitions();
   initNavigation();
   initNavbarAutoHide();
   initAnimations();
@@ -11,6 +12,40 @@ document.addEventListener('DOMContentLoaded', function() {
   initGallerySystem();
   initParticleSimulation();
 });
+
+// Page transition system
+function initPageTransitions() {
+  // Intercept internal navigation links
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+
+    var href = link.getAttribute('href');
+    if (!href) return;
+
+    // Skip anchors, external links, and special targets
+    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('http') ||
+        link.target === '_blank' || e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+    // Skip same-page links
+    var resolved = new URL(href, window.location.href);
+    if (resolved.pathname === window.location.pathname) return;
+
+    e.preventDefault();
+    document.body.classList.add('page-leaving');
+
+    setTimeout(function() {
+      window.location.href = href;
+    }, 400);
+  });
+
+  // Handle browser back/forward cache
+  window.addEventListener('pageshow', function(e) {
+    if (e.persisted) {
+      document.body.classList.remove('page-leaving');
+    }
+  });
+}
 
 // Navigation highlighting
 function initNavigation() {
@@ -460,19 +495,21 @@ function initParticleSimulation() {
 
   var SIM = {
     // -- Particles --
-    particleCount:        100,       // Total number of particles
+    particleCount:        50,       // Total number of particles
     particleMinRadius:    8,        // Smallest particle radius (px)
     particleMaxRadius:    16,       // Largest particle radius (px)  (10% of force field ~120-160px)
     particleOpacity:      1.0,      // Particle fill opacity (0..1, 1 = fully solid)
     particleSoftness:     0.0,      // Edge softness (0 = hard circle, 1 = fully feathered to transparent)
     particleInitSpeed:    0.3,      // Initial random velocity magnitude
     particleDamping:      0.985,    // Velocity multiplier per frame (0..1, lower = more friction)
-    particleMaxSpeed:     1.8,      // Hard speed cap (px per frame)
+    particleMaxSpeed:     0.1,      // Hard speed cap (px per frame)
+    particleKeepAway:     60,       // Min distance (px) particles try to maintain from each other (0 = disabled)
+    keepAwayStrength:     0.8,     // How strongly particles push apart when too close
 
     // -- Attractors (pull particles in) --
     attractorCount:       3,        // Number of attractors
     attractorStrengths:   [0.3, 0.7, 0.5],       // Strength per attractor
-    attractorRadii:       [750, 200, 380],        // Influence radius per attractor (px)
+    attractorRadii:       [1000, 1000, 1000],        // Influence radius per attractor (px)
     attractorForceMult:   0.05,     // Global multiplier on attractor force
     attractorVisualSize:  50,       // Visual draw radius for attractors (px, 0 = invisible)
     attractorOpacity:     0.98,     // Fill opacity for attractor glow (0..1)
@@ -482,7 +519,7 @@ function initParticleSimulation() {
     // -- Repulsors / Emitters (push particles away) --
     repulsorCount:        2,        // Number of repulsors
     repulsorStrengths:    [0.2, 0.6],             // Strength per repulsor
-    repulsorRadii:        [520, 280],             // Influence radius per repulsor (px)
+    repulsorRadii:        [1000, 1000],             // Influence radius per repulsor (px)
     repulsorForceMult:    0.1,      // Global multiplier on repulsor force
     repulsorVisualSize:   50,       // Visual draw radius for repulsors (px, 0 = invisible)
     repulsorOpacity:      0.94,     // Fill opacity for repulsor glow (0..1)
@@ -503,7 +540,8 @@ function initParticleSimulation() {
     fpInitSpeed:          0.4,      // Initial random velocity for force points (px/frame)
     fpDamping:            0.995,    // Velocity damping for force points
     fpMaxSpeed:           1.2,      // Speed cap for force point drift
-    roleSwapInterval:     10,       // Seconds between attractor<->repulsor role swap (0 = disabled)
+    roleSwapIntervalMin:  8,        // Min seconds before a force point swaps role (0 = disabled)
+    roleSwapIntervalMax:  18,       // Max seconds before a force point swaps role
 
     // -- Particle Connection Lines --
     connectionDistance:   300,      // Max distance (px) to draw a line between two particles
@@ -610,7 +648,7 @@ function initParticleSimulation() {
     };
   }
 
-  function updateParticle(p) {
+  function updateParticle(p, index) {
     // Forces from attractors
     for (var i = 0; i < attractors.length; i++) {
       var a = attractors[i];
@@ -636,6 +674,26 @@ function initParticleSimulation() {
         var rForce = r.strength * rFalloff * SIM.repulsorForceMult;
         p.vx -= (rdx / rDist) * rForce;
         p.vy -= (rdy / rDist) * rForce;
+      }
+    }
+
+    // Particle keep-away: repel from nearby particles
+    if (SIM.particleKeepAway > 0) {
+      for (var k = index + 1; k < particles.length; k++) {
+        var other = particles[k];
+        var kdx = p.x - other.x;
+        var kdy = p.y - other.y;
+        var kDist = Math.sqrt(kdx * kdx + kdy * kdy) + 1;
+        if (kDist < SIM.particleKeepAway) {
+          var kFalloff = 1 - (kDist / SIM.particleKeepAway);
+          var kForce = kFalloff * SIM.keepAwayStrength;
+          var nx = kdx / kDist;
+          var ny = kdy / kDist;
+          p.vx += nx * kForce;
+          p.vy += ny * kForce;
+          other.vx -= nx * kForce;
+          other.vy -= ny * kForce;
+        }
       }
     }
 
@@ -796,7 +854,12 @@ function initParticleSimulation() {
     if (SIM.connectionDistance <= 0) return;
     var maxDist = SIM.connectionDistance;
     var maxDistSq = maxDist * maxDist;
+    var ALPHA_STEPS = 12;   // quantize alpha into discrete buckets to batch draws
+    var MIN_ALPHA = 0.05;   // floor — lines below this are skipped entirely
     ctx.lineWidth = SIM.connectionWidth;
+
+    // Collect lines into buckets keyed by "r,g,b|alphaStep"
+    var buckets = {};
 
     for (var i = 0; i < particles.length; i++) {
       var a = particles[i];
@@ -807,20 +870,39 @@ function initParticleSimulation() {
         var distSq = dx * dx + dy * dy;
         if (distSq < maxDistSq) {
           var dist = Math.sqrt(distSq);
-          var alpha = (1 - dist / maxDist) * SIM.connectionOpacity;
+          var t = 1 - dist / maxDist;
+          var alpha = t * t * (3 - 2 * t) * SIM.connectionOpacity;
+          if (alpha < MIN_ALPHA) continue;
+          // Quantize alpha to discrete step
+          var step = Math.round(alpha * ALPHA_STEPS) / ALPHA_STEPS;
           var rgb;
           if (SIM.connectionColor) {
             rgb = hexToRgb(SIM.connectionColor);
           } else {
             rgb = hexToRgb(a.color);
           }
-          ctx.strokeStyle = 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
+          var key = rgb[0] + ',' + rgb[1] + ',' + rgb[2] + '|' + step;
+          if (!buckets[key]) {
+            buckets[key] = { rgb: rgb, alpha: step, lines: [] };
+          }
+          buckets[key].lines.push(a.x, a.y, b.x, b.y);
         }
       }
+    }
+
+    // Draw each bucket in a single batched stroke
+    var keys = Object.keys(buckets);
+    for (var k = 0; k < keys.length; k++) {
+      var bucket = buckets[keys[k]];
+      var br = bucket.rgb;
+      ctx.strokeStyle = 'rgba(' + br[0] + ',' + br[1] + ',' + br[2] + ',' + bucket.alpha + ')';
+      ctx.beginPath();
+      var segs = bucket.lines;
+      for (var s = 0; s < segs.length; s += 4) {
+        ctx.moveTo(segs[s], segs[s + 1]);
+        ctx.lineTo(segs[s + 2], segs[s + 3]);
+      }
+      ctx.stroke();
     }
   }
 
@@ -859,19 +941,31 @@ function initParticleSimulation() {
   });
   classObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-  // --- Role swap timer: flip attractors <-> repulsors periodically ---
-  if (SIM.roleSwapInterval > 0) {
-    setInterval(function() {
-      for (var si = 0; si < forcePoints.length; si++) {
-        forcePoints[si].isAttractor = !forcePoints[si].isAttractor;
+  // --- Per-force-point role swap timers ---
+  function randomSwapDelay() {
+    return (SIM.roleSwapIntervalMin + Math.random() * (SIM.roleSwapIntervalMax - SIM.roleSwapIntervalMin)) * 1000;
+  }
+
+  function scheduleRoleSwap(fp) {
+    if (SIM.roleSwapIntervalMin <= 0 && SIM.roleSwapIntervalMax <= 0) return;
+    setTimeout(function() {
+      fp.isAttractor = !fp.isAttractor;
+      // Move between attractor/repulsor arrays so drawing uses correct visuals
+      if (fp.isAttractor) {
+        var idx = repulsors.indexOf(fp);
+        if (idx !== -1) repulsors.splice(idx, 1);
+        if (attractors.indexOf(fp) === -1) attractors.push(fp);
+      } else {
+        var idx2 = attractors.indexOf(fp);
+        if (idx2 !== -1) attractors.splice(idx2, 1);
+        if (repulsors.indexOf(fp) === -1) repulsors.push(fp);
       }
-      // Swap the arrays so drawing uses the right visual settings
-      var temp = attractors.slice();
-      attractors.length = 0;
-      Array.prototype.push.apply(attractors, repulsors.slice());
-      repulsors.length = 0;
-      Array.prototype.push.apply(repulsors, temp);
-    }, SIM.roleSwapInterval * 1000);
+      scheduleRoleSwap(fp); // schedule next swap
+    }, randomSwapDelay());
+  }
+
+  for (var swi = 0; swi < forcePoints.length; swi++) {
+    scheduleRoleSwap(forcePoints[swi]);
   }
 
   // --- Animation loop ---
@@ -892,7 +986,7 @@ function initParticleSimulation() {
 
     // Update and draw particles
     for (var pi = 0; pi < particles.length; pi++) {
-      updateParticle(particles[pi]);
+      updateParticle(particles[pi], pi);
       drawParticle(particles[pi]);
     }
 
