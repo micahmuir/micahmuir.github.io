@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initSmoothScrolling();
   initProjectSectionMemory();
   initGallerySystem();
-  initParticleSimulation();
+  initBackgroundVisuals();
 });
 
 // Page transition system
@@ -484,10 +484,465 @@ window.Gallery = {
 };
 
 // =======================================================================================
-// 2D PARTICLE SIMULATION WITH ATTRACTORS & REPULSORS
+// SWITCHABLE BACKGROUND VISUALS
+// A small control at the bottom of every page picks between background effects:
+//   1. "Nodes"      — particle simulation with attractors & repulsors
+//   2. "Watercolor" — pigment washes that bleed and mix on a persistent canvas;
+//                     hovering clickable elements releases extra pigment
 // =======================================================================================
 
-function initParticleSimulation() {
+// --- Shared per-page color palettes ---
+var PAGE_PALETTES = {
+  'page-about': [
+    '#00897b', '#26a69a', '#004d40', '#00bfae', '#009688',
+    '#4dd0e1', '#006064', '#80cbc4', '#26c6da', '#00838f'
+  ],
+  'page-resume': [
+    '#ff9800', '#f57c00', '#e65100', '#ffb74d', '#ff6f00',
+    '#ffa726', '#ffd54f', '#ff8f00', '#ffcc80', '#ffb300'
+  ],
+  'page-projects': [
+    '#ffd21c', '#ffe066', '#fff3b0', '#ffd21c', '#ffe066',
+    '#fff3b0', '#ffd21c', '#ffe066'
+  ],
+  'page-projects-professional': [
+    '#1976d2', '#1565c0', '#0d47a1', '#42a5f5', '#1e88e5',
+    '#90caf9', '#64b5f6', '#2196f3', '#bbdefb'
+  ],
+  'projects-page': [
+    '#ffd21c', '#ffe066', '#fff3b0', '#ffd21c', '#ffe066'
+  ],
+  'default': [
+    '#888888', '#aaaaaa', '#666666', '#999999', '#777777'
+  ]
+};
+
+function getPagePalette() {
+  var body = document.body;
+  if (body.classList.contains('page-projects') && body.classList.contains('professional-active')) {
+    return PAGE_PALETTES['page-projects-professional'];
+  }
+  if (body.classList.contains('page-about')) return PAGE_PALETTES['page-about'];
+  if (body.classList.contains('page-resume')) return PAGE_PALETTES['page-resume'];
+  if (body.classList.contains('page-projects')) return PAGE_PALETTES['page-projects'];
+  if (body.classList.contains('projects-page')) return PAGE_PALETTES['projects-page'];
+  return PAGE_PALETTES['default'];
+}
+
+// --- Manager: builds the switcher control and swaps visuals ---
+function initBackgroundVisuals() {
+  // Hide legacy CSS blob shapes — canvas visuals replace them
+  document.querySelectorAll('.bg-animated-shapes .shape').forEach(function(s) {
+    s.style.display = 'none';
+  });
+
+  var current = null;
+  var mode = localStorage.getItem('bgVisualMode');
+  if (mode !== 'nodes' && mode !== 'watercolor') mode = 'nodes';
+
+  var control = document.createElement('div');
+  control.className = 'bg-visual-control';
+  control.setAttribute('aria-label', 'Background visual style');
+  control.innerHTML =
+    '<button type="button" class="bg-visual-btn" data-mode="nodes" title="Node gravity background">Nodes</button>' +
+    '<button type="button" class="bg-visual-btn" data-mode="watercolor" title="Watercolor background">Watercolor</button>';
+  document.body.appendChild(control);
+
+  function setMode(m) {
+    if (current) {
+      current.stop();
+      current = null;
+    }
+    mode = m;
+    localStorage.setItem('bgVisualMode', m);
+    control.querySelectorAll('.bg-visual-btn').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-mode') === m);
+    });
+    current = (m === 'watercolor') ? createWatercolorVisual() : createParticleVisual();
+  }
+
+  control.addEventListener('click', function(e) {
+    var btn = e.target.closest('.bg-visual-btn');
+    if (!btn) return;
+    var m = btn.getAttribute('data-mode');
+    if (m !== mode) setMode(m);
+  });
+
+  setMode(mode);
+}
+
+// =======================================================================================
+// BACKGROUND VISUAL 2: WATERCOLOR CANVAS
+// Pigment sources wander the page and bleed washes of the page palette onto a
+// persistent canvas. Paint slowly "dries" (fades) so the piece keeps evolving.
+// Hovering a clickable element releases extra pigment from its footprint.
+// =======================================================================================
+
+function createWatercolorVisual() {
+
+  var SIM = {
+    // -- Rendering --
+    resolutionScale:      0.5,      // Render at half resolution: softer edges, faster
+    blurCSS:              '24px',   // CSS blur for watery diffusion
+    canvasOpacity:        0.72,     // Overall intensity of the whole effect
+
+    // -- Bloom lifecycle --
+    // The painting is fully redrawn every frame and each bloom's opacity, size,
+    // position, and shape are smooth analytic functions of time. Nothing
+    // accumulates in the canvas between frames, so nothing can flicker, and
+    // pigment always dries away completely on its own.
+    bloomLifeMin:         14,       // Bloom lifetime range (seconds)
+    bloomLifeMax:         26,
+    bloomGrowPortion:     0.12,     // Fraction of life spent soaking in
+    bloomFadePortion:     0.38,     // Fraction of life spent drying away
+    bloomAlphaMax:        0.42,     // Peak bloom opacity (scaled by canvasOpacity)
+    bloomRadiusMin:       80,       // Final bloom radius range (CSS px)
+    bloomRadiusMax:       190,
+
+    // -- Turbulence: blooms churn like pigment dropped in moving water --
+    lobeCount:            3,        // Soft lobes per bloom (irregular, non-circular)
+    lobeOrbit:            0.45,     // Lobe offset from center, fraction of radius
+    lobeChurnSpeed:       0.83,     // How fast lobes swirl around the bloom (rad/s)
+    lobeBreathe:          0.22,     // Lobe size modulation depth
+    driftSpeed:           13.5,     // Bloom wander speed (CSS px/s)
+    swirlStrength:        1.6,      // How strongly the wander direction meanders
+    spreadRate:           1.5,      // Radius growth time-scale — higher = blooms
+                                    // reach full size earlier in their life
+
+    // -- Ambient blooms, seeping from the perimeters of visible content blocks --
+    ambientMaxBlooms:     11,       // Max concurrent ambient blooms
+    ambientSpawnDelay:    0.9,      // Seconds between ambient bloom spawns
+    edgeBand:             0.18,     // Viewport-edge band used only as a fallback
+                                    // when no content blocks are on screen
+
+    // -- Hover pigment, seeping from the hovered element's outline --
+    hoverMaxBlooms:       8,        // Max concurrent hover blooms
+    hoverSpawnDelay:      0.3,      // Seconds between spawns while hovering
+    hoverAlphaMax:        0.55,     // Peak opacity for hover blooms
+    hoverLifeMin:         8,        // Hover blooms are shorter-lived
+    hoverLifeMax:         14,
+    hoverRadiusMin:       55,
+    hoverRadiusMax:       130
+  };
+
+  var canvas = document.createElement('canvas');
+  canvas.id = 'watercolor-canvas';
+  canvas.style.filter = 'blur(' + SIM.blurCSS + ')';
+  canvas.style.opacity = SIM.canvasOpacity;
+  document.body.appendChild(canvas);
+  var ctx = canvas.getContext('2d');
+
+  var scale = SIM.resolutionScale;
+  var W, H;
+  var running = true;
+  var rafId;
+
+  function resize() {
+    W = canvas.width = Math.max(1, Math.round(window.innerWidth * scale));
+    H = canvas.height = Math.max(1, Math.round(window.innerHeight * scale));
+  }
+
+  function hexToRgb(hex) {
+    return [
+      parseInt(hex.slice(1, 3), 16),
+      parseInt(hex.slice(3, 5), 16),
+      parseInt(hex.slice(5, 7), 16)
+    ];
+  }
+
+  var palette = getPagePalette();
+
+  function pickColor() {
+    return palette[Math.floor(Math.random() * palette.length)];
+  }
+
+  // --- Pigment blooms ---
+  // Each bloom is a cluster of soft lobes that swirl around its center and
+  // breathe in size — an irregular, churning wash rather than a flat circle.
+  var blooms = [];
+
+  function easeOut(t) {
+    return 1 - (1 - t) * (1 - t);
+  }
+
+  function smoothstep(u) {
+    u = Math.max(0, Math.min(1, u));
+    return u * u * (3 - 2 * u);
+  }
+
+  function bloomRadius(min, max) {
+    return (min + Math.random() * (max - min)) * scale;
+  }
+
+  function spawnBloom(x, y, hex, radius, peakAlpha, isHover) {
+    var life = isHover
+      ? SIM.hoverLifeMin + Math.random() * (SIM.hoverLifeMax - SIM.hoverLifeMin)
+      : SIM.bloomLifeMin + Math.random() * (SIM.bloomLifeMax - SIM.bloomLifeMin);
+    var lobes = [];
+    for (var l = 0; l < SIM.lobeCount; l++) {
+      lobes.push({
+        baseAngle: (l / SIM.lobeCount) * Math.PI * 2 + Math.random() * 1.5,
+        churnDir: Math.random() < 0.5 ? -1 : 1,
+        churnFreq: 0.6 + Math.random() * 0.8,
+        breathePhase: Math.random() * Math.PI * 2,
+        breatheFreq: 0.3 + Math.random() * 0.5,
+        sizeScale: 0.55 + Math.random() * 0.35
+      });
+    }
+    blooms.push({
+      x: x,
+      y: y,
+      rgb: hexToRgb(hex),
+      r1: radius,
+      life: life,
+      age: 0,
+      peak: peakAlpha,
+      dir: Math.random() * Math.PI * 2,
+      seed: Math.random() * 1000,
+      lobes: lobes,
+      isHover: !!isHover
+    });
+  }
+
+  // Smooth soak-in → plateau → dry-out envelope
+  function bloomEnvelope(t) {
+    var grow = SIM.bloomGrowPortion;
+    var fade = SIM.bloomFadePortion;
+    if (t < grow) return smoothstep(t / grow);
+    if (t > 1 - fade) return smoothstep((1 - t) / fade);
+    return 1;
+  }
+
+  var viewTop = 0; // current scroll offset in canvas pixels, set each frame
+
+  function drawBloom(b, timeSec) {
+    // Cull blooms far outside the visible scroll window
+    if (b.y < viewTop - b.r1 * 2 - 60 || b.y > viewTop + H + b.r1 * 2 + 60) return;
+    var t = Math.min(1, b.age / b.life);
+    var a = b.peak * bloomEnvelope(t);
+    if (a <= 0.002) return;
+    var r = Math.max(4, b.r1 * (0.25 + 0.75 * easeOut(Math.min(1, t * SIM.spreadRate))));
+    var perLobe = a / (1 + (SIM.lobeCount - 1) * 0.45); // share alpha across overlapping lobes
+    for (var l = 0; l < b.lobes.length; l++) {
+      var lb = b.lobes[l];
+      // Lobes swirl slowly around the bloom center and breathe in size
+      var ang = lb.baseAngle +
+        lb.churnDir * timeSec * SIM.lobeChurnSpeed * lb.churnFreq +
+        Math.sin(timeSec * lb.breatheFreq + lb.breathePhase) * 0.7;
+      var off = r * SIM.lobeOrbit *
+        (0.65 + 0.35 * Math.sin(timeSec * lb.breatheFreq * 0.7 + lb.breathePhase));
+      var lx = b.x + Math.cos(ang) * off;
+      var ly = b.y + Math.sin(ang) * off;
+      var lr = Math.max(3, r * lb.sizeScale *
+        (1 + SIM.lobeBreathe * Math.sin(timeSec * lb.breatheFreq + lb.breathePhase * 1.7)));
+      var g = ctx.createRadialGradient(lx, ly, 0, lx, ly, lr);
+      g.addColorStop(0, 'rgba(' + b.rgb[0] + ',' + b.rgb[1] + ',' + b.rgb[2] + ',' + perLobe + ')');
+      g.addColorStop(0.65, 'rgba(' + b.rgb[0] + ',' + b.rgb[1] + ',' + b.rgb[2] + ',' + (perLobe * 0.55) + ')');
+      g.addColorStop(1, 'rgba(' + b.rgb[0] + ',' + b.rgb[1] + ',' + b.rgb[2] + ',0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(lx, ly, lr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function countHoverBlooms() {
+    var n = 0;
+    for (var i = 0; i < blooms.length; i++) {
+      if (blooms[i].isHover) n++;
+    }
+    return n;
+  }
+
+  // --- Spawn positions ---
+  // Fallback only: a band around the viewport edge, used when no content
+  // blocks are currently visible
+  function perimeterPoint() {
+    var band = SIM.edgeBand;
+    var side = Math.floor(Math.random() * 4);
+    var u = Math.random();
+    var v = Math.random() * band;
+    var x, y;
+    if (side === 0)      { x = u;     y = v; }       // top
+    else if (side === 1) { x = u;     y = 1 - v; }   // bottom
+    else if (side === 2) { x = v;     y = u; }       // left
+    else                 { x = 1 - v; y = u; }       // right
+    return { x: x * W, y: y * H + window.pageYOffset * scale };
+  }
+
+  // Ambient pigment seeps from the perimeters of content blocks on screen
+  var AMBIENT_BLOCKS = '.paper-panel, .card, .timeline-content, .project-nav, .video-container';
+
+  function visibleBlockRects() {
+    var els = document.querySelectorAll(AMBIENT_BLOCKS);
+    var out = [];
+    for (var i = 0; i < els.length; i++) {
+      var r = els[i].getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight && r.width > 40 && r.height > 40) {
+        out.push(r);
+      }
+    }
+    return out;
+  }
+
+  function spawnAmbientBloom() {
+    var rects = visibleBlockRects();
+    var p = rects.length
+      ? rectPerimeterPoint(rects[Math.floor(Math.random() * rects.length)])
+      : perimeterPoint();
+    spawnBloom(p.x, p.y, pickColor(),
+      bloomRadius(SIM.bloomRadiusMin, SIM.bloomRadiusMax),
+      SIM.bloomAlphaMax, false);
+  }
+
+  // Random point on an element's outline, nudged slightly outward, so hover
+  // pigment seeps from the perimeter of the emphasised item.
+  // Returned in document space so blooms stay anchored to their block on scroll.
+  function rectPerimeterPoint(rect) {
+    var side = Math.floor(Math.random() * 4);
+    var pad = 6 + Math.random() * 22;
+    var x, y;
+    if (side === 0)      { x = rect.left + Math.random() * rect.width; y = rect.top - pad; }
+    else if (side === 1) { x = rect.left + Math.random() * rect.width; y = rect.bottom + pad; }
+    else if (side === 2) { x = rect.left - pad;  y = rect.top + Math.random() * rect.height; }
+    else                 { x = rect.right + pad; y = rect.top + Math.random() * rect.height; }
+    return { x: x * scale, y: (y + window.pageYOffset) * scale };
+  }
+
+  // --- Hover pigment release ---
+  var CLICKABLE = 'a, button, .card, .clickable-media, .project-nav-item';
+  var hoverEl = null;
+  var lastHoverSpawn = 0;
+
+  function spawnHoverBloom() {
+    if (!hoverEl) return;
+    var rect = hoverEl.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return;
+    var p = rectPerimeterPoint(rect);
+    spawnBloom(p.x, p.y, pickColor(),
+      bloomRadius(SIM.hoverRadiusMin, SIM.hoverRadiusMax),
+      SIM.hoverAlphaMax, true);
+  }
+
+  function onPointerOver(e) {
+    var t = (e.target && e.target.closest) ? e.target.closest(CLICKABLE) : null;
+    if (t && t.closest('.bg-visual-control')) t = null; // the switcher itself shouldn't paint
+    if (t && t !== hoverEl) {
+      hoverEl = t;
+      lastHoverSpawn = 0; // lets the first bloom start right away (it still grows in gently)
+    } else if (!t) {
+      hoverEl = null;
+    }
+  }
+
+  function onPointerLeaveDoc() {
+    hoverEl = null;
+  }
+
+  document.addEventListener('pointerover', onPointerOver, true);
+  document.documentElement.addEventListener('pointerleave', onPointerLeaveDoc);
+
+  // Refresh palette when body classes change (e.g. personal/professional toggle)
+  var classObserver = new MutationObserver(function() {
+    palette = getPagePalette();
+  });
+  classObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  // --- Animation loop ---
+  var lastAmbientSpawn = 0;
+  var lastNow = 0;
+
+  function frame(now) {
+    if (!running) return;
+    if (now === undefined) now = performance.now();
+    var dt = lastNow ? Math.min(0.05, (now - lastNow) / 1000) : 1 / 60;
+    lastNow = now;
+    var timeSec = now / 1000;
+
+    // Full redraw every frame — every value is a continuous function of time,
+    // so the result is smooth by construction. Blooms live in document space
+    // and the camera follows the scroll position, so paint moves with content.
+    viewTop = window.pageYOffset * scale;
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(0, -viewTop);
+    ctx.globalCompositeOperation = 'lighter';
+    for (var i = blooms.length - 1; i >= 0; i--) {
+      var b = blooms[i];
+      b.age += dt;
+      // Turbulent wander: the drift direction itself meanders smoothly
+      b.dir += (Math.sin(timeSec * 0.13 + b.seed) +
+                Math.sin(timeSec * 0.31 + b.seed * 2.7)) * SIM.swirlStrength * dt;
+      b.x += Math.cos(b.dir) * SIM.driftSpeed * scale * dt;
+      b.y += Math.sin(b.dir) * SIM.driftSpeed * scale * dt;
+      if (b.age >= b.life) {
+        blooms.splice(i, 1);
+      } else {
+        drawBloom(b, timeSec);
+      }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
+
+    // Ambient blooms seeping from the perimeters of visible content blocks
+    var hoverCount = countHoverBlooms();
+    var ambientCount = blooms.length - hoverCount;
+    if (ambientCount < SIM.ambientMaxBlooms &&
+        now - lastAmbientSpawn > SIM.ambientSpawnDelay * 1000) {
+      lastAmbientSpawn = now;
+      spawnAmbientBloom();
+    }
+
+    // Sustained hover keeps seeping pigment from the emphasised element's outline
+    if (hoverEl && !document.contains(hoverEl)) hoverEl = null;
+    if (hoverEl && hoverCount < SIM.hoverMaxBlooms &&
+        now - lastHoverSpawn > SIM.hoverSpawnDelay * 1000) {
+      lastHoverSpawn = now;
+      spawnHoverBloom();
+    }
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function onVisibility() {
+    if (document.hidden) {
+      cancelAnimationFrame(rafId);
+    } else if (running) {
+      frame();
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', onVisibility);
+
+  // Seed a batch of staggered blooms so the canvas has color within seconds
+  for (var si = 0; si < 8; si++) {
+    spawnAmbientBloom();
+    blooms[blooms.length - 1].age = Math.random() * 4;
+  }
+
+  frame();
+
+  return {
+    stop: function() {
+      running = false;
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
+      document.removeEventListener('pointerover', onPointerOver, true);
+      document.documentElement.removeEventListener('pointerleave', onPointerLeaveDoc);
+      classObserver.disconnect();
+      canvas.remove();
+    }
+  };
+}
+
+// =======================================================================================
+// BACKGROUND VISUAL 1: 2D PARTICLE SIMULATION WITH ATTRACTORS & REPULSORS ("Nodes")
+// =======================================================================================
+
+function createParticleVisual() {
 
   // ===================================================================================
   // SIMULATION SETTINGS — Tweak these to change the look and feel
@@ -501,10 +956,15 @@ function initParticleSimulation() {
     particleOpacity:      1.0,      // Particle fill opacity (0..1, 1 = fully solid)
     particleSoftness:     0.0,      // Edge softness (0 = hard circle, 1 = fully feathered to transparent)
     particleInitSpeed:    0.3,      // Initial random velocity magnitude
-    particleDamping:      0.985,    // Velocity multiplier per frame (0..1, lower = more friction)
-    particleMaxSpeed:     0.1,      // Hard speed cap (px per frame)
+    particleDamping:      0.97,     // Velocity multiplier per frame (0..1, lower = more friction)
+    particleMaxSpeed:     0.3,      // Hard speed cap (px per frame)
     particleKeepAway:     60,       // Min distance (px) particles try to maintain from each other (0 = disabled)
-    keepAwayStrength:     0.8,     // How strongly particles push apart when too close
+    keepAwayStrength:     0.025,    // How strongly particles push apart when too close
+                                    // (kept gentle relative to particleMaxSpeed — a strong kick
+                                    //  against a low speed cap makes particles jitter/flicker)
+    renderSmoothing:      0.1,      // Rendered positions chase physics positions through this
+                                    // low-pass filter — physics micro-jitter in dense clusters
+                                    // can never reach the screen (1 = no smoothing)
 
     // -- Attractors (pull particles in) --
     attractorCount:       3,        // Number of attractors
@@ -540,8 +1000,8 @@ function initParticleSimulation() {
     fpInitSpeed:          0.4,      // Initial random velocity for force points (px/frame)
     fpDamping:            0.995,    // Velocity damping for force points
     fpMaxSpeed:           1.2,      // Speed cap for force point drift
-    roleSwapIntervalMin:  8,        // Min seconds before a force point swaps role (0 = disabled)
-    roleSwapIntervalMax:  18,       // Max seconds before a force point swaps role
+    roleSwapIntervalMin:  16,       // Min seconds before a force point swaps role (0 = disabled)
+    roleSwapIntervalMax:  32,       // Max seconds before a force point swaps role
 
     // -- Particle Connection Lines --
     connectionDistance:   300,      // Max distance (px) to draw a line between two particles
@@ -558,13 +1018,6 @@ function initParticleSimulation() {
   // END SETTINGS
   // ===================================================================================
 
-  // Hide existing CSS shapes
-  var existingShapes = document.querySelector('.bg-animated-shapes');
-  if (existingShapes) {
-    var shapeChildren = existingShapes.querySelectorAll('.shape');
-    shapeChildren.forEach(function(s) { s.style.display = 'none'; });
-  }
-
   // Create canvas
   var canvas = document.createElement('canvas');
   canvas.id = 'particle-canvas';
@@ -574,56 +1027,29 @@ function initParticleSimulation() {
 
   var ctx = canvas.getContext('2d');
   var W, H;
+  var worldH = 0;       // simulation world spans the full document height
+  var scrollOffset = 0; // camera position, follows page scroll
+  var running = true;
+
+  function docHeight() {
+    return Math.max(window.innerHeight, document.documentElement.scrollHeight);
+  }
 
   function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
+    worldH = docHeight();
     // Reposition force point orbit centers on resize
     forcePoints.forEach(function(fp) {
       fp.cx = W * fp.cxRatio;
-      fp.cy = H * fp.cyRatio;
+      fp.cy = worldH * fp.cyRatio;
       fp.orbitRx = W * fp.rxRatio;
       fp.orbitRy = H * fp.ryRatio;
     });
   }
 
-  // --- Color palettes per page theme ---
-  var colorPalettes = {
-    'page-about': [
-      '#00897b', '#26a69a', '#004d40', '#00bfae', '#009688',
-      '#4dd0e1', '#006064', '#80cbc4', '#26c6da', '#00838f'
-    ],
-    'page-resume': [
-      '#ff9800', '#f57c00', '#e65100', '#ffb74d', '#ff6f00',
-      '#ffa726', '#ffd54f', '#ff8f00', '#ffcc80', '#ffb300'
-    ],
-    'page-projects': [
-      '#ffd21c', '#ffe066', '#fff3b0', '#ffd21c', '#ffe066',
-      '#fff3b0', '#ffd21c', '#ffe066'
-    ],
-    'page-projects-professional': [
-      '#1976d2', '#1565c0', '#0d47a1', '#42a5f5', '#1e88e5',
-      '#90caf9', '#64b5f6', '#2196f3', '#bbdefb'
-    ],
-    'projects-page': [
-      '#ffd21c', '#ffe066', '#fff3b0', '#ffd21c', '#ffe066'
-    ],
-    'default': [
-      '#888888', '#aaaaaa', '#666666', '#999999', '#777777'
-    ]
-  };
-
-  function getColors() {
-    var body = document.body;
-    if (body.classList.contains('page-projects') && body.classList.contains('professional-active')) {
-      return colorPalettes['page-projects-professional'];
-    }
-    if (body.classList.contains('page-about')) return colorPalettes['page-about'];
-    if (body.classList.contains('page-resume')) return colorPalettes['page-resume'];
-    if (body.classList.contains('page-projects')) return colorPalettes['page-projects'];
-    if (body.classList.contains('projects-page')) return colorPalettes['projects-page'];
-    return colorPalettes['default'];
-  }
+  // --- Color palettes shared across background visuals ---
+  var getColors = getPagePalette;
 
   function hexToRgb(hex) {
     var r = parseInt(hex.slice(1, 3), 16);
@@ -637,9 +1063,13 @@ function initParticleSimulation() {
 
   function createParticle() {
     var colors = getColors();
+    var px = Math.random() * (W || window.innerWidth);
+    var py = Math.random() * (worldH || docHeight());
     return {
-      x: Math.random() * (W || window.innerWidth),
-      y: Math.random() * (H || window.innerHeight),
+      x: px,
+      y: py,
+      rx: px,   // rendered position — smoothed copy of the physics position
+      ry: py,
       vx: (Math.random() - 0.5) * SIM.particleInitSpeed,
       vy: (Math.random() - 0.5) * SIM.particleInitSpeed,
       radius: SIM.particleMinRadius + Math.random() * (SIM.particleMaxRadius - SIM.particleMinRadius),
@@ -686,7 +1116,9 @@ function initParticleSimulation() {
         var kDist = Math.sqrt(kdx * kdx + kdy * kdy) + 1;
         if (kDist < SIM.particleKeepAway) {
           var kFalloff = 1 - (kDist / SIM.particleKeepAway);
-          var kForce = kFalloff * SIM.keepAwayStrength;
+          // Squared falloff: the force eases in from zero at the boundary instead
+          // of switching on abruptly, which caused oscillation in dense clusters
+          var kForce = kFalloff * kFalloff * SIM.keepAwayStrength;
           var nx = kdx / kDist;
           var ny = kdy / kDist;
           p.vx += nx * kForce;
@@ -712,21 +1144,35 @@ function initParticleSimulation() {
     p.x += p.vx;
     p.y += p.vy;
 
-    // Wrap around edges with margin
+    // Wrap around world edges with margin (world height = document height)
     var margin = p.radius;
-    if (p.x < -margin) p.x = W + margin;
-    if (p.x > W + margin) p.x = -margin;
-    if (p.y < -margin) p.y = H + margin;
-    if (p.y > H + margin) p.y = -margin;
+    var wrapped = false;
+    if (p.x < -margin) { p.x = W + margin; wrapped = true; }
+    if (p.x > W + margin) { p.x = -margin; wrapped = true; }
+    if (p.y < -margin) { p.y = worldH + margin; wrapped = true; }
+    if (p.y > worldH + margin) { p.y = -margin; wrapped = true; }
+
+    // Rendered position chases the physics position through a low-pass filter,
+    // so any per-frame jitter is absorbed before drawing. Snap on wrap (the
+    // particle is off-screen at that moment) to avoid a streak across the view.
+    if (wrapped) {
+      p.rx = p.x;
+      p.ry = p.y;
+    } else {
+      p.rx += (p.x - p.rx) * SIM.renderSmoothing;
+      p.ry += (p.y - p.ry) * SIM.renderSmoothing;
+    }
   }
 
   function drawParticle(p) {
+    // Cull particles outside the visible scroll window
+    if (p.ry < scrollOffset - 150 || p.ry > scrollOffset + H + 150) return;
     var rgb = hexToRgb(p.color);
     var softness = SIM.particleSoftness;
     if (softness > 0.01) {
       // Soft-edged particle via radial gradient
       var solidStop = 1 - softness;  // fraction of radius that is solid
-      var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+      var grad = ctx.createRadialGradient(p.rx, p.ry, 0, p.rx, p.ry, p.radius);
       grad.addColorStop(0, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + p.opacity + ')');
       grad.addColorStop(Math.max(0, solidStop), 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + p.opacity + ')');
       grad.addColorStop(1, 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',0)');
@@ -737,13 +1183,15 @@ function initParticleSimulation() {
       ctx.globalAlpha = p.opacity;
     }
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.arc(p.rx, p.ry, p.radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
   }
 
   function drawForcePoint(fp, visualSize, opacity, softness, colorOverride) {
     if (visualSize <= 0) return;
+    // Cull force points outside the visible scroll window
+    if (fp.y < scrollOffset - visualSize * 4 || fp.y > scrollOffset + H + visualSize * 4) return;
     var colors = getColors();
     var hex = colorOverride || colors[0];
     var rgb = hexToRgb(hex);
@@ -771,11 +1219,12 @@ function initParticleSimulation() {
 
   function createForcePoint(strength, influenceRadius, isAttractor) {
     var cxR = 0.15 + Math.random() * 0.7;
-    var cyR = 0.15 + Math.random() * 0.7;
+    var cyR = 0.1 + Math.random() * 0.8;
     var rxR = SIM.orbitRadiusXMin + Math.random() * (SIM.orbitRadiusXMax - SIM.orbitRadiusXMin);
     var ryR = SIM.orbitRadiusYMin + Math.random() * (SIM.orbitRadiusYMax - SIM.orbitRadiusYMin);
     var startW = W || window.innerWidth;
-    var startH = H || window.innerHeight;
+    var startH = worldH || docHeight();
+    var viewH = H || window.innerHeight;
     // Random initial trajectory
     var angle = Math.random() * Math.PI * 2;
     return {
@@ -793,7 +1242,7 @@ function initParticleSimulation() {
       cx: startW * cxR,
       cy: startH * cyR,
       orbitRx: startW * rxR,
-      orbitRy: startH * ryR,
+      orbitRy: viewH * ryR,
       orbitAngle: Math.random() * Math.PI * 2,
       speed: SIM.orbitSpeedMin + Math.random() * (SIM.orbitSpeedMax - SIM.orbitSpeedMin),
       freqX: 0.7 + Math.random() * 0.6,
@@ -842,20 +1291,22 @@ function initParticleSimulation() {
     fp.x += fp.vx;
     fp.y += fp.vy;
 
-    // Soft bounce off edges
+    // Soft bounce off world edges
     var margin = 50;
-    if (fp.x < margin)     fp.vx += 0.1;
-    if (fp.x > W - margin) fp.vx -= 0.1;
-    if (fp.y < margin)     fp.vy += 0.1;
-    if (fp.y > H - margin) fp.vy -= 0.1;
+    if (fp.x < margin)          fp.vx += 0.1;
+    if (fp.x > W - margin)      fp.vx -= 0.1;
+    if (fp.y < margin)          fp.vy += 0.1;
+    if (fp.y > worldH - margin) fp.vy -= 0.1;
   }
 
   function drawConnections() {
     if (SIM.connectionDistance <= 0) return;
     var maxDist = SIM.connectionDistance;
     var maxDistSq = maxDist * maxDist;
-    var ALPHA_STEPS = 12;   // quantize alpha into discrete buckets to batch draws
-    var MIN_ALPHA = 0.05;   // floor — lines below this are skipped entirely
+    var ALPHA_STEPS = 48;   // quantize alpha into discrete buckets to batch draws
+                            // (fine steps — coarse buckets made lines visibly jump
+                            //  between alpha levels, reading as flicker)
+    var MIN_ALPHA = 0.02;   // floor — lines below this are skipped entirely
     ctx.lineWidth = SIM.connectionWidth;
 
     // Collect lines into buckets keyed by "r,g,b|alphaStep"
@@ -865,10 +1316,13 @@ function initParticleSimulation() {
       var a = particles[i];
       for (var j = i + 1; j < particles.length; j++) {
         var b = particles[j];
-        var dx = a.x - b.x;
-        var dy = a.y - b.y;
+        var dx = a.rx - b.rx;
+        var dy = a.ry - b.ry;
         var distSq = dx * dx + dy * dy;
         if (distSq < maxDistSq) {
+          // Cull lines fully outside the visible scroll window
+          if ((a.ry < scrollOffset - 60 && b.ry < scrollOffset - 60) ||
+              (a.ry > scrollOffset + H + 60 && b.ry > scrollOffset + H + 60)) continue;
           var dist = Math.sqrt(distSq);
           var t = 1 - dist / maxDist;
           var alpha = t * t * (3 - 2 * t) * SIM.connectionOpacity;
@@ -885,7 +1339,7 @@ function initParticleSimulation() {
           if (!buckets[key]) {
             buckets[key] = { rgb: rgb, alpha: step, lines: [] };
           }
-          buckets[key].lines.push(a.x, a.y, b.x, b.y);
+          buckets[key].lines.push(a.rx, a.ry, b.rx, b.ry);
         }
       }
     }
@@ -906,24 +1360,33 @@ function initParticleSimulation() {
     }
   }
 
-  // --- Initialize force points from SIM settings ---
-  for (var ai = 0; ai < SIM.attractorCount; ai++) {
-    var aStr = SIM.attractorStrengths[ai] !== undefined ? SIM.attractorStrengths[ai] : 0.5;
-    var aRad = SIM.attractorRadii[ai] !== undefined ? SIM.attractorRadii[ai] : 300;
-    attractors.push(createForcePoint(aStr, aRad, true));
-    forcePoints.push(attractors[ai]);
-  }
-  for (var ri = 0; ri < SIM.repulsorCount; ri++) {
-    var rStr = SIM.repulsorStrengths[ri] !== undefined ? SIM.repulsorStrengths[ri] : 0.5;
-    var rRad = SIM.repulsorRadii[ri] !== undefined ? SIM.repulsorRadii[ri] : 280;
-    repulsors.push(createForcePoint(rStr, rRad, false));
-    forcePoints.push(repulsors[ri]);
-  }
-
+  // --- Initialize world, force points, and particles ---
+  // Size the world first, then scale populations with page length so long
+  // pages have the same visual density as short ones (capped for performance)
   resize();
   window.addEventListener('resize', resize);
 
-  for (var i = 0; i < SIM.particleCount; i++) {
+  var pages = Math.min(4, Math.max(1, Math.round(worldH / H)));
+
+  for (var pg = 0; pg < pages; pg++) {
+    for (var ai = 0; ai < SIM.attractorCount; ai++) {
+      var aStr = SIM.attractorStrengths[ai] !== undefined ? SIM.attractorStrengths[ai] : 0.5;
+      var aRad = SIM.attractorRadii[ai] !== undefined ? SIM.attractorRadii[ai] : 300;
+      var att = createForcePoint(aStr, aRad, true);
+      attractors.push(att);
+      forcePoints.push(att);
+    }
+    for (var ri = 0; ri < SIM.repulsorCount; ri++) {
+      var rStr = SIM.repulsorStrengths[ri] !== undefined ? SIM.repulsorStrengths[ri] : 0.5;
+      var rRad = SIM.repulsorRadii[ri] !== undefined ? SIM.repulsorRadii[ri] : 280;
+      var rep = createForcePoint(rStr, rRad, false);
+      repulsors.push(rep);
+      forcePoints.push(rep);
+    }
+  }
+
+  var totalParticles = Math.min(160, Math.round(SIM.particleCount * worldH / H));
+  for (var i = 0; i < totalParticles; i++) {
     particles.push(createParticle());
   }
 
@@ -942,13 +1405,16 @@ function initParticleSimulation() {
   classObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
   // --- Per-force-point role swap timers ---
+  var roleSwapTimers = [];
+
   function randomSwapDelay() {
     return (SIM.roleSwapIntervalMin + Math.random() * (SIM.roleSwapIntervalMax - SIM.roleSwapIntervalMin)) * 1000;
   }
 
   function scheduleRoleSwap(fp) {
     if (SIM.roleSwapIntervalMin <= 0 && SIM.roleSwapIntervalMax <= 0) return;
-    setTimeout(function() {
+    roleSwapTimers.push(setTimeout(function() {
+      if (!running) return;
       fp.isAttractor = !fp.isAttractor;
       // Move between attractor/repulsor arrays so drawing uses correct visuals
       if (fp.isAttractor) {
@@ -961,7 +1427,7 @@ function initParticleSimulation() {
         if (repulsors.indexOf(fp) === -1) repulsors.push(fp);
       }
       scheduleRoleSwap(fp); // schedule next swap
-    }, randomSwapDelay());
+    }, randomSwapDelay()));
   }
 
   for (var swi = 0; swi < forcePoints.length; swi++) {
@@ -970,8 +1436,28 @@ function initParticleSimulation() {
 
   // --- Animation loop ---
   var animFrameId;
+  var heightCheckTick = 0;
+
   function animate() {
+    if (!running) return;
+
+    // Track content height changes (images loading, section toggles)
+    if ((heightCheckTick++ & 127) === 0) {
+      var dh = docHeight();
+      if (Math.abs(dh - worldH) > 4) {
+        worldH = dh;
+        forcePoints.forEach(function(fp) {
+          fp.cy = worldH * fp.cyRatio;
+        });
+      }
+    }
+
+    // Camera follows the page scroll — the field lives in document space
+    scrollOffset = window.pageYOffset || 0;
+
     ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(0, -scrollOffset);
 
     // Update and draw force points (with mutual interaction)
     for (var fi = 0; fi < forcePoints.length; fi++) {
@@ -993,17 +1479,32 @@ function initParticleSimulation() {
     // Draw connection lines between nearby particles
     drawConnections();
 
+    ctx.restore();
+
     animFrameId = requestAnimationFrame(animate);
   }
 
   // Pause when tab not visible for performance
-  document.addEventListener('visibilitychange', function() {
+  function onVisibility() {
     if (document.hidden) {
       cancelAnimationFrame(animFrameId);
-    } else {
+    } else if (running) {
       animate();
     }
-  });
+  }
+  document.addEventListener('visibilitychange', onVisibility);
 
   animate();
+
+  return {
+    stop: function() {
+      running = false;
+      cancelAnimationFrame(animFrameId);
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
+      classObserver.disconnect();
+      roleSwapTimers.forEach(clearTimeout);
+      canvas.remove();
+    }
+  };
 }

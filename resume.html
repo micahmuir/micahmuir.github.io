@@ -23,90 +23,94 @@
       position: relative;
     }
     
+    /* Fixed geometry: marker column is 130px wide, the vertical line runs at
+       x = 136px (in the gap before the content panel), and every dot centers
+       on that same x. Nothing depends on content height, so alignment is
+       identical at every page width. */
     .timeline-date-marker {
       flex-shrink: 0;
-      width: 120px;
+      width: 130px;
       text-align: right;
       position: relative;
-      padding-right: 20px;
+      padding-right: 26px;   /* keeps the date chip clear of the line and dots */
+      padding-top: 6px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: flex-end;
-      min-height: 80px;
-      margin-top: -33px;
     }
-    
+
     .timeline-date-marker::after {
       content: '';
       position: absolute;
-      width: 12px;
-      height: 12px;
+      box-sizing: border-box; /* pseudo-elements miss the global reset — without
+                                 this the border inflates the dot and shifts its
+                                 center off the line */
+      width: 16px;
+      height: 16px;
       background: var(--theme-color);
-      border: 3px solid var(--bg-light);
+      border: 3px solid #000000;
       border-radius: 50%;
-      right: -3px;
-      top: 50%;
-      transform: translateY(-50%);
+      left: 128px;           /* dot center at x = 136px, on the line */
+      top: 16px;             /* dot center at y = 24px, level with the chip */
       z-index: 2;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0 12px rgba(var(--theme-rgb), 0.6);
     }
 
-    /* Make the first timeline dot extra big */
+    /* Slightly larger dot for the current position */
     .timeline-item:first-child .timeline-date-marker::after {
-      width: 40px;
-      height: 40px;
-      right: -18px;
-      border-width: 4px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      width: 26px;
+      height: 26px;
+      left: 123px;           /* same center x = 136px */
+      top: 11px;             /* same center y = 24px */
+      box-shadow: 0 0 22px rgba(var(--theme-rgb), 0.55);
     }
-    
+
     .timeline::before {
       content: '';
       position: absolute;
-      width: 6px;
-      background: linear-gradient(to right, 
-        var(--primary-color) 0%, 
-        var(--primary-color) 50%, 
-        var(--theme-color) 50%, 
-        var(--theme-color) 100%);
-      top: 20px;
+      width: 3px;
+      background: linear-gradient(to bottom,
+        rgba(var(--theme-rgb), 0.8) 0%,
+        rgba(var(--theme-rgb), 0.2) 100%);
+      top: 24px;
       bottom: 20px;
-      left: 111px;
+      left: 134.5px;         /* line center at x = 136px */
       border-radius: 3px;
       z-index: 1;
-      opacity: 0.9;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.3);
     }
-    
+
     .timeline-content {
       flex: 1;
-      background: var(--bg-light);
-      background-image: var(--texture-primary);
-      background-size: 250px 250px;
+      min-width: 0; /* lets the panel shrink properly instead of forcing overflow */
+      background: var(--texture-primary), var(--surface-glass);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
       padding: 0.25rem 2.5rem 2.5rem 2.5rem;
       border-radius: var(--border-radius);
-      border: 2px solid var(--theme-color);
+      border: 1px solid var(--surface-border);
       box-shadow: var(--shadow-medium);
       position: relative;
       transition: all var(--transition-medium);
     }
-    
+
     .timeline-content:hover {
       transform: translateY(-3px);
-      box-shadow: var(--shadow-heavy);
+      border-color: rgba(var(--theme-rgb), 0.35);
+      box-shadow: var(--shadow-heavy), var(--glow-theme);
     }
-    
+
     .timeline-date {
       color: var(--text-medium);
       font-weight: 500;
       font-size: 0.95rem;
       margin-bottom: 0;
       white-space: nowrap;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 0.3rem 0.6rem;
-      border-radius: var(--border-radius-small);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      /* Opaque chip: the timeline line and glows can never show through the text */
+      background: #101013;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--surface-border);
       position: relative;
       z-index: 3;
     }
@@ -151,13 +155,15 @@
 
     /* Link styling */
     .timeline-content a {
-      color: #2563eb;
+      color: var(--theme-color);
       text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(var(--theme-rgb), 0.4);
       transition: color var(--transition-fast);
     }
 
     .timeline-content a:hover {
-      color: #1d4ed8;
+      color: var(--primary-color);
       text-decoration: none;
     }
     
@@ -170,14 +176,15 @@
       padding-bottom: 39.375%; /* 70% of 56.25% to maintain 16:9 aspect ratio */
       border-radius: var(--border-radius);
       overflow: hidden;
-      border: 3px solid var(--primary-color);
-      box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color);
+      border: 1px solid var(--surface-border-strong);
+      box-shadow: var(--shadow-medium);
       transition: all var(--transition-medium);
     }
 
     .video-container:hover {
       transform: translateY(-2px);
-      box-shadow: var(--shadow-heavy);
+      border-color: rgba(var(--theme-rgb), 0.4);
+      box-shadow: var(--shadow-heavy), var(--glow-theme);
     }
     
     .video-container iframe {
@@ -199,24 +206,36 @@
         display: none;
       }
       
+      /* Stacked layout: the line runs down the left edge at x = -2.5px and
+         all dots center on it, clear of the left-aligned date chips */
       .timeline-date-marker {
         width: 100%;
         text-align: left;
         position: relative;
         padding-right: 0;
         padding-left: 2rem;
+        padding-top: 0;
         justify-content: flex-start;
       }
-      
+
       .timeline-date-marker::after {
-        left: -8px;
-        right: auto;
-        top: 12px;
+        width: 14px;
+        height: 14px;
+        left: -9.5px;          /* dot center at x = -2.5px, on the line */
+        top: 11px;             /* dot center level with the chip */
       }
-      
+
+      .timeline-item:first-child .timeline-date-marker::after {
+        width: 20px;
+        height: 20px;
+        left: -12.5px;         /* same center x */
+        top: 8px;              /* same center y */
+      }
+
       .timeline::before {
         left: -4px;
         width: 3px;
+        top: 12px;
       }
       
       .timeline-content {

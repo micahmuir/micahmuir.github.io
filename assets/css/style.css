@@ -4,69 +4,73 @@
 ======================================================================================= */
 
 /* =======================================================================================
-   COLOR SCHEME VARIABLES - E-INK THEME WITH PAGE-SPECIFIC COLORS
+   COLOR SCHEME VARIABLES - OLED DARK THEME WITH PAGE-SPECIFIC ACCENTS
 ======================================================================================= */
 :root {
-  /* PAGE-SPECIFIC THEME COLORS — matched chroma/luminance across hues */
-  --teal-color: #0d7c6e;           /* Teal for About page */
-  --orange-color: #c85a1a;         /* Burnt amber for Resume page */
-  --plum-color: #8e3a8a;           /* Plum for Projects (Personal) */
-  --blue-color: #1565c0;           /* Steel blue for Projects (Professional) */
-  /* */
-  /* MATERIAL E-INK THEME COLORS - Bold and Simple */
-  --primary-color: #000000;        /* Default black, overridden per page */
-  --theme-color: #000000;          /* Theme highlight color, overridden per page */
-  --secondary-color: #212121;      /* Dark grey for accents, links */
-  --accent-color: #424242;         /* Medium grey for hover states */
-  --success-color: #2d2d2d;        /* Dark grey for success states */
+  /* PAGE-SPECIFIC ACCENT COLORS — brightened to hold contrast on true black */
+  --teal-color: #2dd4bf;           /* Teal for About page */
+  --orange-color: #ffa057;         /* Warm amber for Resume page */
+  --plum-color: #d97fd3;           /* Plum for Projects (Personal) */
+  --blue-color: #6db1ff;           /* Sky blue for Projects (Professional) */
+
+  /* CORE THEME COLORS */
+  --primary-color: #f4f2ef;        /* Warm off-white for headings */
+  --theme-color: #9aa0a6;          /* Accent highlight, overridden per page */
+  --theme-rgb: 154, 160, 166;      /* Accent as RGB, overridden per page */
+  --secondary-color: #c9c5bf;      /* Light grey for secondary emphasis */
+  --accent-color: #8f8b85;         /* Medium grey for hover states */
+  --success-color: #4ade80;        /* Green for success states */
   --bg-anim-color: 128, 128, 128;  /* Default grey for background animation */
-  
+
   /* RGB VALUES FOR GRADIENTS */
-  --primary-rgb: 0, 0, 0;          /* Primary color in RGB */
-  --secondary-rgb: 33, 33, 33;     /* Secondary color in RGB */
-  --accent-rgb: 66, 66, 66;        /* Accent color in RGB */
-  --neutral-rgb: 45, 45, 45;       /* Darker neutral background in RGB */
-  
+  --primary-rgb: 244, 242, 239;
+  --secondary-rgb: 201, 197, 191;
+  --accent-rgb: 143, 139, 133;
+  --neutral-rgb: 10, 10, 11;
+
   /* ADAPTIVE GRADIENT COLORS - Can be overridden per page */
-  --page-primary: var(--primary-rgb);
-  --page-secondary: var(--secondary-rgb);
-  --page-accent: var(--accent-rgb);
-  
-  /* MATERIAL E-INK NEUTRAL COLORS */
-  --text-dark: #000000;            /* Pure black text for maximum contrast */
-  --text-medium: #424242;          /* Medium grey text */
-  --text-light: #616161;           /* Light grey text */
-  --bg-light: #f5f3f0;             /* Warm beige backgrounds for all text areas */
-  --bg-medium: #f0ede8;            /* Slightly darker beige */
-  --bg-dark: #e8e4de;              /* Darker beige backgrounds */
-  
-  /* E-INK GRADIENT BACKGROUNDS */
-  --gradient-primary: linear-gradient(135deg, 
-    rgba(245, 243, 240, 0.98) 0%, 
-    rgba(240, 237, 232, 0.99) 50%, 
-    rgba(232, 228, 222, 1) 100%);
-  --gradient-soft: linear-gradient(45deg, 
-    rgba(240, 237, 232, 0.95) 0%, 
-    rgba(245, 243, 240, 0.98) 100%);
-  --texture-primary: linear-gradient(145deg, 
-    rgba(245, 243, 240, 0.98) 0%, 
-    rgba(242, 240, 235, 0.99) 30%, 
-    rgba(238, 235, 230, 0.99) 70%, 
-    rgba(240, 237, 232, 0.98) 100%);
-  --texture-fallback: #f5f3f0;
-  
+  --page-primary: var(--theme-rgb);
+  --page-secondary: var(--theme-rgb);
+  --page-accent: var(--theme-rgb);
+
+  /* OLED NEUTRAL COLORS */
+  --text-dark: #ece9e4;            /* Primary text — warm off-white, easy on the eyes */
+  --text-medium: #b3afa8;          /* Secondary text */
+  --text-light: #8a8680;           /* Tertiary / caption text */
+  --bg-light: #121214;             /* Raised dark surface */
+  --bg-medium: #1a1a1d;            /* Slightly lighter surface (hover states) */
+  --bg-dark: #0a0a0b;              /* Deepest surface */
+
+  /* DARK GLASS SURFACES */
+  --surface-glass: rgba(17, 17, 20, 0.72);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-strong: rgba(255, 255, 255, 0.14);
+  --gradient-primary: linear-gradient(135deg,
+    rgba(24, 24, 28, 0.9) 0%,
+    rgba(16, 16, 19, 0.95) 50%,
+    rgba(10, 10, 12, 1) 100%);
+  --gradient-soft: linear-gradient(45deg,
+    rgba(20, 20, 24, 0.9) 0%,
+    rgba(14, 14, 17, 0.95) 100%);
+  --texture-primary: linear-gradient(145deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.015) 40%,
+    rgba(255, 255, 255, 0) 100%);
+  --texture-fallback: #121214;
+
   /* SPACING & LAYOUT */
   --max-width: 1200px;
   --section-padding: 4rem 2rem;
   --card-padding: 2rem;
-  --border-radius: 12px;
-  --border-radius-small: 8px;
-  
-  /* MATERIAL DESIGN SHADOWS - Bold and Defined */
-  --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.25);
-  --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.3);
-  
+  --border-radius: 18px;
+  --border-radius-small: 10px;
+
+  /* SOFT AMBIENT SHADOWS FOR DARK SURFACES */
+  --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.45);
+  --shadow-medium: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --shadow-heavy: 0 18px 50px rgba(0, 0, 0, 0.6);
+  --glow-theme: 0 0 28px rgba(var(--theme-rgb), 0.14);
+
   /* TRANSITIONS */
   --transition-fast: 0.2s ease;
   --transition-medium: 0.3s ease;
@@ -78,113 +82,67 @@
 ======================================================================================= */
 /* About Page - Teal Theme */
 .page-about {
-  --primary-color: #000000;
   --theme-color: var(--teal-color);
-  --bg-anim-color: 13, 124, 110;  /* Teal: #0d7c6e */
+  --theme-rgb: 45, 212, 191;
+  --bg-anim-color: 45, 212, 191;
 }
 
-/* About page paper panel - ensure solid background */
-.page-about .paper-panel {
-  background: #f5f3f0 !important;
-  background-color: #f5f3f0 !important;
-  opacity: 1 !important;
-  border: 3px solid var(--primary-color) !important;
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
-}
-
-/* Resume Page - Burnt Amber Theme */
+/* Resume Page - Warm Amber Theme */
 .page-resume {
-  --primary-color: #000000;
   --theme-color: var(--orange-color);
-  --bg-anim-color: 200, 90, 26;  /* Burnt amber: #c85a1a */
-}
-
-/* Resume page timeline content - ensure solid background */
-.page-resume .timeline-content {
-  background: #f5f3f0 !important;
-  background-color: #f5f3f0 !important;
-  background-image: none !important;
-  opacity: 1 !important;
-  border: 3px solid var(--primary-color) !important;
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
-}
-
-/* Resume page skills banner content - ensure solid background */
-.page-resume .skills-banner-content {
-  background: #f5f3f0 !important;
-  background-color: #f5f3f0 !important;
-  background-image: none !important;
-  opacity: 1 !important;
-  border: 3px solid var(--primary-color) !important;
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
-}
-
-/* Resume page skill categories - ensure solid background */
-.page-resume .skill-category {
-  background: #f5f3f0 !important;
-  background-color: #f5f3f0 !important;
-  opacity: 1 !important;
-  border: 3px solid var(--primary-color) !important;
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
+  --theme-rgb: 255, 160, 87;
+  --bg-anim-color: 255, 160, 87;
 }
 
 /* Projects Page - Plum Theme (default / Personal) */
 .page-projects {
-  --primary-color: #000000;
   --theme-color: var(--plum-color);
-  --bg-anim-color: 142, 58, 138;  /* Plum: #8e3a8a */
+  --theme-rgb: 217, 127, 211;
+  --bg-anim-color: 217, 127, 211;
 }
 
 /* Projects Page - Professional Section (Blue) */
 .page-projects.professional-active {
-  --primary-color: #000000;
   --theme-color: var(--blue-color);
-  --bg-anim-color: 21, 101, 192;  /* Blue: #1565c0 */
+  --theme-rgb: 109, 177, 255;
+  --bg-anim-color: 109, 177, 255;
 }
 
 /* Photography project pages - share Personal plum theme */
 .photography-project,
 .projects-page {
-  --primary-color: #000000;
   --theme-color: var(--plum-color);
-  --bg-anim-color: 142, 58, 138;  /* Plum: #8e3a8a */
+  --theme-rgb: 217, 127, 211;
+  --bg-anim-color: 217, 127, 211;
 }
 
 /* Hardware project pages - steel blue tones */
 .hardware-project {
-  --primary-color: #000000;
-  --theme-color: #546e7a;  /* Steel blue */
-  --bg-anim-color: 84, 110, 122;  /* Steel blue background animation */
+  --theme-color: #7fb0c9;
+  --theme-rgb: 127, 176, 201;
+  --bg-anim-color: 127, 176, 201;
 }
 
 /* Electronics project pages - electric green tones */
 .electronics-project {
-  --primary-color: #000000;
-  --theme-color: #388e3c;  /* Electric green */
-  --bg-anim-color: 56, 142, 60;  /* Green background animation */
+  --theme-color: #5fd77a;
+  --theme-rgb: 95, 215, 122;
+  --bg-anim-color: 95, 215, 122;
 }
 
 /* Projects Page - Personal Section (Plum) */
 .page-projects.personal-active {
-  --primary-color: #000000;
   --theme-color: var(--plum-color);
-  --bg-anim-color: 142, 58, 138;  /* Plum: #8e3a8a */
+  --theme-rgb: 217, 127, 211;
+  --bg-anim-color: 217, 127, 211;
 }
 
-/* Projects page content - ensure proper grid and background */
+/* Projects page content - ensure proper grid layout */
 .page-projects .card-grid {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
   gap: 2rem !important;
   margin: 2rem 0 !important;
-}
-
-.page-projects .card {
-  background: #f5f3f0 !important;
-  background-color: #f5f3f0 !important;
-  opacity:1 !important;
-  border: 3px solid var(--primary-color) !important;
-  box-shadow: var(--shadow-light), inset 0 0 0 2px var(--theme-color) !important;
 }
 
 /* Ensure photo/video grids maintain proper layout */
@@ -239,12 +197,12 @@ html {
   position: relative;
 }
 
-/* Dark grey background for all pages */
+/* True black background for all pages — OLED friendly */
 body {
   font-family: 'Inter', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
   color: var(--text-dark);
-  background-color: #2d2d2d;
+  background-color: #000000;
   position: relative;
   overflow-x: hidden;
   width: 100%;
@@ -290,13 +248,18 @@ p {
 }
 
 a {
-  color: var(--secondary-color);
+  color: var(--theme-color);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
 
 a:hover {
-  color: var(--accent-color);
+  color: var(--primary-color);
+}
+
+::selection {
+  background: rgba(var(--theme-rgb), 0.35);
+  color: #ffffff;
 }
 
 /* =======================================================================================
@@ -308,11 +271,13 @@ a:hover {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--bg-light);
+  background: rgba(8, 8, 10, 0.7);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   border: none;
-  border-bottom: 4px solid var(--primary-color);
-  box-shadow: var(--shadow-medium), inset 0 -2px 0 var(--theme-color);
-  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 1rem 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -344,22 +309,24 @@ a:hover {
 
 .nav-links a {
   font-weight: 500;
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius-small);
+  font-size: 1.05rem;
+  color: var(--text-medium);
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   border: 1px solid transparent;
 }
 
-.nav-links a:hover,
-.nav-links a.active {
-  background: var(--bg-medium);
+.nav-links a:hover {
   color: var(--text-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-medium), inset 0 0 0 1px var(--theme-color);
-  border: 2px solid var(--primary-color);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-links a.active {
+  color: var(--theme-color);
+  background: rgba(var(--theme-rgb), 0.12);
+  border: 1px solid rgba(var(--theme-rgb), 0.35);
 }
 
 /* =======================================================================================
@@ -376,23 +343,16 @@ a:hover {
   padding: 0 2rem;
 }
 
-/* Content container with thick border and white background for text with balanced spacing */
+/* Content container spacing */
 .main-content .paper-panel {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 3px solid var(--primary-color) !important;
-  border-radius: var(--border-radius) !important;
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color) !important;
-  padding: 2.5rem !important;
-  margin: 1.5rem auto !important;
-  backdrop-filter: blur(10px) !important;
+  padding: 2.5rem;
+  margin: 1.5rem auto;
 }
 
-/* Mobile responsiveness for thick border */
 @media (max-width: 768px) {
   .main-content .paper-panel {
-    margin: 0.5rem !important;
-    padding: 1rem !important;
-    border-width: 2px !important;
+    margin: 0.5rem;
+    padding: 1.25rem;
   }
 }
 
@@ -404,18 +364,20 @@ a:hover {
    PAPER PANEL SYSTEM
 ======================================================================================= */
 .paper-panel {
-  background: var(--bg-light);
-  border: 3px solid var(--primary-color);
+  background: var(--texture-primary), var(--surface-glass);
+  border: 1px solid var(--surface-border);
   padding: var(--card-padding);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color);
+  box-shadow: var(--shadow-medium);
   margin-bottom: 2rem;
-  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium),
+              border-color var(--transition-medium);
 }
 
 .paper-panel:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-heavy);
+  transform: translateY(-3px);
+  border-color: rgba(var(--theme-rgb), 0.3);
+  box-shadow: var(--shadow-heavy), var(--glow-theme);
 }
 
 /* =======================================================================================
@@ -429,20 +391,23 @@ a:hover {
 }
 
 .card {
-  background: var(--bg-light);
+  background: var(--texture-primary), var(--surface-glass);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-light), inset 0 0 0 2px var(--theme-color);
+  box-shadow: var(--shadow-light);
   padding: 1.5rem;
   transition: all var(--transition-medium);
   text-decoration: none;
   color: inherit;
   display: block;
-  border: 3px solid var(--primary-color);
+  border: 1px solid var(--surface-border);
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-heavy);
+  transform: translateY(-5px);
+  border-color: rgba(var(--theme-rgb), 0.45);
+  box-shadow: var(--shadow-heavy), var(--glow-theme);
   color: inherit;
 }
 
@@ -476,9 +441,10 @@ a:hover {
   border-radius: var(--border-radius);
   object-fit: contain;
   box-shadow: var(--shadow-heavy);
+  border: 1px solid var(--surface-border-strong);
   float: left;
   margin: 0 2rem 1.5rem 0;
-  shape-outside: inset(0 round 12px);
+  shape-outside: inset(0 round 18px);
   background: var(--bg-light);
 }
 
@@ -528,11 +494,11 @@ a:hover {
    PROJECT CONTENT STYLING
 ======================================================================================= */
 .project-content h2 {
-  color: var(--secondary-color);
+  color: var(--primary-color);
   font-size: 1.5rem;
   margin: 2rem 0 1rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--secondary-color);
+  border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
 }
 
 .project-content ul {
@@ -549,7 +515,7 @@ a:hover {
 
 .project-content li::before {
   content: '▸';
-  color: var(--secondary-color);
+  color: var(--theme-color);
   font-weight: bold;
   position: absolute;
   left: 0;
@@ -577,10 +543,11 @@ a:hover {
   bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background: #000000;
+  width: 64px;
+  height: 3px;
+  background: var(--theme-color);
   border-radius: 2px;
+  box-shadow: 0 0 12px rgba(var(--theme-rgb), 0.5);
 }
 
 /* =======================================================================================
@@ -600,7 +567,7 @@ a:hover {
 
 .hero p {
   font-size: 1.3rem;
-  color: var(--text-dark);
+  color: var(--text-medium);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -621,25 +588,25 @@ a:hover {
 }
 
 .btn-primary {
-  background: var(--secondary-color);
-  color: var(--bg-light);
+  background: var(--theme-color);
+  color: #0a0a0b;
 }
 
 .btn-primary:hover {
-  background: var(--accent-color);
+  filter: brightness(1.12);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-medium), 0 0 20px rgba(var(--theme-rgb), 0.35);
 }
 
 .btn-secondary {
   background: transparent;
-  color: var(--secondary-color);
-  border: 2px solid var(--secondary-color);
+  color: var(--theme-color);
+  border: 1px solid rgba(var(--theme-rgb), 0.5);
 }
 
 .btn-secondary:hover {
-  background: var(--secondary-color);
-  color: var(--bg-light);
+  background: rgba(var(--theme-rgb), 0.15);
+  color: var(--theme-color);
 }
 
 /* =======================================================================================
@@ -834,27 +801,29 @@ body.page-leaving .main-content {
    PROJECT SECTION NAVIGATION
 ======================================================================================= */
 .project-nav {
-  background: var(--bg-light);
-  border: 3px solid var(--primary-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px var(--theme-color);
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--surface-border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-medium);
   margin: 2rem auto;
   max-width: 600px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .project-nav-item {
   flex: 1;
-  padding: 1.5rem 2rem;
+  padding: 1rem 2rem;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--border-radius-small);
-  color: var(--text-dark);
+  border-radius: 999px;
+  color: var(--text-medium);
   font-weight: 500;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
@@ -863,19 +832,15 @@ body.page-leaving .main-content {
 }
 
 .project-nav-item:hover {
-  background: var(--bg-medium);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-dark);
-  transform: translateY(-2px);
-  border: 2px solid var(--primary-color);
-  box-shadow: var(--shadow-medium), inset 0 0 0 1px var(--theme-color);
 }
 
 .project-nav-item.active {
-  background: var(--bg-medium);
-  color: var(--text-dark);
-  box-shadow: var(--shadow-heavy), inset 0 0 0 1px var(--theme-color);
-  transform: translateY(-3px);
-  border: 2px solid var(--primary-color);
+  background: rgba(var(--theme-rgb), 0.14);
+  color: var(--theme-color);
+  border: 1px solid rgba(var(--theme-rgb), 0.4);
+  box-shadow: 0 0 18px rgba(var(--theme-rgb), 0.15);
   font-weight: 600;
 }
 
@@ -1169,17 +1134,33 @@ body.page-leaving .main-content {
   .btn {
     display: none !important;
   }
-  
+
+  /* Flip to light for print — dark theme text would be invisible on paper */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  body * {
+    color: #000000 !important;
+    background: transparent !important;
+    text-shadow: none !important;
+  }
+
   .main-content {
     padding-top: 0;
   }
-  
+
   .paper-panel {
     box-shadow: none;
     border: 1px solid #ccc;
   }
-  
-  .gallery-overlay {
+
+  .gallery-overlay,
+  #particle-canvas,
+  #watercolor-canvas,
+  .bg-visual-control,
+  .bg-animated-shapes {
     display: none !important;
   }
 }
@@ -1194,31 +1175,33 @@ html {
   position: relative;
 }
 
-/* Enhanced glass morphism for panels */
+/* Enhanced dark glass morphism for panels */
 .paper-panel {
-  background: linear-gradient(145deg, 
-    rgba(255, 255, 255, 0.25) 0%, 
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(var(--page-primary), 0.05) 100%);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 8px 32px rgba(var(--page-primary), 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(145deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(var(--theme-rgb), 0.03) 100%),
+    var(--surface-glass);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--surface-border);
+  border-top: 1px solid var(--surface-border-strong);
+  box-shadow:
+    var(--shadow-medium),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .paper-panel:hover {
-  backdrop-filter: blur(25px) saturate(200%);
-  -webkit-backdrop-filter: blur(25px) saturate(200%);
-  border-color: rgba(var(--page-secondary), 0.3);
-  box-shadow: 
-    0 12px 40px rgba(var(--page-primary), 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-color: rgba(var(--theme-rgb), 0.3);
+  box-shadow:
+    var(--shadow-heavy),
+    var(--glow-theme),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Enhanced glass cards with subtle color reflections */
+/* Subtle accent sheen on hover */
 .paper-panel::before {
   content: '';
   position: absolute;
@@ -1226,11 +1209,11 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(145deg, 
-    rgba(var(--page-accent), 0.02) 0%,
-    transparent 30%,
-    rgba(var(--page-secondary), 0.01) 70%,
-    transparent 100%);
+  background: linear-gradient(145deg,
+    rgba(var(--theme-rgb), 0.06) 0%,
+    transparent 35%,
+    transparent 70%,
+    rgba(var(--theme-rgb), 0.03) 100%);
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
@@ -1549,36 +1532,31 @@ figure.link-to-page {
 figure.link-to-page a {
   display: inline-block !important;
   padding: 0.5rem 1rem !important;
-  background: var(--bg-light) !important;
-  border: 2px solid var(--primary-color) !important;
+  background: rgba(var(--theme-rgb), 0.1) !important;
+  border: 1px solid rgba(var(--theme-rgb), 0.4) !important;
   border-radius: var(--border-radius-small) !important;
-  color: var(--primary-color) !important;
+  color: var(--theme-color) !important;
   text-decoration: none !important;
   font-weight: 500 !important;
   transition: all var(--transition-fast) !important;
 }
 
 figure.link-to-page a:hover {
-  background: var(--primary-color) !important;
-  color: var(--bg-light) !important;
+  background: var(--theme-color) !important;
+  color: #0a0a0b !important;
 }
 
-/* Page-specific background colors to match border highlight */
-.page-about {
-  background-color: #071310 !important;
-}
-
-.page-resume {
-  background-color: #1a120a !important;
-}
-
+/* True black backgrounds on every page — OLED friendly; the particle
+   canvas carries the per-page accent color instead of a tinted body */
+.page-about,
+.page-resume,
 .page-projects,
-.projects-page {
-  background-color: #160f1a !important;
-}
-
+.projects-page,
+.photography-project,
+.hardware-project,
+.electronics-project,
 .page-projects.professional-active {
-  background-color: #101a24 !important;
+  background-color: #000000 !important;
 }
 
 /* Particle simulation canvas - replaces CSS animated shapes */
@@ -1590,7 +1568,84 @@ figure.link-to-page a:hover {
   height: 100vh;
   z-index: -1;
   pointer-events: none;
+  opacity: 0.55; /* dimmed so text on glass panels stays readable */
   /* filter and mix-blend-mode are set from JS SIM settings */
+}
+
+/* Watercolor background canvas — scaled up from a half-resolution buffer */
+#watercolor-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.85;
+  /* blur is set from JS SIM settings */
+}
+
+/* =======================================================================================
+   BACKGROUND VISUAL SWITCHER
+   Small control pinned to the bottom corner of every page (injected by main.js)
+======================================================================================= */
+.bg-visual-control {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 950;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(10, 10, 13, 0.65);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-light);
+  opacity: 0.55;
+  transition: opacity var(--transition-fast);
+}
+
+.bg-visual-control:hover,
+.bg-visual-control:focus-within {
+  opacity: 1;
+}
+
+.bg-visual-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text-medium);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.bg-visual-btn:hover {
+  color: var(--text-dark);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bg-visual-btn.active {
+  color: var(--theme-color);
+  background: rgba(var(--theme-rgb), 0.14);
+  border-color: rgba(var(--theme-rgb), 0.4);
+}
+
+@media (max-width: 480px) {
+  .bg-visual-control {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .bg-visual-btn {
+    padding: 0.25rem 0.65rem;
+  }
 }
 
 /* Subtle animated blurry background shapes */
