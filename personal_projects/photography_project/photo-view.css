@@ -5,8 +5,8 @@ html, body {
   overflow: hidden;
 }
 
-body .bg-animated-shapes { display: none !important; }
-#particle-canvas { display: none !important; }
+/* Photo pages are photo-only: no watercolor background behind the stage */
+#watercolor-canvas { display: none !important; }
 
 /* Navbar: photo-dark style, auto-hides when cursor is idle */
 .navbar {

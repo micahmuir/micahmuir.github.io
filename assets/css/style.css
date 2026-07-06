@@ -739,13 +739,6 @@ a:hover {
   }
 }
 
-@keyframes drift-shape {
-  0%   { transform: translate(0, 0) scale(1); }
-  33%  { transform: translate(-20px, -30px) scale(1.05); }
-  66%  { transform: translate(20px, -15px) scale(0.95); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-
 /* PAGE TRANSITIONS */
 /* Dissolve: content fades out, background shows through, new page fades in */
 .navbar,
@@ -1157,10 +1150,7 @@ body.page-leaving .main-content {
   }
 
   .gallery-overlay,
-  #particle-canvas,
-  #watercolor-canvas,
-  .bg-visual-control,
-  .bg-animated-shapes {
+  #watercolor-canvas {
     display: none !important;
   }
 }
@@ -1559,214 +1549,18 @@ figure.link-to-page a:hover {
   background-color: #000000 !important;
 }
 
-/* Particle simulation canvas - replaces CSS animated shapes */
-#particle-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.55; /* dimmed so text on glass panels stays readable */
-  /* filter and mix-blend-mode are set from JS SIM settings */
-}
-
-/* Watercolor background canvas — scaled up from a half-resolution buffer */
+/* Watercolor background canvas — scaled up from a half-resolution buffer.
+   Spans the large viewport (100lvh) so the mobile URL bar showing/hiding
+   never changes its box — no mid-scroll resizes, no stretching. */
 #watercolor-canvas {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100lvh;
   z-index: -1;
   pointer-events: none;
   opacity: 0.85;
   /* blur is set from JS SIM settings */
 }
-
-/* =======================================================================================
-   BACKGROUND VISUAL SWITCHER
-   Small control pinned to the bottom corner of every page (injected by main.js)
-======================================================================================= */
-.bg-visual-control {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  z-index: 950;
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  background: rgba(10, 10, 13, 0.65);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid var(--surface-border);
-  box-shadow: var(--shadow-light);
-  opacity: 0.55;
-  transition: opacity var(--transition-fast);
-}
-
-.bg-visual-control:hover,
-.bg-visual-control:focus-within {
-  opacity: 1;
-}
-
-.bg-visual-btn {
-  appearance: none;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: var(--text-medium);
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 500;
-  padding: 0.3rem 0.8rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.bg-visual-btn:hover {
-  color: var(--text-dark);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.bg-visual-btn.active {
-  color: var(--theme-color);
-  background: rgba(var(--theme-rgb), 0.14);
-  border-color: rgba(var(--theme-rgb), 0.4);
-}
-
-@media (max-width: 480px) {
-  .bg-visual-control {
-    bottom: 10px;
-    right: 10px;
-  }
-
-  .bg-visual-btn {
-    padding: 0.25rem 0.65rem;
-  }
-}
-
-/* Subtle animated blurry background shapes */
-.bg-animated-shapes {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.bg-animated-shapes .shape {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(24px);
-  opacity: 0.38;
-  animation: drift-shape 32s linear infinite;
-  mix-blend-mode: lighten;
-}
-
-/* Page-specific color variations for 20 blobs */
-.page-about .bg-animated-shapes .shape1 { background: #00897b; }
-.page-about .bg-animated-shapes .shape2 { background: #26a69a; }
-.page-about .bg-animated-shapes .shape3 { background: #004d40; }
-.page-about .bg-animated-shapes .shape4 { background: #00bfae; }
-.page-about .bg-animated-shapes .shape5 { background: #00575b; }
-.page-about .bg-animated-shapes .shape6 { background: #00bfae; }
-.page-about .bg-animated-shapes .shape7 { background: #009688; }
-.page-about .bg-animated-shapes .shape8 { background: #4dd0e1; }
-.page-about .bg-animated-shapes .shape9 { background: #006064; }
-.page-about .bg-animated-shapes .shape10 { background: #80cbc4; }
-.page-about .bg-animated-shapes .shape11 { background: #26c6da; }
-.page-about .bg-animated-shapes .shape12 { background: #00838f; }
-.page-about .bg-animated-shapes .shape13 { background: #00acc1; }
-.page-about .bg-animated-shapes .shape14 { background: #4dd0e1; }
-.page-about .bg-animated-shapes .shape15 { background: #006064; }
-.page-about .bg-animated-shapes .shape16 { background: #00bcd4; }
-.page-about .bg-animated-shapes .shape17 { background: #0097a7; }
-.page-about .bg-animated-shapes .shape18 { background: #00bfae; }
-.page-about .bg-animated-shapes .shape19 { background: #00897b; }
-.page-about .bg-animated-shapes .shape20 { background: #26a69a; }
-
-.page-resume .bg-animated-shapes .shape1 { background: #ff9800; }
-.page-resume .bg-animated-shapes .shape2 { background: #f57c00; }
-.page-resume .bg-animated-shapes .shape3 { background: #e65100; }
-.page-resume .bg-animated-shapes .shape4 { background: #ffb74d; }
-.page-resume .bg-animated-shapes .shape5 { background: #ff6f00; }
-.page-resume .bg-animated-shapes .shape6 { background: #ffa726; }
-.page-resume .bg-animated-shapes .shape7 { background: #ffd54f; }
-.page-resume .bg-animated-shapes .shape8 { background: #ff8f00; }
-.page-resume .bg-animated-shapes .shape9 { background: #ffecb3; }
-.page-resume .bg-animated-shapes .shape10 { background: #ffe0b2; }
-.page-resume .bg-animated-shapes .shape11 { background: #ffcc80; }
-.page-resume .bg-animated-shapes .shape12 { background: #ffb300; }
-.page-resume .bg-animated-shapes .shape13 { background: #ff9800; }
-.page-resume .bg-animated-shapes .shape14 { background: #fbc02d; }
-.page-resume .bg-animated-shapes .shape15 { background: #ffa000; }
-.page-resume .bg-animated-shapes .shape16 { background: #ffb74d; }
-.page-resume .bg-animated-shapes .shape17 { background: #ff6f00; }
-.page-resume .bg-animated-shapes .shape18 { background: #ffa726; }
-.page-resume .bg-animated-shapes .shape19 { background: #ffd54f; }
-.page-resume .bg-animated-shapes .shape20 { background: #ff8f00; }
-
-.page-projects .bg-animated-shapes .shape1,
-.projects-page .bg-animated-shapes .shape1 { background: #8e3a8a; }
-.page-projects .bg-animated-shapes .shape2,
-.projects-page .bg-animated-shapes .shape2 { background: #a451a0; }
-.page-projects .bg-animated-shapes .shape3,
-.projects-page .bg-animated-shapes .shape3 { background: #6a2c6a; }
-.page-projects .bg-animated-shapes .shape4,
-.projects-page .bg-animated-shapes .shape4 { background: #ba6fb5; }
-.page-projects .bg-animated-shapes .shape5,
-.projects-page .bg-animated-shapes .shape5 { background: #4d1f4d; }
-.page-projects .bg-animated-shapes .shape6,
-.projects-page .bg-animated-shapes .shape6 { background: #d08cca; }
-.page-projects .bg-animated-shapes .shape7,
-.projects-page .bg-animated-shapes .shape7 { background: #8e3a8a; }
-.page-projects .bg-animated-shapes .shape8,
-.projects-page .bg-animated-shapes .shape8 { background: #a451a0; }
-.page-projects .bg-animated-shapes .shape9,
-.projects-page .bg-animated-shapes .shape9 { background: #e7b6e2; }
-.page-projects .bg-animated-shapes .shape10,
-.projects-page .bg-animated-shapes .shape10 { background: #6a2c6a; }
-.page-projects .bg-animated-shapes .shape11,
-.projects-page .bg-animated-shapes .shape11 { background: #8e3a8a; }
-.page-projects .bg-animated-shapes .shape12,
-.projects-page .bg-animated-shapes .shape12 { background: #ba6fb5; }
-.page-projects .bg-animated-shapes .shape13,
-.projects-page .bg-animated-shapes .shape13 { background: #a451a0; }
-.page-projects .bg-animated-shapes .shape14,
-.projects-page .bg-animated-shapes .shape14 { background: #4d1f4d; }
-.page-projects .bg-animated-shapes .shape15,
-.projects-page .bg-animated-shapes .shape15 { background: #d08cca; }
-.page-projects .bg-animated-shapes .shape16,
-.projects-page .bg-animated-shapes .shape16 { background: #8e3a8a; }
-.page-projects .bg-animated-shapes .shape17,
-.projects-page .bg-animated-shapes .shape17 { background: #6a2c6a; }
-.page-projects .bg-animated-shapes .shape18,
-.projects-page .bg-animated-shapes .shape18 { background: #ba6fb5; }
-.page-projects .bg-animated-shapes .shape19,
-.projects-page .bg-animated-shapes .shape19 { background: #a451a0; }
-.page-projects .bg-animated-shapes .shape20,
-.projects-page .bg-animated-shapes .shape20 { background: #8e3a8a; }
-
-.page-projects.professional-active .bg-animated-shapes .shape1 { background: #1976d2; }
-.page-projects.professional-active .bg-animated-shapes .shape2 { background: #1565c0; }
-.page-projects.professional-active .bg-animated-shapes .shape3 { background: #0d47a1; }
-.page-projects.professional-active .bg-animated-shapes .shape4 { background: #42a5f5; }
-.page-projects.professional-active .bg-animated-shapes .shape5 { background: #1e88e5; }
-.page-projects.professional-active .bg-animated-shapes .shape6 { background: #90caf9; }
-.page-projects.professional-active .bg-animated-shapes .shape7 { background: #64b5f6; }
-.page-projects.professional-active .bg-animated-shapes .shape8 { background: #1976d2; }
-.page-projects.professional-active .bg-animated-shapes .shape9 { background: #bbdefb; }
-.page-projects.professional-active .bg-animated-shapes .shape10 { background: #2196f3; }
-.page-projects.professional-active .bg-animated-shapes .shape11 { background: #1565c0; }
-.page-projects.professional-active .bg-animated-shapes .shape12 { background: #0d47a1; }
-.page-projects.professional-active .bg-animated-shapes .shape13 { background: #42a5f5; }
-.page-projects.professional-active .bg-animated-shapes .shape14 { background: #1e88e5; }
-.page-projects.professional-active .bg-animated-shapes .shape15 { background: #90caf9; }
-.page-projects.professional-active .bg-animated-shapes .shape16 { background: #64b5f6; }
-.page-projects.professional-active .bg-animated-shapes .shape17 { background: #1976d2; }
-.page-projects.professional-active .bg-animated-shapes .shape18 { background: #bbdefb; }
-.page-projects.professional-active .bg-animated-shapes .shape19 { background: #2196f3; }
-.page-projects.professional-active .bg-animated-shapes .shape20 { background: #1565c0; }
