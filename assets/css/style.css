@@ -809,7 +809,10 @@ body.page-leaving .main-content {
 }
 
 .project-nav-item {
-  flex: 1;
+  /* min-width: 0 lets buttons shrink below their label width so the active
+     highlight can't overflow the pill container on narrow screens */
+  flex: 1 1 0;
+  min-width: 0;
   padding: 1rem 2rem;
   background: transparent;
   border: 1px solid transparent;
@@ -835,6 +838,17 @@ body.page-leaving .main-content {
   border: 1px solid rgba(var(--theme-rgb), 0.4);
   box-shadow: 0 0 18px rgba(var(--theme-rgb), 0.15);
   font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .project-nav {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+  .project-nav-item {
+    font-size: 1rem;
+    padding: 0.85rem 0.5rem;
+  }
 }
 
 .projects-section {

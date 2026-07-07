@@ -1,15 +1,16 @@
 Windows Registry Editor Version 5.00
 
-; HTML Bundle Extractor - Windows Explorer Context Menu Integration
-; Double-click this file to add "Extract HTML Bundle" to the right-click context menu for ZIP files
+; Notion -> Portfolio Project Page - Windows Explorer Context Menu Integration
+; Double-click this file to add "Convert Notion Export to Project Page" to the
+; right-click context menu for ZIP files. A dialog asks personal/professional.
 
 ; For ZIP files
 [HKEY_CLASSES_ROOT\.zip\shell\ExtractHTMLBundle]
-@="Extract HTML Bundle"
+@="Convert Notion Export to Project Page"
 "Icon"="shell32.dll,2"
 
 [HKEY_CLASSES_ROOT\.zip\shell\ExtractHTMLBundle\command]
-@="\"C:\\Python\\python.exe\" \"F:\\Backpack\\Vault\\Amber Osprey Code\\micahmuir.github.io\\html_bundle_extractor.py\" \"%1\""
+@="\"C:\\Python\\python.exe\" \"F:\\Backpack\\Vault\\Amber Osprey Code\\micahmuir.github.io\\notion_to_project.py\" \"%1\""
 
 ; Alternative using batch file (uncomment and modify paths as needed)
 ; [HKEY_CLASSES_ROOT\.zip\shell\ExtractHTMLBundle\command]
