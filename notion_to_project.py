@@ -17,9 +17,19 @@ What it does:
   5. Replaces YouTube embeds/bookmarks/auto-links with responsive iframes.
   6. Rewrites links between exported subpages; each subpage becomes its own
      themed HTML file alongside the main page.
-  7. Writes everything to <site>/personal_projects/<slug>_project/ or
+  7. Builds a split-view media rail: a sticky main stage + thumbnail ribbon
+     beside a scrollable write-up column (stacked vertically on narrow
+     screens). Video embeds move out of the flow into the rail; image figures
+     stay inline in the write-up (scaled proportionally) and are listed in the
+     ribbon as well. Pages with no media fall back to the classic centered
+     layout.
+  8. Writes everything to <site>/personal_projects/<slug>_project/ or
      <site>/professional_projects/<slug>_project/ and prints a ready-to-paste
      card snippet for projects.html.
+
+Author pages in Notion following personal_projects/project_template/ (the live
+template): Background and Motivation / Design and Conception / Usage, with
+optional sub-headings under each.
 
 Usage:
   python notion_to_project.py export.zip --category personal
@@ -148,6 +158,112 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 """
 
 
+SPLIT_PAGE_TEMPLATE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}} - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '\\25B8';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon (first thumb loads on page load) -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+{{THUMBS}}
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            {{CONTENT}}
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">&larr; Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+"""
+
+
 def youtube_iframe(video_id):
     return (
         '<div style="position: relative; width: 100%; height: 0; '
@@ -250,6 +366,75 @@ def tag_wide_images(content):
                 tag = tag.replace('<img', '<img class="wide-image"', 1)
         return tag
     return re.sub(r'<img\b[^>]*>', repl, content)
+
+
+def extract_media(content):
+    """Collect media for the split-view rail: (new_content, items).
+
+    Video embeds are REMOVED from the flow (they play in the sticky stage);
+    image figures STAY inline in the write-up (scaled proportionally by CSS)
+    but are also listed so every media item is reachable from the ribbon.
+    Items are {'type': 'youtube', 'id', 'caption'} or {'type': 'image',
+    'src', 'caption'}, in document order.
+    """
+    candidates = []  # (start, end, remove, item)
+    for match in re.finditer(r'<figure\b[^>]*>.*?</figure>', content,
+                             re.IGNORECASE | re.DOTALL):
+        block = match.group(0)
+        cap = re.search(r'<figcaption[^>]*>(.*?)</figcaption>', block,
+                        re.IGNORECASE | re.DOTALL)
+        caption = strip_tags(cap.group(1)) if cap else ''
+        video = re.search(r'youtube\.com/embed/([A-Za-z0-9_-]{11})', block)
+        if video:
+            candidates.append((match.start(), match.end(), True,
+                               {'type': 'youtube', 'id': video.group(1),
+                                'caption': caption}))
+        else:
+            img = re.search(r'<img\b[^>]*\bsrc="([^"]*)"', block)
+            if img:
+                candidates.append((match.start(), match.end(), False,
+                                   {'type': 'image', 'src': img.group(1),
+                                    'caption': caption}))
+
+    # Bare embed divs (bookmark/auto-link replacements outside figures)
+    for match in re.finditer(
+            r'<div style="position: relative[^"]*">\s*<iframe\b.*?</iframe>\s*</div>',
+            content, re.IGNORECASE | re.DOTALL):
+        if any(start <= match.start() < end for start, end, _, _ in candidates):
+            continue
+        video = re.search(r'youtube\.com/embed/([A-Za-z0-9_-]{11})', match.group(0))
+        if video:
+            candidates.append((match.start(), match.end(), True,
+                               {'type': 'youtube', 'id': video.group(1),
+                                'caption': ''}))
+
+    candidates.sort(key=lambda c: c[0])
+    for start, end, remove, _ in reversed(candidates):
+        if remove:
+            content = content[:start] + content[end:]
+    return content, [item for _, _, _, item in candidates]
+
+
+def media_thumbs_html(items):
+    """Render media items as ribbon thumbnail buttons for SPLIT_PAGE_TEMPLATE."""
+    thumbs = []
+    for item in items:
+        caption = html_lib.escape(item['caption'], quote=True)
+        if item['type'] == 'youtube':
+            thumbs.append(
+                '          <button class="media-thumb is-video" type="button" '
+                f'data-type="youtube" data-id="{item["id"]}" data-caption="{caption}">\n'
+                f'            <img src="https://img.youtube.com/vi/{item["id"]}/mqdefault.jpg"'
+                ' alt="" loading="lazy">\n'
+                '          </button>')
+        else:
+            src = html_lib.escape(item['src'], quote=True)
+            thumbs.append(
+                '          <button class="media-thumb" type="button" '
+                f'data-type="image" data-src="{src}" data-caption="{caption}">\n'
+                f'            <img src="{src}" alt="" loading="lazy">\n'
+                '          </button>')
+    return '\n'.join(thumbs)
 
 
 class NotionConverter:
@@ -449,11 +634,20 @@ class NotionConverter:
                 body = embed_youtube(body)
                 body = self.rewrite_refs(body, page.parent)
                 body = tag_wide_images(body)
-                themed = (PAGE_TEMPLATE
-                          .replace('{{TITLE}}', html_lib.escape(page_title))
-                          .replace('{{CONTENT}}', body))
+                body, media_items = extract_media(body)
+                if media_items:
+                    themed = (SPLIT_PAGE_TEMPLATE
+                              .replace('{{TITLE}}', html_lib.escape(page_title))
+                              .replace('{{THUMBS}}', media_thumbs_html(media_items))
+                              .replace('{{CONTENT}}', body))
+                    note = f" (split view, {len(media_items)} media item(s))"
+                else:
+                    themed = (PAGE_TEMPLATE
+                              .replace('{{TITLE}}', html_lib.escape(page_title))
+                              .replace('{{CONTENT}}', body))
+                    note = ""
                 (self.out_dir / out_name).write_text(themed, encoding='utf-8')
-                print(f"  + {out_name}")
+                print(f"  + {out_name}{note}")
 
             self.print_summary(main_name)
             return self.out_dir / main_name
@@ -466,16 +660,22 @@ class NotionConverter:
         main_file = self.out_dir / main_name
         thumb = re.search(r'<img\b[^>]*src="([^"]*)"',
                           main_file.read_text(encoding='utf-8'))
-        thumb_url = (f"/{self.category}_projects/{self.out_dir.name}/"
-                     f"{urllib.parse.unquote(thumb.group(1))}"
-                     if thumb else "/assets/images/333_logo.png")
+        if thumb and thumb.group(1).startswith(('http://', 'https://')):
+            thumb_url = thumb.group(1)   # e.g. a YouTube ribbon thumbnail
+        elif thumb:
+            thumb_url = (f"/{self.category}_projects/{self.out_dir.name}/"
+                         f"{urllib.parse.unquote(thumb.group(1))}")
+        else:
+            thumb_url = "/assets/images/333_logo.png"
         title = re.search(r'<title>(.*?) - Micah Muir</title>',
                           main_file.read_text(encoding='utf-8'))
 
         grid_id = ('personalProjects' if self.category == 'personal'
                    else 'professionalProjects')
+        thumb_quoted = (thumb_url if thumb_url.startswith(('http://', 'https://'))
+                        else urllib.parse.quote(thumb_url))
         snippet = f'''          <a href="{urllib.parse.quote(rel)}" class="card">
-            <div class="card-image" style="background-image: url('{urllib.parse.quote(thumb_url)}');"></div>
+            <div class="card-image" style="background-image: url('{thumb_quoted}');"></div>
             <h3 class="card-title">{title.group(1) if title else 'Project'}</h3>
             <p class="card-description">TODO: one-line description.</p>
           </a>'''

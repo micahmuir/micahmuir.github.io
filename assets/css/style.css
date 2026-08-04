@@ -204,7 +204,11 @@ body {
   color: var(--text-dark);
   background-color: #000000;
   position: relative;
+  /* `clip` (where supported) clips horizontal overflow like `hidden` but
+     without making body a scroll container, so position: sticky descendants
+     (the project media rail) keep tracking the viewport scroll */
   overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   max-width: 100vw;
 }
@@ -1577,4 +1581,237 @@ figure.link-to-page a:hover {
   pointer-events: none;
   opacity: 0.85;
   /* blur is set from JS SIM settings */
+}
+
+/* =======================================================================================
+   PROJECT SPLIT VIEW
+   Immersive project page layout: sticky media stage + thumbnail ribbon on the
+   right, scrollable write-up column on the left. Below 960px the media stage
+   moves to the top of the page with the write-up underneath.
+======================================================================================= */
+.project-split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 2rem;
+  align-items: start;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 3rem;
+}
+
+.project-writeup {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+/* The write-up panel is a reading surface, not a card — no hover lift */
+.project-writeup .paper-panel:hover {
+  transform: none;
+  box-shadow: var(--shadow-medium);
+  border-color: var(--surface-border);
+}
+
+/* Top edges of the write-up panel and the media stage sit flush */
+.project-writeup .paper-panel {
+  margin-top: 0;
+}
+
+.project-writeup .project-content h1 {
+  margin-top: 0;
+}
+
+/* Inline write-up images keep their authored (Notion) widths but scale
+   down proportionally when the column is narrower */
+.project-writeup .project-content img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.project-media-rail {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: calc(100vh - 116px);
+}
+
+/* Main media stage — hosts one image or embed at a time */
+.media-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 290px);
+  background: #000;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  flex: 0 1 auto;
+}
+
+.media-stage iframe,
+.media-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.media-stage img {
+  object-fit: contain;
+}
+
+/* When the stage shows an image, clicking it toggles fullscreen */
+.media-stage.is-image {
+  cursor: zoom-in;
+}
+
+.media-stage:fullscreen {
+  border: none;
+  border-radius: 0;
+  max-height: none;
+  cursor: zoom-out;
+  background: #000;
+}
+
+/* Pseudo-fullscreen fallback for browsers without the Fullscreen API (iOS) */
+.media-stage.stage-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  width: auto;
+  aspect-ratio: auto;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+  cursor: zoom-out;
+  background: #000;
+}
+
+body.stage-fullscreen-open {
+  overflow: hidden;
+}
+
+.media-stage-caption {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text-medium);
+  text-align: center;
+  margin: 0;
+  min-height: 1.4em;
+}
+
+/* Thumbnail ribbon for additional media and embeds */
+.media-ribbon {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.15rem 0.6rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--theme-rgb), 0.5) transparent;
+}
+
+.media-ribbon::-webkit-scrollbar {
+  height: 6px;
+}
+
+.media-ribbon::-webkit-scrollbar-thumb {
+  background: rgba(var(--theme-rgb), 0.5);
+  border-radius: 3px;
+}
+
+.media-ribbon::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.media-thumb {
+  flex: 0 0 auto;
+  width: 118px;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  padding: 0;
+  background: #000;
+  border: 2px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.media-thumb:hover {
+  opacity: 1;
+  border-color: rgba(var(--theme-rgb), 0.6);
+  transform: translateY(-2px);
+}
+
+.media-thumb.active {
+  opacity: 1;
+  border-color: var(--theme-color);
+  box-shadow: var(--glow-theme);
+}
+
+/* Play badge on video thumbnails */
+.media-thumb.is-video::after {
+  content: '\25B6';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+/* Narrow screens: media stage on top, write-up scrolls underneath */
+@media (max-width: 960px) {
+  .project-split {
+    display: block;
+    padding: 0.5rem 1rem 2rem;
+  }
+
+  .project-media-rail {
+    position: static;
+    max-height: none;
+    margin-bottom: 1.25rem;
+  }
+
+  .media-stage {
+    max-height: 62vh;
+  }
+
+  .media-thumb {
+    width: 96px;
+  }
+}
+
+/* Clear the vertically-stacked fixed navbar so the stage isn't tucked
+   under it (nav links go column below 768px) */
+@media (max-width: 768px) {
+  .project-split {
+    padding-top: 4rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .project-split {
+    padding-top: 6.5rem;
+  }
 }
