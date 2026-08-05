@@ -80,11 +80,11 @@
 /* =======================================================================================
    PAGE-SPECIFIC COLOR OVERRIDES
 ======================================================================================= */
-/* About Page - Teal Theme */
+/* About Page - Teal Theme (accent matched to the ink-boundary sim's inner ink) */
 .page-about {
-  --theme-color: var(--teal-color);
-  --theme-rgb: 45, 212, 191;
-  --bg-anim-color: 45, 212, 191;
+  --theme-color: #00c896;
+  --theme-rgb: 0, 200, 150;
+  --bg-anim-color: 0, 200, 150;
 }
 
 /* Resume Page - Warm Amber Theme */
@@ -1168,7 +1168,8 @@ body.page-leaving .main-content {
   }
 
   .gallery-overlay,
-  #watercolor-canvas {
+  #watercolor-canvas,
+  #ink-canvas {
     display: none !important;
   }
 }
@@ -1583,6 +1584,100 @@ figure.link-to-page a:hover {
   /* blur is set from JS SIM settings */
 }
 
+/* About-page theme test: while the ink sim runs (body.ink-active) it paints
+   the pane interiors itself, per-pixel continuous with the edge bleed — so
+   the CSS panes carry NO surface of their own. No background, border, shadow,
+   or glass blur; the first visible transition is the ink mixing at the edge. */
+.page-about.ink-active .paper-panel,
+.page-about.ink-active .card {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.page-about.ink-active .paper-panel:hover,
+.page-about.ink-active .card:hover {
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Light-paper mode: the page background matches the sim's paper tone
+   (SIM.bgColor in main.js — keep in sync) so the canvas edges and any
+   uncovered page area blend invisibly. Screen only; print stays white. */
+@media screen {
+  .page-about.ink-active {
+    background-color: #f2ead9 !important;
+  }
+}
+
+/* Ink control table — small fixed panel of live sim knobs, created by the
+   ink sim itself (only present while it runs). Styled as a paper card. */
+.ink-controls {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 50;
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  background: rgba(242, 234, 217, 0.92);
+  border: 1px solid rgba(32, 34, 31, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(32, 34, 31, 0.18);
+  font-size: 0.72rem;
+  line-height: 1;
+  color: #20221f;
+  user-select: none;
+}
+
+.ink-controls label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #20221f;
+}
+
+.ink-controls input[type="range"] {
+  width: 96px;
+  accent-color: #20221f;
+}
+
+.ink-controls input[type="color"] {
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid rgba(32, 34, 31, 0.4);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+@media print {
+  .ink-controls {
+    display: none !important;
+  }
+}
+
+/* Liquid ink-boundary sim canvas (About-page theme test) — upscaled from a
+   low-res GPU dye field; the slight blur hides bilinear interpolation while
+   keeping tendrils crisp. Same 100lvh trick as the watercolor canvas. */
+#ink-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100lvh;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
 /* =======================================================================================
    PROJECT SPLIT VIEW
    Immersive project page layout: sticky media stage + thumbnail ribbon on the
@@ -1791,6 +1886,32 @@ body.stage-fullscreen-open {
     position: static;
     max-height: none;
     margin-bottom: 1.25rem;
+  }
+
+  /* The write-up becomes its own scroll container: scrolling inside it
+     moves only the write-up (overscroll-behavior stops chaining to the
+     page, so the media view holds still), while scrolling over the media
+     view scrolls the page as usual, letting the media slide away to give
+     the write-up more of the viewport. */
+  .project-writeup {
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--theme-rgb), 0.5) transparent;
+  }
+
+  .project-writeup::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .project-writeup::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.5);
+    border-radius: 3px;
+  }
+
+  .project-writeup::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .media-stage {

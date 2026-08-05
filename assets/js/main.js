@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function initPageTransitions() {
   // Intercept internal navigation links
   document.addEventListener('click', function(e) {
+    // Already handled elsewhere (e.g. the gallery opened for an image
+    // wrapped in an <a>) — don't navigate on top of it
+    if (e.defaultPrevented) return;
+
     var link = e.target.closest('a');
     if (!link) return;
 
@@ -288,9 +292,15 @@ function makeMediaClickable() {
     const mediaElements = document.querySelectorAll(selector);
     mediaElements.forEach(media => {
       // Skip if already processed or is a gallery control
-      if (media.classList.contains('clickable-media') || 
+      if (media.classList.contains('clickable-media') ||
           media.closest('.gallery-overlay') ||
           media.classList.contains('gallery-media')) {
+        return;
+      }
+
+      // Skip the split-view media rail: thumbs swap the stage and the
+      // stage handles its own fullscreen (project-split.js)
+      if (media.closest('.project-media-rail')) {
         return;
       }
       
@@ -527,11 +537,17 @@ function getPagePalette() {
   return PAGE_PALETTES['default'];
 }
 
-// --- Manager: the watercolor canvas is the only background visual ---
+// --- Manager: one background visual per page ---
 function initBackgroundVisuals() {
   // Photo-first pages (photography portfolio) provide their own full-black
   // stage — skip the background entirely so nothing animates behind the photos
   if (document.querySelector('.stage')) return;
+
+  // Theme test: the About page gets the liquid ink-boundary sim; if WebGL is
+  // unavailable it falls through to the watercolor canvas like every other page
+  if (document.body.classList.contains('page-about')) {
+    if (createInkBoundaryVisual()) return;
+  }
 
   createWatercolorVisual();
 }
@@ -904,6 +920,625 @@ function createWatercolorVisual() {
       document.removeEventListener('pointerover', onPointerOver, true);
       document.documentElement.removeEventListener('pointerleave', onPointerLeaveDoc);
       classObserver.disconnect();
+      canvas.remove();
+    }
+  };
+}
+
+// =======================================================================================
+// BACKGROUND VISUAL 3: LIQUID INK BOUNDARY (theme test — About page)
+// A tiny GPU advection simulation. Content-card edges are the interface between
+// two inks: one seeps from just inside each card's outline, the other from just
+// outside. A divergence-free curl-noise flow slowly stirs the dye field, so the
+// boundary between the inks constantly shifts and mixes with turbulent tendrils.
+//
+// Cost: two low-res ping-pong textures (~1/3 screen resolution, capped) and two
+// fragment passes per frame — one sim step, one colorize. No geometry, no CPU
+// per-pixel work. The dye field is advected in screen space but shifted by the
+// scroll delta each frame, so tendrils stay anchored to their cards.
+// =======================================================================================
+
+function createInkBoundaryVisual() {
+
+  var SIM = {
+    // -- Resolution: sim runs on a small buffer, CSS scales it up --
+    maxSimDim:     880,      // Cap on the sim buffer's largest dimension (px)
+    maxScale:      0.5,      // Never simulate above half resolution
+
+    // -- Palette: dark ink on light paper --
+    // The background is the lightest tone; the panes and both inks share one
+    // hue and sit darker than it. The panes and the ink they bleed are ONE
+    // substance (paneColor); the surrounding ink is a mid-dark wash of the
+    // same hue that the bleed mixes into.
+    bgColor:       '#f2ead9',   // Page/canvas background (creamy beige) — keep in
+                                // sync with the .page-about.ink-active CSS background
+    inkOuter:      '#8f8878',   // Surrounding ink wash, warm grey, darker than bg
+
+    // -- Boundary band: where the two inks are continuously injected --
+    // Both inks live just OUTSIDE the card edge (the glass panels are opaque
+    // enough to hide anything under them): the deep ink hugs the edge, the
+    // bright ink rings it further out, and the flow mixes them where they meet
+    bandWidth:     54,       // Total reach of the ink bands from the card edge (CSS px)
+    cornerRadius:  18,       // Card corner rounding — matches --border-radius (CSS px)
+
+    // -- Pane fill: the panes are not drawn as rectangles — they are regions
+    //    of strong ink injection in the SAME advected dye field as the bleed,
+    //    so the pane body, its boundary, and its tendrils are one continuous
+    //    fluid: a rectangular blob of ink mixing into the background --
+    paneColor:     '#20221f',   // The ink — pane body and everything it sheds
+                                // (near-black warm grey)
+    injectRate:    2.8,      // Dye injection per second inside the bands
+    decayRate:     0.18,     // Fractional dye decay per second — sets tendril lifetime
+
+    // -- Turbulent flow: curl noise --
+    flowSpeed:     5600,     // Overall stirring strength (raw curl magnitude is ~0.01,
+                             // so this lands around 40-55 CSS px/s of drift)
+    flowScale1:    0.009,    // Large swirls: ~110 CSS px wavelength
+    flowScale2:    0.055,    // Fine filaments: ~18 CSS px wavelength
+    flowEvolve:    0.09,     // How fast the flow pattern itself morphs over time
+    bleedSpeed:    14,       // Outward current from every pane edge (CSS px/s) — the
+                             // panes continuously push fresh ink away as they bleed,
+                             // stretching the seep points into fingers
+
+    // -- Interaction --
+    hoverBoost:    1.9,      // Injection multiplier while a card is hovered
+    boostEase:     3.0,      // How quickly the hover boost fades in/out (1/s)
+
+    // -- Interaction: click drops an ink splot, click-drag paints a stroke.
+    //    Brush ink lives in its own dye channel with its own color, so the
+    //    control panel can recolor it independently of the pane ink --
+    brushColor:    '#8c2f22',   // Default brush ink (control panel can change it)
+    brushScale:    1,        // Brush size multiplier (control panel)
+    splatRadius:   34,       // Single-click splot radius (CSS px, ±random)
+    strokeRadius:  16,       // Radius of each stroke stamp while dragging (CSS px)
+    strokeSpacing: 12,       // Distance dragged between stroke stamps (CSS px)
+    splatStrength: 16,       // Injection rate at a splat's center (dye/s)
+    maxSplats:     16,       // Uniform-array size; oldest splats drop first
+
+    maxRects:      8         // Uniform-array size; visible blocks beyond this are skipped
+  };
+
+  var canvas = document.createElement('canvas');
+  canvas.id = 'ink-canvas';
+  document.body.appendChild(canvas);
+
+  var gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false }) ||
+           canvas.getContext('experimental-webgl', { alpha: false, antialias: false, depth: false, stencil: false });
+  if (!gl) {
+    canvas.remove();
+    return null;
+  }
+
+  // --- Shaders ---
+
+  var VERT = [
+    'attribute vec2 aPos;',
+    'void main() { gl_Position = vec4(aPos, 0.0, 1.0); }'
+  ].join('\n');
+
+  var PRECISION = [
+    '#ifdef GL_FRAGMENT_PRECISION_HIGH',
+    'precision highp float;',
+    '#else',
+    'precision mediump float;',
+    '#endif'
+  ].join('\n');
+
+  // Sim step: advect the dye field through the curl-noise flow, decay it, and
+  // re-inject both inks along the card boundaries. R = inner ink, G = outer ink.
+  var STEP_FRAG = PRECISION + '\n' + [
+    'uniform sampler2D uPrev;',
+    'uniform vec2  uRes;',
+    'uniform float uTime;',
+    'uniform float uDt;',
+    'uniform float uShiftY;',    // scroll delta this frame, sim px (keeps dye on its card)
+    'uniform float uMotion;',    // 0 under prefers-reduced-motion: bands render, nothing stirs
+    'uniform float uCss;',       // sim px -> CSS px, so the flow looks the same at any size
+    'uniform float uSimScale;',  // CSS px -> sim px
+    'uniform vec4  uRects[' + SIM.maxRects + '];',  // xy = center, zw = half-size (sim px, y-up)',
+    'uniform float uBoost[' + SIM.maxRects + '];',
+    'uniform int   uCount;',
+    'uniform float uBand;',      // band width, sim px
+    'uniform float uCorner;',    // corner radius, sim px
+    'uniform float uSpeed;',
+    'uniform float uInject;',
+    'uniform float uDecay;',
+    'uniform vec3  uFlow;',      // (freq1, freq2, evolve)
+    'uniform float uBleed;',     // outward bleed current, CSS px/s
+    'uniform vec4  uSplats[' + SIM.maxSplats + '];',   // xy center (sim px), z radius (sim px), w strength
+    'uniform int   uSplatCount;',
+
+    'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }',
+
+    'float noise(vec2 p) {',
+    '  vec2 i = floor(p), f = fract(p);',
+    '  vec2 u = f * f * (3.0 - 2.0 * f);',
+    '  return mix(mix(hash(i),                   hash(i + vec2(1.0, 0.0)), u.x),',
+    '             mix(hash(i + vec2(0.0, 1.0)),  hash(i + vec2(1.0, 1.0)), u.x), u.y);',
+    '}',
+
+    // Stream function: its curl gives a divergence-free (incompressible) flow,
+    // which is what makes the mixing read as liquid rather than random smear
+    'float psi(vec2 q, float t) {',
+    '  return noise(q * uFlow.x + vec2(0.0, t * uFlow.z * 0.6)) +',
+    '         0.75 * noise(q * uFlow.y + vec2(t * uFlow.z, 13.7 - t * uFlow.z * 0.47));',
+    '}',
+
+    'vec2 curlVel(vec2 q, float t) {',
+    '  float e = 3.0;',
+    '  float dx = psi(q + vec2(e, 0.0), t) - psi(q - vec2(e, 0.0), t);',
+    '  float dy = psi(q + vec2(0.0, e), t) - psi(q - vec2(0.0, e), t);',
+    '  return vec2(dy, -dx) / (2.0 * e);',
+    '}',
+
+    'float sdRoundRect(vec2 p, vec2 c, vec2 h, float r) {',
+    '  vec2 q = abs(p - c) - h + r;',
+    '  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;',
+    '}',
+
+    'float sceneSD(vec2 p) {',
+    '  float d = 1e6;',
+    '  for (int i = 0; i < ' + SIM.maxRects + '; i++) {',
+    '    if (i >= uCount) break;',
+    '    d = min(d, sdRoundRect(p, uRects[i].xy, uRects[i].zw, uCorner));',
+    '  }',
+    '  return d;',
+    '}',
+
+    'void main() {',
+    '  vec2 p = gl_FragCoord.xy;',
+    '  vec2 q = p * uCss;',
+
+    // Signed distance to the nearest pane edge, tracking that pane's hover boost
+    '  float d = 1e6;',
+    '  float boost = 1.0;',
+    '  for (int i = 0; i < ' + SIM.maxRects + '; i++) {',
+    '    if (i >= uCount) break;',
+    '    float di = sdRoundRect(p, uRects[i].xy, uRects[i].zw, uCorner);',
+    '    if (di < d) { d = di; boost = uBoost[i]; }',
+    '  }',
+
+    // The panes bleed: near every edge the flow gains an outward component
+    // (along the SDF gradient), continuously carrying fresh ink away
+    '  vec2 g = vec2(sceneSD(p + vec2(2.0, 0.0)) - d, sceneSD(p + vec2(0.0, 2.0)) - d);',
+    '  vec2 outward = g / max(length(g), 0.001);',
+    '  float push = smoothstep(uBand * 1.8, 0.0, abs(d));',
+
+    // Semi-Lagrangian advection: walk back along the flow (and the scroll
+    // shift) and pick up the dye that is arriving at this pixel
+    '  vec2 vel = (curlVel(q, uTime) * uSpeed + outward * uBleed * push) * uSimScale * uMotion;',
+    '  vec2 back = p - vec2(0.0, uShiftY) - vel * uDt;',
+    '  vec3 dye = texture2D(uPrev, back / uRes).rgb;',   // r pane ink, g wash, b brush ink
+
+    // Ink sources, strictly OUTSIDE the edge; nothing is injected inside a
+    // pane. The pane's ink (R) grows as radial FINGERS rooted on the edge:
+    // the gate noise is sampled at the point projected onto the pane edge,
+    // so it is constant along each outward ray — an open gate feeds a whole
+    // finger from root to tip, with clean pane edge between fingers. The
+    // surrounding wash (G) is only faint far mottling, never an outline.
+    '  float s = d / uBand;',   // 0 at the card edge, 1 at the band's outer reach
+    '  vec2 pe = (p - outward * max(d, 0.0)) * uCss;',   // projection onto the edge
+    // Rotate the noise domain so its grid never aligns with the (axis-
+    // aligned) pane edges — keeps the fingers organic instead of blocky.
+    // Slow crawl only: a fast-drifting gate smears fingers into smudge
+    // within one dye lifetime.
+    '  vec2 pr = vec2(pe.x * 0.83 - pe.y * 0.56, pe.x * 0.56 + pe.y * 0.83);',
+    '  float nA = noise(pr * 0.045 + vec2(uTime * 0.02, 3.1));',
+    '  float gate = smoothstep(0.45, 0.62, nA);',
+    '  float len = 0.3 + 0.9 * nA;',   // open gates grow fingers of varied lengths
+    // Sources begin slightly INSIDE the pane edge (invisible there — the pane
+    // fill covers them in the same color), so the root and every tendril
+    // emerge already attached: no background sliver between pane and ink
+    '  float side = smoothstep(-0.12, -0.04, s);',
+    // Continuous root: a thin ribbon of pane ink wets the ENTIRE perimeter,
+    // its thickness breathing with the same noise; the fingers grow out of it
+    '  float root = smoothstep(0.08 + 0.18 * nA, 0.0, s);',
+    '  float srcA = max(root, gate * smoothstep(len, 0.0, s)) * side;',
+    // The wash is a halo bound to each finger, reaching past its tip —
+    // watery diffusion around the ink, never a free-floating field
+    '  float srcB = 0.35 * gate * smoothstep(len * 1.6, len * 0.5, s) * side;',
+
+    // The pane body itself: saturating injection deep inside, ramping off
+    // toward the edge. The interior stays solid, but the boundary shell is
+    // fed slowly enough that the flow genuinely erodes and smears it — the
+    // pane is a blob of ink whose edge belongs to the fluid.
+    '  float srcPane = smoothstep(0.06, -0.35, s);',
+
+    '  vec2 src = vec2(max(srcA, srcPane), srcB);',
+
+    '  dye *= 1.0 - uDecay * uDt;',
+    '  dye -= 0.0012;',   // sweep byte-texture quantization residue down to true zero
+    '  dye.rg += src * (uInject * boost * uDt);',
+
+    // User ink: clicked splots and drag-stroke stamps, injected as gaussian
+    // bursts of brush ink (with a touch of wash), then left to the fluid
+    '  float splat = 0.0;',
+    '  for (int i = 0; i < ' + SIM.maxSplats + '; i++) {',
+    '    if (i >= uSplatCount) break;',
+    '    vec2 sd = p - uSplats[i].xy;',
+    '    splat += uSplats[i].w * exp(-dot(sd, sd) / (uSplats[i].z * uSplats[i].z));',
+    '  }',
+    '  dye.b += splat * uDt;',
+    '  dye.g += splat * 0.25 * uDt;',
+
+    '  gl_FragColor = vec4(clamp(dye, 0.0, 1.0), 1.0);',
+    '}'
+  ].join('\n');
+
+  // Colorize: dark ink on light paper. Ink coverage interpolates the paper
+  // toward the ink tones — the pane body and everything it sheds (field.r)
+  // are one substance in paneColor; the surrounding wash (field.g) is a
+  // mid-dark layer of the same hue underneath it.
+  var DRAW_FRAG = PRECISION + '\n' + [
+    'uniform sampler2D uTex;',
+    'uniform vec2 uRes;',
+    'uniform vec3 uBg;',
+    'uniform vec3 uColB;',
+    'uniform vec3 uPane;',
+    'uniform vec3 uBrush;',
+    'void main() {',
+    '  vec3 field = texture2D(uTex, gl_FragCoord.xy / uRes).rgb;',
+    '  vec3 col = mix(uBg, uColB, min(field.g, 1.0));',
+    '  col = mix(col, uPane, field.r);',
+    '  col = mix(col, uBrush, field.b);',   // user's brush ink layers on top
+    '  gl_FragColor = vec4(col, 1.0);',
+    '}'
+  ].join('\n');
+
+  function compile(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      if (window.console && console.error) {
+        console.error('ink-canvas shader compile failed:', gl.getShaderInfoLog(s));
+      }
+      return null;
+    }
+    return s;
+  }
+
+  function program(fragSrc) {
+    var vs = compile(gl.VERTEX_SHADER, VERT);
+    var fs = compile(gl.FRAGMENT_SHADER, fragSrc);
+    if (!vs || !fs) return null;
+    var p = gl.createProgram();
+    gl.attachShader(p, vs);
+    gl.attachShader(p, fs);
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) return null;
+    return p;
+  }
+
+  var stepProg = program(STEP_FRAG);
+  var drawProg = program(DRAW_FRAG);
+  if (!stepProg || !drawProg) {
+    canvas.remove();
+    return null;
+  }
+
+  // Fullscreen triangle
+  var vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  function bindQuad(prog) {
+    var loc = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  }
+
+  function hexToVec3(hex) {
+    return [
+      parseInt(hex.slice(1, 3), 16) / 255,
+      parseInt(hex.slice(3, 5), 16) / 255,
+      parseInt(hex.slice(5, 7), 16) / 255
+    ];
+  }
+
+  // --- Ping-pong dye textures ---
+  var texA = null, texB = null, fboA = null, fboB = null;
+  var simW = 0, simH = 0, simScale = 1;
+
+  function makeTarget(w, h) {
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    var fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    return { tex: tex, fbo: fbo };
+  }
+
+  function resize() {
+    // Same guard as the watercolor canvas: mobile URL-bar show/hide fires
+    // resize without changing the canvas box — skip those
+    var cssW = canvas.clientWidth || window.innerWidth;
+    var cssH = canvas.clientHeight || window.innerHeight;
+    var scale = Math.min(SIM.maxScale, SIM.maxSimDim / Math.max(cssW, cssH));
+    var w = Math.max(1, Math.round(cssW * scale));
+    var h = Math.max(1, Math.round(cssH * scale));
+    if (w === simW && h === simH) return;
+    simW = canvas.width = w;
+    simH = canvas.height = h;
+    simScale = scale;
+    if (texA) { gl.deleteTexture(texA); gl.deleteTexture(texB); gl.deleteFramebuffer(fboA); gl.deleteFramebuffer(fboB); }
+    var a = makeTarget(w, h);
+    var b = makeTarget(w, h);
+    texA = a.tex; fboA = a.fbo;
+    texB = b.tex; fboB = b.fbo;
+    warmup();   // fresh textures start empty — soak the pane interiors in
+  }
+
+  // --- Content blocks whose edges the inks trace ---
+  var INK_BLOCKS = '.paper-panel, .card, .timeline-content, .project-nav, .video-container';
+  var CLICKABLE = 'a, button, .card, .clickable-media, .project-nav-item';
+  var hoverEl = null;
+  var boostMap = (typeof WeakMap === 'function') ? new WeakMap() : null;
+
+  function onPointerOver(e) {
+    var t = (e.target && e.target.closest) ? e.target.closest(CLICKABLE) : null;
+    hoverEl = t || null;
+  }
+  function onPointerLeaveDoc() { hoverEl = null; }
+  document.addEventListener('pointerover', onPointerOver, true);
+  document.documentElement.addEventListener('pointerleave', onPointerLeaveDoc);
+
+  // --- User ink: click drops a splot, click-drag paints a stroke ---
+  // Only on the open background — clicks on panes, links, and controls are theirs
+  var NO_PAINT = 'a, button, input, textarea, select, label, .navbar, .paper-panel, .card, .clickable-media, .gallery-overlay, .ink-controls';
+  var splats = [];
+  var splatData = new Float32Array(SIM.maxSplats * 4);
+  var paintDrag = null;
+
+  function spawnSplat(clientX, clientY, radius, life) {
+    splats.push({
+      x: clientX,
+      yDoc: clientY + window.pageYOffset,   // document space: stays put when scrolling
+      r: radius,
+      born: performance.now(),
+      life: life
+    });
+    if (splats.length > SIM.maxSplats) splats.shift();
+  }
+
+  // Fill splatData with the live splats (screen space, sim px); returns count
+  function updateSplats(now) {
+    var n = 0;
+    for (var i = 0; i < splats.length; i++) {
+      var sp = splats[i];
+      var t = (now - sp.born) / (sp.life * 1000);
+      if (t >= 1) continue;
+      var env = (1 - t) * (1 - t);   // hard burst, fast taper
+      var k = n * 4;
+      splatData[k]     = sp.x * simScale;
+      splatData[k + 1] = simH - (sp.yDoc - window.pageYOffset) * simScale;
+      splatData[k + 2] = Math.max(3, sp.r * simScale);
+      splatData[k + 3] = SIM.splatStrength * env;
+      n++;
+    }
+    // Compact: drop expired splats once none of them are live anymore
+    if (n === 0) splats.length = 0;
+    return n;
+  }
+
+  function onPaintDown(e) {
+    if (e.button !== 0) return;
+    if (e.target && e.target.closest && e.target.closest(NO_PAINT)) return;
+    spawnSplat(e.clientX, e.clientY, SIM.splatRadius * SIM.brushScale * (0.75 + Math.random() * 0.5), 0.55);
+    paintDrag = { x: e.clientX, y: e.clientY };
+  }
+  function onPaintMove(e) {
+    if (!paintDrag) return;
+    var dx = e.clientX - paintDrag.x;
+    var dy = e.clientY - paintDrag.y;
+    if (dx * dx + dy * dy < SIM.strokeSpacing * SIM.strokeSpacing) return;
+    paintDrag = { x: e.clientX, y: e.clientY };
+    spawnSplat(e.clientX, e.clientY, SIM.strokeRadius * SIM.brushScale * (0.8 + Math.random() * 0.4), 0.4);
+  }
+  function onPaintUp() { paintDrag = null; }
+
+  document.addEventListener('pointerdown', onPaintDown);
+  document.addEventListener('pointermove', onPaintMove);
+  window.addEventListener('pointerup', onPaintUp);
+  document.addEventListener('pointercancel', onPaintUp);
+
+  // Gather visible blocks as sim-space rects (y-up), easing each block's hover
+  // boost so the extra ink swells and subsides smoothly
+  var rectData = new Float32Array(SIM.maxRects * 4);
+  var boostData = new Float32Array(SIM.maxRects);
+
+  function gatherRects(dt) {
+    var els = document.querySelectorAll(INK_BLOCKS);
+    var count = 0;
+    for (var i = 0; i < els.length && count < SIM.maxRects; i++) {
+      var el = els[i];
+      var r = el.getBoundingClientRect();
+      if (r.bottom < -80 || r.top > window.innerHeight + 80 || r.width < 40 || r.height < 40) continue;
+
+      var target = (hoverEl && (el === hoverEl || el.contains(hoverEl))) ? SIM.hoverBoost : 1.0;
+      var cur = (boostMap && boostMap.get(el)) || 1.0;
+      cur += (target - cur) * Math.min(1, SIM.boostEase * dt);
+      if (boostMap) boostMap.set(el, cur);
+
+      var k = count * 4;
+      rectData[k]     = (r.left + r.width / 2) * simScale;
+      rectData[k + 1] = simH - (r.top + r.height / 2) * simScale;   // flip to GL y-up
+      rectData[k + 2] = (r.width / 2) * simScale;
+      rectData[k + 3] = (r.height / 2) * simScale;
+      boostData[count] = cur;
+      count++;
+    }
+    return count;
+  }
+
+  // --- Uniform locations ---
+  function locs(prog, names) {
+    var out = {};
+    for (var i = 0; i < names.length; i++) out[names[i]] = gl.getUniformLocation(prog, names[i]);
+    return out;
+  }
+  var stepU = locs(stepProg, ['uPrev', 'uRes', 'uTime', 'uDt', 'uShiftY', 'uMotion', 'uCss',
+    'uSimScale', 'uRects', 'uBoost', 'uCount', 'uBand', 'uCorner', 'uSpeed', 'uInject', 'uDecay', 'uFlow', 'uBleed',
+    'uSplats', 'uSplatCount']);
+  var drawU = locs(drawProg, ['uTex', 'uRes', 'uBg', 'uColB', 'uPane', 'uBrush']);
+
+  var colBg = hexToVec3(SIM.bgColor);
+  var colB = hexToVec3(SIM.inkOuter);
+  var colPane = hexToVec3(SIM.paneColor);
+  var colBrush = hexToVec3(SIM.brushColor);
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  function motionScale() { return (reduceMotion && reduceMotion.matches) ? 0 : 1; }
+
+  // One sim step: read texA, write texB, swap
+  function stepPass(dt, timeSec, shiftY, count, splatCount) {
+    gl.viewport(0, 0, simW, simH);
+    gl.useProgram(stepProg);
+    bindQuad(stepProg);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboB);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texA);
+    gl.uniform1i(stepU.uPrev, 0);
+    gl.uniform2f(stepU.uRes, simW, simH);
+    gl.uniform1f(stepU.uTime, timeSec);
+    gl.uniform1f(stepU.uDt, dt);
+    gl.uniform1f(stepU.uShiftY, shiftY);
+    gl.uniform1f(stepU.uMotion, motionScale());
+    gl.uniform1f(stepU.uCss, 1 / simScale);
+    gl.uniform1f(stepU.uSimScale, simScale);
+    gl.uniform4fv(stepU.uRects, rectData);
+    gl.uniform1fv(stepU.uBoost, boostData);
+    gl.uniform1i(stepU.uCount, count);
+    gl.uniform1f(stepU.uBand, SIM.bandWidth * simScale);
+    gl.uniform1f(stepU.uCorner, SIM.cornerRadius * simScale);
+    gl.uniform1f(stepU.uSpeed, SIM.flowSpeed);
+    gl.uniform1f(stepU.uInject, SIM.injectRate);
+    gl.uniform1f(stepU.uDecay, SIM.decayRate);
+    gl.uniform3f(stepU.uFlow, SIM.flowScale1, SIM.flowScale2, SIM.flowEvolve);
+    gl.uniform1f(stepU.uBleed, SIM.bleedSpeed);
+    gl.uniform4fv(stepU.uSplats, splatData);
+    gl.uniform1i(stepU.uSplatCount, splatCount || 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    var t = texA; texA = texB; texB = t;
+    var f = fboA; fboA = fboB; fboB = f;
+  }
+
+  // Soak-in: after the dye textures are (re)created, run a few big sim steps
+  // so the pane interiors are already full of ink on the first visible paint
+  function warmup() {
+    var count = gatherRects(1 / 60);
+    for (var i = 0; i < 8; i++) {
+      stepPass(0.35, i * 0.35, 0, count, 0);
+    }
+  }
+
+  // --- Animation loop ---
+  var running = true;
+  var rafId;
+  var lastNow = 0;
+  var lastScroll = window.pageYOffset;
+  var contextLost = false;
+
+  canvas.addEventListener('webglcontextlost', function(e) {
+    e.preventDefault();
+    contextLost = true;
+  });
+
+  function frame(now) {
+    if (!running || contextLost) return;
+    if (now === undefined) now = performance.now();
+    var dt = lastNow ? Math.min(0.05, (now - lastNow) / 1000) : 1 / 60;
+    lastNow = now;
+    var timeSec = now / 1000;
+
+    var scroll = window.pageYOffset;
+    var shiftY = (scroll - lastScroll) * simScale;
+    lastScroll = scroll;
+
+    var count = gatherRects(dt);
+    var splatCount = updateSplats(now);
+    stepPass(dt, timeSec, shiftY, count, splatCount);
+
+    // Colorize to screen
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(drawProg);
+    bindQuad(drawProg);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texA);
+    gl.uniform1i(drawU.uTex, 0);
+    gl.uniform2f(drawU.uRes, simW, simH);
+    gl.uniform3fv(drawU.uBg, colBg);
+    gl.uniform3fv(drawU.uColB, colB);
+    gl.uniform3fv(drawU.uPane, colPane);
+    gl.uniform3fv(drawU.uBrush, colBrush);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function onVisibility() {
+    if (document.hidden) {
+      cancelAnimationFrame(rafId);
+      lastNow = 0;   // avoid a giant dt (clamped anyway) on wake
+    } else if (running) {
+      frame();
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', onVisibility);
+
+  // The sim paints the pane interiors itself — this class strips the CSS
+  // pane chrome (background, border, shadow, glass blur) so nothing sits
+  // between the pane fill and its bleed. Only set once the sim is running.
+  document.body.classList.add('ink-active');
+
+  // --- Control table: live knobs for the brush and the fluid ---
+  // Every uniform is re-sent from SIM each frame, so sliders just mutate SIM.
+  var panel = document.createElement('div');
+  panel.className = 'ink-controls';
+  panel.innerHTML =
+    '<label>Brush <input type="color" data-ink="brush" value="' + SIM.brushColor + '"></label>' +
+    '<label>Size <input type="range" data-ink="size" min="0.5" max="3" step="0.1" value="' + SIM.brushScale + '"></label>' +
+    '<label>Turbulence <input type="range" data-ink="flow" min="0" max="12000" step="200" value="' + SIM.flowSpeed + '"></label>' +
+    '<label>Mixing <input type="range" data-ink="mix" min="0.02" max="0.09" step="0.005" value="' + SIM.flowScale2 + '"></label>' +
+    '<label>Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
+    '<label>Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>';
+  document.body.appendChild(panel);
+
+  panel.addEventListener('input', function(e) {
+    var knob = e.target.getAttribute('data-ink');
+    var v = e.target.value;
+    if (knob === 'brush')      colBrush = hexToVec3(v);
+    else if (knob === 'size')  SIM.brushScale = parseFloat(v);
+    else if (knob === 'flow')  SIM.flowSpeed = parseFloat(v);
+    else if (knob === 'mix')   SIM.flowScale2 = parseFloat(v);
+    else if (knob === 'bleed') SIM.bleedSpeed = parseFloat(v);
+    else if (knob === 'fade')  SIM.decayRate = parseFloat(v);
+  });
+
+  frame();
+
+  return {
+    stop: function() {
+      running = false;
+      cancelAnimationFrame(rafId);
+      document.body.classList.remove('ink-active');
+      window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
+      document.removeEventListener('pointerover', onPointerOver, true);
+      document.documentElement.removeEventListener('pointerleave', onPointerLeaveDoc);
+      document.removeEventListener('pointerdown', onPaintDown);
+      document.removeEventListener('pointermove', onPaintMove);
+      window.removeEventListener('pointerup', onPaintUp);
+      document.removeEventListener('pointercancel', onPaintUp);
+      panel.remove();
       canvas.remove();
     }
   };
