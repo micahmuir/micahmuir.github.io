@@ -36,6 +36,16 @@ function initPageTransitions() {
     if (resolved.pathname === window.location.pathname) return;
 
     e.preventDefault();
+
+    // Hand the nav selection to the clicked link right away so its selection
+    // animation (the ink burst on the About page) plays during the exit delay
+    if (link.closest('.nav-links')) {
+      document.querySelectorAll('.nav-links a.active').forEach(function(a) {
+        a.classList.remove('active');
+      });
+      link.classList.add('active');
+    }
+
     document.body.classList.add('page-leaving');
 
     setTimeout(function() {
@@ -1094,6 +1104,8 @@ function createInkBoundaryVisual() {
     'uniform vec4  uSrc[' + SIM.maxSources + '];',     // xy center (sim px), z radius (sim px), w rate
     'uniform vec3  uSrcCol[' + SIM.maxSources + '];',  // ink color of each source (set at placement)
     'uniform int   uSrcCount;',
+    'uniform vec4  uHole;',      // selected nav pill: xy = center, zw = half-size (sim px, y-up)
+    'uniform float uHoleAmt;',   // eased 0..1 — a fresh selection bursts in through this
 
     'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }',
 
@@ -1141,6 +1153,23 @@ function createInkBoundaryVisual() {
     '    d = min(d, sdRoundRect(p, uRects[i].xy, uRects[i].zw, uCorner));',
     '  }',
     '  return d - bump(p);',
+    '}',
+
+    // The selected nav pill is a HOLE in the navbar's ink: a capsule region
+    // where the pane ink is actively cleared so the background liquid pools
+    // through it. Same wobble treatment as the panes, on an offset noise
+    // domain (so it meanders independently of the navbar's own edge) and at
+    // reduced amplitude to suit the pill's small size. The capsule grows
+    // with uHoleAmt, so a fresh selection bursts outward from its center.
+    // Far from the pill the exact distance is irrelevant — return it raw and
+    // skip the wobble noise. This keeps the hole's cost confined to a thin
+    // band around the navbar: the sim-wide per-pixel price of the feature is
+    // one rounded-rect SDF, not six noise evaluations.
+    'float holeSD(vec2 p) {',
+    '  vec2 h = uHole.zw * (0.2 + 0.8 * uHoleAmt);',
+    '  float d = sdRoundRect(p, uHole.xy, h, min(h.x, h.y));',
+    '  if (abs(d) > uBand * 1.5) return d;',
+    '  return d - 0.5 * bump(p + vec2(53.0, 17.0));',
     '}',
 
     // Combined ink density at a sim-px position (pane ink + brush ink) —
@@ -1197,6 +1226,18 @@ function createInkBoundaryVisual() {
     '  float gm = length(dg);',
     '  vec2 shear = (vec2(dg.y, -dg.x) / max(gm, 0.001)) * min(gm / 0.3, 1.0) * uShear;',
 
+    // The nav-pill hole pushes an outward current at its boundary — the same
+    // bleed the pane edges get, so the cream pool actively shoulders the
+    // navbar ink aside and the interface shear rolls the two up where they
+    // meet, instead of the pool just sitting in a stencil. Guarded to the
+    // boundary band: everywhere else the gradient probes never run.
+    '  float hb = holeSD(p);',
+    '  vec2 hbleed = vec2(0.0);',
+    '  if (abs(hb) < uBand * 0.9 && uHoleAmt > 0.0) {',
+    '    vec2 hbg = vec2(holeSD(p + vec2(2.0, 0.0)) - hb, holeSD(p + vec2(0.0, 2.0)) - hb);',
+    '    hbleed = (hbg / max(length(hbg), 0.001)) * uBleed * smoothstep(uBand * 0.9, 0.0, abs(hb)) * uHoleAmt;',
+    '  }',
+
     // User-placed flow emitters: persistent LAMINAR jets. Each is a lane
     // elongated downstream (reach grows with speed), narrow across the
     // axis, with velocity decaying smoothly along it. Inside the lane the
@@ -1222,7 +1263,7 @@ function createInkBoundaryVisual() {
     '  }',
 
     '  dOut = d; boostOut = boost; outwardOut = outward;',
-    '  return (curlVel(q, uTime) * uSpeed * (1.0 - 0.85 * lam) + outward * uBleed * push + shear * (1.0 - 0.7 * lam) + jet) * uSimScale * uMotion;',
+    '  return (curlVel(q, uTime) * uSpeed * (1.0 - 0.85 * lam) + outward * uBleed * push + shear * (1.0 - 0.7 * lam) + hbleed + jet) * uSimScale * uMotion;',
     '}'
   ].join('\n');
 
@@ -1270,6 +1311,30 @@ function createInkBoundaryVisual() {
 
     '  dye.r = dye.r * (1.0 - uDecay * uDt) - 0.0012;',   // sweep quantization residue to zero
     '  dye.r += max(srcA, srcPane) * (uInject * boost * uDt);',
+
+    // The selected nav pill: the background liquid holds a clear pool in the
+    // navbar's ink. Clearing mirrors the pane injection in reverse —
+    // saturating deep inside the capsule, ramping off across the edge so the
+    // boundary shell is only loosely held and the flow genuinely erodes and
+    // roils it — plus noise-gated FINGERS of clearing rooted on the pill
+    // edge, the inverse of the panes' ink fingers, so the pool reaches into
+    // the charcoal with the same organic tendrils the panes shed.
+    '  float hd = holeSD(p);',
+    '  if (hd < uBand * 0.6 && uHoleAmt > 0.0) {',   // interior + finger reach only
+    '    float hs = hd / (uBand * 0.6);',   // 0 at the pill edge, 1 at the clearing's outer reach
+    '    vec2 hg = vec2(holeSD(p + vec2(2.0, 0.0)) - hd, holeSD(p + vec2(0.0, 2.0)) - hd);',
+    '    vec2 hout = hg / max(length(hg), 0.001);',
+    '    vec2 hpe = (p - hout * max(hd, 0.0)) * uCss;',   // projection onto the pill edge
+    '    vec2 hpr = vec2(hpe.x * 0.83 - hpe.y * 0.56, hpe.x * 0.56 + hpe.y * 0.83);',
+    '    float hn = noise(hpr * 0.06 + vec2(uTime * 0.025, 4.9));',
+    '    float hgate = smoothstep(0.45, 0.62, hn);',
+    '    float hlen = 0.25 + 0.75 * hn;',
+    '    float hclear = max(smoothstep(0.05, -0.3, hs), 0.8 * hgate * smoothstep(hlen, 0.0, hs));',
+    // 4x the injection rate: the clearing must outrun the pane fill (up to
+    // 1.9x boosted when the navbar is hovered) deep inside the pill, while
+    // the edge zone stays contested — that contest is the roiling boundary
+    '    dye.r -= hclear * uHoleAmt * (uInject * 4.0) * uDt;',
+    '  }',
 
     // The background liquid: its density relaxes toward a slowly drifting
     // two-octave noise pattern, so it always shows internal marbling — and
@@ -1364,6 +1429,25 @@ function createInkBoundaryVisual() {
     '}'
   ].join('\n');
 
+  // Resize blit: carries a dye field across a buffer rebuild. Samples the
+  // old texture through an affine map (old_px = new_px * ratio + offset);
+  // outside the old field's bounds it writes zero instead of smearing the
+  // texture's edge clamp across the new area.
+  var COPY_FRAG = PRECISION + '\n' + [
+    'uniform sampler2D uTex;',
+    'uniform vec2  uOldSize;',
+    'uniform float uRatio;',
+    'uniform vec2  uOffset;',
+    'void main() {',
+    '  vec2 op = gl_FragCoord.xy * uRatio + uOffset;',
+    '  if (op.x < 0.0 || op.y < 0.0 || op.x > uOldSize.x || op.y > uOldSize.y) {',
+    '    gl_FragColor = vec4(0.0);',
+    '    return;',
+    '  }',
+    '  gl_FragColor = texture2D(uTex, op / uOldSize);',
+    '}'
+  ].join('\n');
+
   function compile(type, src) {
     var s = gl.createShader(type);
     gl.shaderSource(s, src);
@@ -1392,7 +1476,8 @@ function createInkBoundaryVisual() {
   var stepProg = program(STEP_FRAG);
   var brushProg = program(BRUSH_FRAG);
   var drawProg = program(DRAW_FRAG);
-  if (!stepProg || !brushProg || !drawProg) {
+  var copyProg = program(COPY_FRAG);
+  if (!stepProg || !brushProg || !drawProg || !copyProg) {
     canvas.remove();
     return null;
   }
@@ -1443,13 +1528,16 @@ function createInkBoundaryVisual() {
     var w = Math.max(1, Math.round(cssW * scale));
     var h = Math.max(1, Math.round(cssH * scale));
     if (w === simW && h === simH) return;
+
+    var oldW = simW, oldH = simH, oldScale = simScale;
+    var oldTexA = texA, oldTexB = texB, oldFboA = fboA, oldFboB = fboB;
+    var oldBrushTexA = brushTexA, oldBrushTexB = brushTexB;
+    var oldBrushFboA = brushFboA, oldBrushFboB = brushFboB;
+
     simW = canvas.width = w;
     simH = canvas.height = h;
     simScale = scale;
-    if (texA) {
-      gl.deleteTexture(texA); gl.deleteTexture(texB); gl.deleteFramebuffer(fboA); gl.deleteFramebuffer(fboB);
-      gl.deleteTexture(brushTexA); gl.deleteTexture(brushTexB); gl.deleteFramebuffer(brushFboA); gl.deleteFramebuffer(brushFboB);
-    }
+
     var a = makeTarget(w, h);
     var b = makeTarget(w, h);
     texA = a.tex; fboA = a.fbo;
@@ -1457,8 +1545,40 @@ function createInkBoundaryVisual() {
     var ba = makeTarget(w, h);
     var bb = makeTarget(w, h);
     brushTexA = ba.tex; brushFboA = ba.fbo;
-    brushTexB = bb.tex; brushFboB = bb.fbo;   // brush field starts empty — no warmup needed
-    warmup();   // fresh textures start empty — soak the pane interiors in
+    brushTexB = bb.tex; brushFboB = bb.fbo;
+
+    // Carry the user's laid ink across the resize: re-blit the old brush
+    // field into the new buffer anchored on the canvas VERTICAL CENTERLINE —
+    // a stroke painted dead-center stays dead-center and everything keeps
+    // its CSS size (only the sim resolution changed). Vertically the anchor
+    // is the viewport top, matching how the advected field tracks scroll.
+    var preserved = false;
+    if (oldBrushTexA && oldW > 0) {
+      var r = oldScale / scale;
+      gl.viewport(0, 0, w, h);
+      gl.useProgram(copyProg);
+      bindQuad(copyProg);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, brushFboA);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, oldBrushTexA);
+      gl.uniform1i(gl.getUniformLocation(copyProg, 'uTex'), 0);
+      gl.uniform2f(gl.getUniformLocation(copyProg, 'uOldSize'), oldW, oldH);
+      gl.uniform1f(gl.getUniformLocation(copyProg, 'uRatio'), r);
+      gl.uniform2f(gl.getUniformLocation(copyProg, 'uOffset'), (oldW - w * r) / 2, oldH - h * r);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      preserved = true;
+    }
+
+    if (oldTexA) {
+      gl.deleteTexture(oldTexA); gl.deleteTexture(oldTexB); gl.deleteFramebuffer(oldFboA); gl.deleteFramebuffer(oldFboB);
+      gl.deleteTexture(oldBrushTexA); gl.deleteTexture(oldBrushTexB); gl.deleteFramebuffer(oldBrushFboA); gl.deleteFramebuffer(oldBrushFboB);
+    }
+
+    // The placed objects ride the content layout's transform, then the pane
+    // blobs (and any source pools, on a fresh field) soak in at their new
+    // reflowed positions
+    remapPlaced();
+    warmup(preserved);
   }
 
   // --- Content blocks whose edges the inks trace ---
@@ -1645,6 +1765,7 @@ function createInkBoundaryVisual() {
           bleedSpeed: SIM.bleedSpeed,
           decayRate: SIM.decayRate
         },
+        layout: layoutRef,
         emitters: emitters.map(function(e) { return { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy }; }),
         sources: sources.map(function(s) { return { x: s.x, yDoc: s.yDoc, r: s.r, color: s.color }; })
       }));
@@ -1666,6 +1787,13 @@ function createInkBoundaryVisual() {
           if (typeof s[key] === 'number' && isFinite(s[key])) SIM[key] = s[key];
         });
       colBrush = hexToVec3(SIM.brushColor);
+      // The layout reference the objects were saved under — the first
+      // remapPlaced() (from the initial resize()) maps them from this onto
+      // the current layout, so a different window size lands them coherently
+      if (st.layout && isFinite(st.layout.cx) && isFinite(st.layout.top) &&
+          st.layout.w > 1 && st.layout.h > 1) {
+        layoutRef = { cx: +st.layout.cx, top: +st.layout.top, w: +st.layout.w, h: +st.layout.h };
+      }
       (st.emitters || []).slice(0, SIM.maxEmitters).forEach(function(e) {
         if (!isFinite(e.x) || !isFinite(e.yDoc) || !isFinite(e.vx) || !isFinite(e.vy)) return;
         var em = { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy, el: makeArrow(e.x, e.yDoc, e.vx, e.vy) };
@@ -1677,6 +1805,55 @@ function createInkBoundaryVisual() {
         sources.push({ x: sr.x, yDoc: sr.yDoc, r: sr.r, color: [+sr.color[0] || 0, +sr.color[1] || 0, +sr.color[2] || 0] });
       });
     } catch (err) {}   // malformed state: start fresh
+  }
+
+  // --- Layout coherence across resizes: the placed objects ride the content.
+  // The bio pane's rect is the layout reference; every object keeps its
+  // position relative to the pane's center and scale, so an object placed on
+  // the canvas centerline stays on it. Emitter vectors and source radii
+  // scale through the same transform, so the whole arrangement — jets aimed
+  // at pane corners, pools tucked against an edge — stays coherent. The
+  // reference is saved with the state, so restoring into a differently-sized
+  // window adapts the objects instead of replaying stale coordinates.
+  var layoutRef = null;   // { cx, top, w, h } — document space
+
+  function measureLayout() {
+    var pane = document.querySelector('.paper-panel');
+    if (pane) {
+      var r = pane.getBoundingClientRect();
+      return { cx: (r.left + r.right) / 2, top: r.top + window.pageYOffset, w: r.width, h: r.height };
+    }
+    return { cx: window.innerWidth / 2, top: 0, w: Math.max(1, window.innerWidth), h: Math.max(1, window.innerHeight) };
+  }
+
+  function remapPlaced() {
+    var ref = measureLayout();
+    if (layoutRef && layoutRef.w > 1 && layoutRef.h > 1 && (emitters.length || sources.length)) {
+      var sx = ref.w / layoutRef.w;
+      var sy = ref.h / layoutRef.h;
+      if (Math.abs(sx - 1) > 0.001 || Math.abs(sy - 1) > 0.001 ||
+          Math.abs(ref.cx - layoutRef.cx) > 0.5 || Math.abs(ref.top - layoutRef.top) > 0.5) {
+        emitters.forEach(function(em) {
+          em.x = ref.cx + (em.x - layoutRef.cx) * sx;
+          em.yDoc = ref.top + (em.yDoc - layoutRef.top) * sy;
+          em.vx *= sx;
+          em.vy *= sy;
+          var spd = Math.sqrt(em.vx * em.vx + em.vy * em.vy);
+          if (spd > SIM.emitterMax) {
+            em.vx *= SIM.emitterMax / spd;
+            em.vy *= SIM.emitterMax / spd;
+          }
+          if (em.el) styleArrow(em.el, em.x, em.yDoc, em.vx, em.vy);
+        });
+        sources.forEach(function(s) {
+          s.x = ref.cx + (s.x - layoutRef.cx) * sx;
+          s.yDoc = ref.top + (s.yDoc - layoutRef.top) * sy;
+          s.r *= (sx + sy) / 2;
+        });
+      }
+    }
+    layoutRef = ref;
+    saveState();
   }
 
   // Drag delta -> emitter velocity (CSS px/s): direction from the drag,
@@ -1874,6 +2051,62 @@ function createInkBoundaryVisual() {
   var rectData = new Float32Array(SIM.maxRects * 4);
   var boostData = new Float32Array(SIM.maxRects);
 
+  // The selected nav pill, fed to the shaders as a hole in the navbar's ink
+  // (see holeSD). A hovered nav link takes over as the target, so the pool
+  // MIGRATES: the hole's rect is eased toward the target pill, the clearing
+  // eats through the ink ahead of it while the navbar re-inks the trail it
+  // leaves — the pool visibly swims through the charcoal rather than
+  // teleporting. It bursts in place only on first appearance (page load);
+  // initPageTransitions hands .active to a clicked link before navigating,
+  // so the pool settles onto the new selection during the exit delay.
+  var holeData = new Float32Array([-1e6, -1e6, 1, 1]);
+  var holeAmt = 0;
+  var holeOn = false;
+
+  function updateHole(dt) {
+    var el = document.querySelector('.nav-links a:hover') ||
+             document.querySelector('.nav-links a.active');
+    if (!el) {
+      holeData[0] = -1e6; holeData[1] = -1e6;
+      holeAmt = 0; holeOn = false;
+      return;
+    }
+    var r = el.getBoundingClientRect();
+    var tx = ((r.left + r.right) / 2) * simScale;
+    var ty = simH - ((r.top + r.bottom) / 2) * simScale;   // flip to GL y-up
+    var tw = (r.width / 2) * simScale;
+    var th = (r.height / 2) * simScale;
+    if (!holeOn) {
+      // First appearance: snap into place and burst open from the center
+      holeData[0] = tx; holeData[1] = ty; holeData[2] = tw; holeData[3] = th;
+      holeAmt = 0; holeOn = true;
+    } else {
+      var k = Math.min(1, 9 * dt);
+      holeData[0] += (tx - holeData[0]) * k;
+      holeData[1] += (ty - holeData[1]) * k;
+      holeData[2] += (tw - holeData[2]) * k;
+      holeData[3] += (th - holeData[3]) * k;
+    }
+    holeAmt += (1 - holeAmt) * Math.min(1, 5 * dt);
+  }
+
+  // Keep at least the bio pane's own height of open liquid below it — blank
+  // canvas to paint on and place objects in. Re-checked every frame (the
+  // pane's height moves with viewport width and font load) but only touches
+  // layout when the value actually changes.
+  var reservedFor = -1;
+
+  function reserveCanvas() {
+    var pane = document.querySelector('.paper-panel');
+    var main = document.querySelector('.main-content');
+    if (!pane || !main) return;
+    var h = Math.ceil(pane.getBoundingClientRect().height);
+    if (h !== reservedFor) {
+      reservedFor = h;
+      main.style.paddingBottom = h + 'px';
+    }
+  }
+
   function gatherRects(dt) {
     var els = document.querySelectorAll(INK_BLOCKS);
     var count = 0;
@@ -1917,7 +2150,7 @@ function createInkBoundaryVisual() {
   var FIELD_UNIFORMS = ['uPrev', 'uBrushTex', 'uRes', 'uTime', 'uDt', 'uShiftY', 'uMotion', 'uCss',
     'uSimScale', 'uRects', 'uBoost', 'uCount', 'uBand', 'uCorner', 'uAmorph', 'uSpeed', 'uInject', 'uDecay', 'uFlow', 'uBleed',
     'uShear', 'uBgRate', 'uBrushDecay', 'uBrushColor', 'uSplats', 'uSplatCount',
-    'uEmit', 'uEmitCount', 'uEmitRad', 'uSrc', 'uSrcCol', 'uSrcCount'];
+    'uEmit', 'uEmitCount', 'uEmitRad', 'uSrc', 'uSrcCol', 'uSrcCount', 'uHole', 'uHoleAmt'];
   var stepU = locs(stepProg, FIELD_UNIFORMS);
   var brushU = locs(brushProg, FIELD_UNIFORMS);
   var drawU = locs(drawProg, ['uTex', 'uBrushTex', 'uRes', 'uBg', 'uColB', 'uPane']);
@@ -1965,6 +2198,8 @@ function createInkBoundaryVisual() {
     gl.uniform4fv(u.uSrc, srcData);
     gl.uniform3fv(u.uSrcCol, srcColData);
     gl.uniform1i(u.uSrcCount, srcCount);
+    gl.uniform4fv(u.uHole, holeData);
+    gl.uniform1f(u.uHoleAmt, holeAmt);
   }
 
   function bindFieldInputs() {
@@ -2004,14 +2239,32 @@ function createInkBoundaryVisual() {
 
   // Soak-in: after the dye textures are (re)created, run a few big sim steps
   // so the pane interiors are full of ink and the background liquid's
-  // marbling is mostly formed on the first visible paint
-  function warmup() {
+  // marbling is mostly formed on the first visible paint. When the brush
+  // field survived the rebuild (resize blit), its pass is skipped — the big
+  // warmup steps would visibly advect and fade the preserved strokes.
+  function warmup(brushPreserved) {
     var count = gatherRects(1 / 60);
     updatePlaced();   // restored/kept sources and emitters soak in with the panes
     for (var i = 0; i < 12; i++) {
       stepPass(0.35, i * 0.35, 0, count, 0);
-      brushPass(0.35, i * 0.35, 0, count, 0);
+      if (!brushPreserved) brushPass(0.35, i * 0.35, 0, count, 0);
     }
+  }
+
+  // Wipe every dye field back to empty: laid brush ink, live splats, and the
+  // marbled background all go. Placed objects stay — the warmup re-soaks the
+  // pane interiors and any ink sources so the page reforms instead of
+  // flashing blank.
+  function clearFields() {
+    splats.length = 0;
+    paintDrag = null;
+    gl.clearColor(0, 0, 0, 0);
+    var targets = [fboA, fboB, brushFboA, brushFboB];
+    for (var i = 0; i < targets.length; i++) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, targets[i]);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+    warmup();
   }
 
   // --- Animation loop ---
@@ -2038,6 +2291,8 @@ function createInkBoundaryVisual() {
     lastScroll = scroll;
 
     var count = gatherRects(dt);
+    updateHole(dt);
+    reserveCanvas();
     var splatCount = updateSplats(now);
     updatePlaced();
     stepPass(dt, timeSec, shiftY, count, splatCount);
@@ -2083,9 +2338,17 @@ function createInkBoundaryVisual() {
 
   // --- Control table: live knobs for the brush and the fluid ---
   // Every uniform is re-sent from SIM each frame, so sliders just mutate SIM.
+  // Starts mostly hidden: a small round tab with a soft pulsing glow that
+  // invites a press. Tapping it (or anywhere on the collapsed tab) unfolds
+  // the full table; tapping the header folds it back. The glow stops for
+  // good after the first open.
   var panel = document.createElement('div');
-  panel.className = 'ink-controls';
+  panel.className = 'ink-controls collapsed glow';
   panel.innerHTML =
+    '<button type="button" class="ink-toggle" data-ink="toggle" title="Ink controls">' +
+      '<span class="when-closed">&#10002;</span>' +
+      '<span class="when-open">&#10002; ink controls &#9662;</span>' +
+    '</button>' +
     '<label>Brush <input type="color" data-ink="brush" value="' + SIM.brushColor + '"></label>' +
     '<label>Size <input type="range" data-ink="size" min="0.5" max="3" step="0.1" value="' + SIM.brushScale + '"></label>' +
     '<label>Ink life <input type="range" data-ink="life" min="0" max="100" step="1" value="' +
@@ -2098,17 +2361,28 @@ function createInkBoundaryVisual() {
     '<div class="ink-buttons">' +
     '<button type="button" data-ink="place-emitter" title="Then click-drag the background: press = position, drag = flow direction and strength">Place flow emitter</button>' +
     '<button type="button" data-ink="place-source" title="Then click the background to place a bleeding ink source in the current brush color">Place ink source</button>' +
-    '<button type="button" data-ink="clear-placed" title="Remove all placed emitters and sources">Clear</button>' +
+    '</div>' +
+    '<div class="ink-buttons">' +
+    '<button type="button" data-ink="clear-placed" title="Remove all placed emitters and sources">Clear objects</button>' +
+    '<button type="button" data-ink="clear-canvas" title="Wipe all laid ink — the panes and any placed sources soak back in">Clear canvas</button>' +
     '<button type="button" class="mini" data-ink="undo" title="Undo" disabled>&#8630;</button>' +
     '<button type="button" class="mini" data-ink="redo" title="Redo" disabled>&#8631;</button>' +
     '</div>';
   document.body.appendChild(panel);
 
   panel.addEventListener('click', function(e) {
+    // Collapsed: any tap on the tab unfolds the table (and retires the glow)
+    if (panel.classList.contains('collapsed')) {
+      panel.classList.remove('collapsed');
+      panel.classList.remove('glow');
+      return;
+    }
     var btn = (e.target && e.target.closest) ? e.target.closest('button[data-ink]') : null;
     if (!btn) return;
     var k = btn.getAttribute('data-ink');
-    if (k === 'undo') {
+    if (k === 'toggle') {
+      panel.classList.add('collapsed');
+    } else if (k === 'undo') {
       doUndo();
     } else if (k === 'redo') {
       doRedo();
@@ -2121,6 +2395,8 @@ function createInkBoundaryVisual() {
       sources.length = 0;
       setPlaceMode(null);
       saveState();
+    } else if (k === 'clear-canvas') {
+      clearFields();
     } else if (k === 'place-emitter') {
       setPlaceMode(placeMode === 'emitter' ? null : 'emitter');
     } else if (k === 'place-source') {
@@ -2158,6 +2434,8 @@ function createInkBoundaryVisual() {
       window.removeEventListener('pointerup', onPaintUp);
       document.removeEventListener('pointercancel', onPaintUp);
       document.documentElement.style.cursor = '';
+      var mainEl = document.querySelector('.main-content');
+      if (mainEl) mainEl.style.paddingBottom = '';
       arrowLayer.remove();
       panel.remove();
       canvas.remove();

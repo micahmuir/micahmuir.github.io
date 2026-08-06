@@ -1622,15 +1622,33 @@ figure.link-to-page a:hover {
   color: rgba(242, 234, 217, 0.68);
 }
 
+/* Hover: the pool of background liquid migrates to the hovered pill
+   (updateHole in main.js eases the hole toward whichever link is hovered),
+   so the hovered label sinks to the ink color — slightly delayed to let the
+   pool swim over — while the selected pill it abandoned returns to cream as
+   the navbar re-inks it. */
 .page-about.ink-active .nav-links a:hover {
-  color: #f2ead9;
-  background: rgba(242, 234, 217, 0.08);
+  color: #20221f;
+  background: none;
+  transition: color 0.3s ease 0.15s;
 }
 
-.page-about.ink-active .nav-links a.active {
-  color: #f2ead9;
-  background: rgba(242, 234, 217, 0.13);
-  border-color: rgba(242, 234, 217, 0.3);
+.page-about.ink-active .nav-links:has(a:hover) a.active:not(:hover) {
+  color: rgba(242, 234, 217, 0.68);
+}
+
+/* Selection: the pill is carved out of the navbar's ink by the fluid sim
+   itself — a pool of the background liquid bursts through, and its boundary
+   roils and mixes with the charcoal exactly like the content pane borders
+   (see holeSD / uHole in main.js). CSS contributes nothing visual here
+   except sinking the label to the ink color, slightly delayed so the pool
+   has cleared beneath it, so it stays legible on the light liquid. */
+.page-about.ink-active .nav-links a.active,
+.page-about.ink-active .nav-links a.active:hover {
+  color: #20221f;
+  background: none;
+  border-color: transparent;
+  transition: color 0.3s ease 0.2s;
 }
 
 /* The navbar is an ink blob too: the sim paints its body (its rect is fed to
@@ -1672,6 +1690,81 @@ figure.link-to-page a:hover {
   line-height: 1;
   color: #20221f;
   user-select: none;
+}
+
+/* Collapse toggle: header row when the table is open, and the whole visible
+   face of the panel when collapsed */
+.ink-controls .ink-toggle {
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  border: none;
+  background: none;
+  color: #20221f;
+  cursor: pointer;
+  padding: 0 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ink-controls .ink-toggle .when-closed {
+  display: none;
+}
+
+/* Collapsed: the panel folds down to a small round tab — mostly hidden,
+   just the nib glyph showing */
+.ink-controls.collapsed {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ink-controls.collapsed > label,
+.ink-controls.collapsed > .ink-buttons {
+  display: none;
+}
+
+.ink-controls.collapsed .ink-toggle {
+  padding: 0;
+  pointer-events: none;   /* the whole tab is the click target */
+}
+
+.ink-controls.collapsed .ink-toggle .when-open {
+  display: none;
+}
+
+.ink-controls.collapsed .ink-toggle .when-closed {
+  display: block;
+  font-size: 1.25rem;
+}
+
+/* A slow soft breathing of ink-shadow around the collapsed tab, inviting a
+   press; the class is removed for good on first open */
+.ink-controls.glow {
+  animation: ink-controls-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ink-controls-pulse {
+  0%, 100% {
+    box-shadow: 0 2px 10px rgba(32, 34, 31, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 18px 5px rgba(32, 34, 31, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-controls.glow {
+    animation: none;
+    box-shadow: 0 0 14px 3px rgba(32, 34, 31, 0.35);
+  }
 }
 
 .ink-controls label {

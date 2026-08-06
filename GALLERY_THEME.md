@@ -222,7 +222,7 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
   selector). Splats are stored in document space so they stay put when the page
   scrolls.
 - **Placeable objects** (control-table buttons, both document-anchored, max 8
-  each, oldest dropped; **Clear** removes them all):
+  each, oldest dropped; **Clear objects** removes them all):
   - *Flow emitter* — arm the button, then click-drag: press = position, drag =
     the flow vector (length sets speed via `emitterGain`, between `emitterMin`
     and `emitterMax`). Drags under 8px are ignored (accidental click) and the
@@ -240,15 +240,15 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
     it is being aimed and commits seamlessly on release. A committed arrow
     is a grab handle: dragging its body (origin ring) MOVES the emitter,
     dragging its HEAD ring RE-AIMS the vector (direction + speed, like
-    placement) — jet following live. Arrows are removed by Clear/stop and
-    hidden in print.
+    placement) — jet following live. Arrows are removed by Clear objects/stop
+    and hidden in print.
   - Placement modes are STICKY: keep placing until the armed button is
-    clicked again (or another mode button / Clear is pressed).
+    clicked again (or another mode button / Clear objects is pressed).
   - Double-clicking an emitter's arrow deletes it. (Sources have no DOM
-    handle — remove them via undo or Clear.)
+    handle — remove them via undo or Clear objects.)
   - **Undo/redo** (↺/↻ mini-buttons): snapshot history of the placed objects
     (max 40 entries) covering placements, deletions, moves, re-aims, and
-    Clear. Snapshots are pushed *before* each mutation; move/re-aim drags
+    Clear objects. Snapshots are pushed *before* each mutation; move/re-aim drags
     commit their pre-drag snapshot lazily on first real movement, so no-op
     clicks never pollute the history. The ink fields are not part of history.
   - Placement uses a looser exclusion than painting (`NO_PLACE`): panes are
@@ -266,6 +266,12 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
     `uSrcCol`). Sources also shove the background liquid like brush strokes.
   - While armed the cursor is a crosshair and the button inverts to charcoal;
     placement exits the mode.
+- **Clear canvas** (`clearFields()`): wipes the dye state rather than the
+  objects — both ping-pong pairs are `gl.clear`ed to zero and the live splat
+  list is dropped, then `warmup()` re-runs so the pane interiors, the
+  background marbling, and any placed sources soak straight back in instead of
+  flashing blank. Placed objects and panel settings are untouched, and because
+  the fields were never part of the undo history the clear is not undoable.
 - **Control table**: the sim appends a small fixed panel (`.ink-controls`,
   bottom-right) with live knobs — brush color, brush size, brush ink life
   (`brushDecay`, an exponential slider from ~6/s instant dispersal to ~0.006/s
