@@ -927,12 +927,14 @@ function createWatercolorVisual() {
 
 // =======================================================================================
 // BACKGROUND VISUAL 3: LIQUID INK BOUNDARY (theme test — About page)
-// A tiny GPU advection simulation. Content-card edges are the interface between
-// two inks: one seeps from just inside each card's outline, the other from just
-// outside. A divergence-free curl-noise flow slowly stirs the dye field, so the
-// boundary between the inks constantly shifts and mixes with turbulent tendrils.
+// A tiny GPU advection simulation of TWO liquids. The background itself is an
+// ink — a parchment-toned liquid with visible internal marbling — and each
+// content card is a blob of dark ink suspended in it. A divergence-free
+// curl-noise flow stirs everything, and an interface-shear term adds extra
+// swirl along every dye boundary, so where the two inks meet they actively
+// roll up and curl into each other: ink mixing with ink, not ink on paper.
 //
-// Cost: two low-res ping-pong textures (~1/3 screen resolution, capped) and two
+// Cost: two ping-pong textures (~5/8 screen resolution, capped) and two
 // fragment passes per frame — one sim step, one colorize. No geometry, no CPU
 // per-pixel work. The dye field is advected in screen space but shifted by the
 // scroll delta each frame, so tendrils stay anchored to their cards.
@@ -941,18 +943,22 @@ function createWatercolorVisual() {
 function createInkBoundaryVisual() {
 
   var SIM = {
-    // -- Resolution: sim runs on a small buffer, CSS scales it up --
-    maxSimDim:     880,      // Cap on the sim buffer's largest dimension (px)
-    maxScale:      0.5,      // Never simulate above half resolution
+    // -- Resolution: sim runs on a reduced buffer, CSS scales it up --
+    maxSimDim:     1200,     // Cap on the sim buffer's largest dimension (px)
+    maxScale:      0.62,     // Never simulate above ~5/8 resolution
 
-    // -- Palette: dark ink on light paper --
-    // The background is the lightest tone; the panes and both inks share one
-    // hue and sit darker than it. The panes and the ink they bleed are ONE
-    // substance (paneColor); the surrounding ink is a mid-dark wash of the
-    // same hue that the bleed mixes into.
-    bgColor:       '#f2ead9',   // Page/canvas background (creamy beige) — keep in
-                                // sync with the .page-about.ink-active CSS background
-    inkOuter:      '#8f8878',   // Surrounding ink wash, warm grey, darker than bg
+    // -- Palette: two liquids, ink on ink --
+    // The BACKGROUND is itself a liquid: its density (G channel) relaxes
+    // toward a drifting noise pattern and is displayed as a blend between a
+    // light and a deep parchment tone, so it shows constant internal marbling
+    // and visibly reacts when stirred. The panes and the ink they bleed are
+    // ONE substance (paneColor) suspended in that liquid.
+    bgColor:       '#f2ead9',   // Background liquid, light tone (creamy beige)
+    bgDeep:        '#d2c5a6',   // Background liquid, deep tone — G interpolates
+                                // between these two. The CSS ink-active page
+                                // background is their midpoint (#e2d7bf).
+    bgRate:        0.5,      // How fast the background liquid re-forms its
+                             // marbling after being stirred aside (1/s)
 
     // -- Boundary band: where the two inks are continuously injected --
     // Both inks live just OUTSIDE the card edge (the glass panels are opaque
@@ -960,6 +966,11 @@ function createInkBoundaryVisual() {
     // bright ink rings it further out, and the flow mixes them where they meet
     bandWidth:     54,       // Total reach of the ink bands from the card edge (CSS px)
     cornerRadius:  18,       // Card corner rounding — matches --border-radius (CSS px)
+    amorph:        11,       // Boundary wobble amplitude (CSS px): the pane SDF is
+                             // displaced by slow two-octave noise, so the blob's
+                             // outline meanders organically instead of tracing the
+                             // straight CSS rectangle (total swing ~±1.5×this —
+                             // keep below the panes' text padding)
 
     // -- Pane fill: the panes are not drawn as rectangles — they are regions
     //    of strong ink injection in the SAME advected dye field as the bleed,
@@ -979,6 +990,11 @@ function createInkBoundaryVisual() {
     bleedSpeed:    14,       // Outward current from every pane edge (CSS px/s) — the
                              // panes continuously push fresh ink away as they bleed,
                              // stretching the seep points into fingers
+    shearSpeed:    26,       // Interface shear: extra swirl along every dye
+                             // boundary (CSS px/s at full saturation). This is
+                             // what makes the two inks actively roll up and
+                             // curl into each other where they meet, instead
+                             // of just diffusing side by side
 
     // -- Interaction --
     hoverBoost:    1.9,      // Injection multiplier while a card is hovered
@@ -989,11 +1005,28 @@ function createInkBoundaryVisual() {
     //    control panel can recolor it independently of the pane ink --
     brushColor:    '#8c2f22',   // Default brush ink (control panel can change it)
     brushScale:    1,        // Brush size multiplier (control panel)
+    brushDecay:    0.2,      // Brush ink decay (1/s), separate from the pane fade.
+                             // The "Ink life" slider maps exponentially onto
+                             // 6 (instant dispersal) .. 0.006 (lingers minutes,
+                             // for painting)
     splatRadius:   34,       // Single-click splot radius (CSS px, ±random)
     strokeRadius:  16,       // Radius of each stroke stamp while dragging (CSS px)
     strokeSpacing: 12,       // Distance dragged between stroke stamps (CSS px)
     splatStrength: 16,       // Injection rate at a splat's center (dye/s)
     maxSplats:     16,       // Uniform-array size; oldest splats drop first
+
+    // -- Placeable objects (control-table buttons): flow emitters are
+    //    persistent directional jets defined by click-drag (position +
+    //    vector); ink sources are persistent bleeding pools of the brush
+    //    color current at placement. Both live in document space --
+    emitterRadius: 64,       // Gaussian radius of a flow emitter (CSS px)
+    emitterGain:   4.5,      // Drag length (CSS px) -> jet speed (CSS px/s)
+    emitterMin:    80,       // Speed floor — even a short flick makes a real current
+    emitterMax:    800,      // Jet speed cap (CSS px/s)
+    maxEmitters:   8,        // Uniform-array size; oldest emitter drops first
+    sourceRadius:  26,       // Gaussian radius of an ink source (CSS px)
+    sourceRate:    8,        // Dye injection at a source's center (dye/s)
+    maxSources:    8,        // Uniform-array size; oldest source drops first
 
     maxRects:      8         // Uniform-array size; visible blocks beyond this are skipped
   };
@@ -1026,8 +1059,11 @@ function createInkBoundaryVisual() {
 
   // Sim step: advect the dye field through the curl-noise flow, decay it, and
   // re-inject both inks along the card boundaries. R = inner ink, G = outer ink.
-  var STEP_FRAG = PRECISION + '\n' + [
-    'uniform sampler2D uPrev;',
+  // Shared chunk for the dye and brush passes: all uniforms, the noise/SDF
+  // helpers, and the velocity field — both fluids ride exactly the same flow.
+  var FIELD_COMMON = [
+    'uniform sampler2D uPrev;',      // dye field: r pane ink, g background liquid
+    'uniform sampler2D uBrushTex;',  // brush ink: premultiplied rgb, a = amount
     'uniform vec2  uRes;',
     'uniform float uTime;',
     'uniform float uDt;',
@@ -1040,13 +1076,24 @@ function createInkBoundaryVisual() {
     'uniform int   uCount;',
     'uniform float uBand;',      // band width, sim px
     'uniform float uCorner;',    // corner radius, sim px
+    'uniform float uAmorph;',    // boundary wobble amplitude, sim px
     'uniform float uSpeed;',
     'uniform float uInject;',
     'uniform float uDecay;',
     'uniform vec3  uFlow;',      // (freq1, freq2, evolve)
     'uniform float uBleed;',     // outward bleed current, CSS px/s
+    'uniform float uShear;',     // interface shear strength, CSS px/s
+    'uniform float uBgRate;',    // background liquid pattern recovery, 1/s
+    'uniform float uBrushDecay;',// brush ink decay, 1/s (independent of uDecay)
+    'uniform vec3  uBrushColor;',// tint of NEW splats only — laid ink keeps its color
     'uniform vec4  uSplats[' + SIM.maxSplats + '];',   // xy center (sim px), z radius (sim px), w strength
     'uniform int   uSplatCount;',
+    'uniform vec4  uEmit[' + SIM.maxEmitters + '];',   // xy center (sim px), zw jet velocity (CSS px/s, y-up)
+    'uniform int   uEmitCount;',
+    'uniform float uEmitRad;',   // emitter gaussian radius, sim px
+    'uniform vec4  uSrc[' + SIM.maxSources + '];',     // xy center (sim px), z radius (sim px), w rate
+    'uniform vec3  uSrcCol[' + SIM.maxSources + '];',  // ink color of each source (set at placement)
+    'uniform int   uSrcCount;',
 
     'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }',
 
@@ -1076,20 +1123,64 @@ function createInkBoundaryVisual() {
     '  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;',
     '}',
 
+    // Boundary wobble: a slow drifting two-octave noise displacement of the
+    // pane SDF. The blob's outline meanders instead of tracing the straight
+    // CSS rectangle, so the root and tendrils grow from an organic edge —
+    // and because the SDF gradient follows the wobble, tendrils leave it at
+    // varied angles rather than marching off a ruler-straight line
+    'float bump(vec2 pp) {',
+    '  vec2 w = pp * uCss;',
+    '  return ((noise(w * 0.016 + vec2(uTime * 0.03, 1.7)) - 0.5) * 2.0 +',
+    '          (noise(w * 0.05 - vec2(3.3, uTime * 0.022)) - 0.5)) * uAmorph;',
+    '}',
+
     'float sceneSD(vec2 p) {',
     '  float d = 1e6;',
     '  for (int i = 0; i < ' + SIM.maxRects + '; i++) {',
     '    if (i >= uCount) break;',
     '    d = min(d, sdRoundRect(p, uRects[i].xy, uRects[i].zw, uCorner));',
     '  }',
-    '  return d;',
+    '  return d - bump(p);',
     '}',
 
-    'void main() {',
-    '  vec2 p = gl_FragCoord.xy;',
-    '  vec2 q = p * uCss;',
+    // Combined ink density at a sim-px position (pane ink + brush ink) —
+    // its gradient marks every interface between laid ink and the background
+    'float inkAt(vec2 pp) {',
+    '  return texture2D(uPrev, pp / uRes).r + texture2D(uBrushTex, pp / uRes).a;',
+    '}',
 
-    // Signed distance to the nearest pane edge, tracking that pane's hover boost
+    // Gaussian sum of the live splats / stroke stamps at a sim-px position
+    'float splatAt(vec2 p) {',
+    '  float s = 0.0;',
+    '  for (int i = 0; i < ' + SIM.maxSplats + '; i++) {',
+    '    if (i >= uSplatCount) break;',
+    '    vec2 sd = p - uSplats[i].xy;',
+    '    s += uSplats[i].w * exp(-dot(sd, sd) / (uSplats[i].z * uSplats[i].z));',
+    '  }',
+    '  return s;',
+    '}',
+
+    // Gaussian sum of the placed ink sources at a sim-px position
+    'float srcInkAt(vec2 p) {',
+    '  float s = 0.0;',
+    '  for (int i = 0; i < ' + SIM.maxSources + '; i++) {',
+    '    if (i >= uSrcCount) break;',
+    '    vec2 sd = p - uSrc[i].xy;',
+    '    s += uSrc[i].w * exp(-dot(sd, sd) / (uSrc[i].z * uSrc[i].z));',
+    '  }',
+    '  return s;',
+    '}',
+
+    // The flow everything rides: curl-noise turbulence, an outward bleed
+    // current near every pane edge, and interface shear — velocity along the
+    // iso-contours of ink density (the gradient rotated 90 degrees), so every
+    // boundary between laid ink and background liquid rolls up into curls.
+    // The shear speed SATURATES at min(gm/0.3, 1): without the cap it feeds
+    // back (stretching sharpens the gradient, which shears harder) and the
+    // mixing layer runs away until ink floods the screen.
+    // Also reports the wobbled pane SDF, its outward direction, and the
+    // hover boost of the nearest pane.
+    'vec2 velocityAt(vec2 p, vec2 q, out float dOut, out float boostOut, out vec2 outwardOut) {',
     '  float d = 1e6;',
     '  float boost = 1.0;',
     '  for (int i = 0; i < ' + SIM.maxRects + '; i++) {',
@@ -1097,25 +1188,61 @@ function createInkBoundaryVisual() {
     '    float di = sdRoundRect(p, uRects[i].xy, uRects[i].zw, uCorner);',
     '    if (di < d) { d = di; boost = uBoost[i]; }',
     '  }',
-
-    // The panes bleed: near every edge the flow gains an outward component
-    // (along the SDF gradient), continuously carrying fresh ink away
+    '  d -= bump(p);',   // same wobble as sceneSD, so the gradient stays consistent
     '  vec2 g = vec2(sceneSD(p + vec2(2.0, 0.0)) - d, sceneSD(p + vec2(0.0, 2.0)) - d);',
     '  vec2 outward = g / max(length(g), 0.001);',
     '  float push = smoothstep(uBand * 1.8, 0.0, abs(d));',
+    '  vec2 dg = vec2(inkAt(p + vec2(2.0, 0.0)) - inkAt(p - vec2(2.0, 0.0)),',
+    '                 inkAt(p + vec2(0.0, 2.0)) - inkAt(p - vec2(0.0, 2.0)));',
+    '  float gm = length(dg);',
+    '  vec2 shear = (vec2(dg.y, -dg.x) / max(gm, 0.001)) * min(gm / 0.3, 1.0) * uShear;',
+
+    // User-placed flow emitters: persistent LAMINAR jets. Each is a lane
+    // elongated downstream (reach grows with speed), narrow across the
+    // axis, with velocity decaying smoothly along it. Inside the lane the
+    // ambient turbulence and interface shear are suppressed in proportion
+    // to the lane weight — that suppression is what makes the flow read as
+    // laminar: carried pigment travels as a coherent, concentrated stream
+    // and only breaks up and dissipates where the lane hands it back to
+    // the turbulence. Shared by both fluid passes.
+    '  vec2 jet = vec2(0.0);',
+    '  float lam = 0.0;',
+    '  for (int i = 0; i < ' + SIM.maxEmitters + '; i++) {',
+    '    if (i >= uEmitCount) break;',
+    '    vec2 ed = p - uEmit[i].xy;',
+    '    float spd = length(uEmit[i].zw);',
+    '    vec2 dir = uEmit[i].zw / max(spd, 0.001);',
+    '    float along = dot(ed, dir);',
+    '    float across = ed.x * dir.y - ed.y * dir.x;',
+    '    float reach = uEmitRad * (2.0 + spd * 0.006);',   // faster jet -> longer lane
+    '    float sa = along < 0.0 ? uEmitRad : reach;',      // short stub upstream of the nozzle
+    '    float w = exp(-along * along / (sa * sa)) * exp(-across * across / (uEmitRad * uEmitRad * 0.3));',
+    '    jet += dir * (spd * w);',
+    '    lam = max(lam, w);',
+    '  }',
+
+    '  dOut = d; boostOut = boost; outwardOut = outward;',
+    '  return (curlVel(q, uTime) * uSpeed * (1.0 - 0.85 * lam) + outward * uBleed * push + shear * (1.0 - 0.7 * lam) + jet) * uSimScale * uMotion;',
+    '}'
+  ].join('\n');
+
+  var STEP_FRAG = PRECISION + '\n' + FIELD_COMMON + '\n' + [
+
+    'void main() {',
+    '  vec2 p = gl_FragCoord.xy;',
+    '  vec2 q = p * uCss;',
+    '  float d; float boost; vec2 outward;',
+    '  vec2 vel = velocityAt(p, q, d, boost, outward);',
 
     // Semi-Lagrangian advection: walk back along the flow (and the scroll
     // shift) and pick up the dye that is arriving at this pixel
-    '  vec2 vel = (curlVel(q, uTime) * uSpeed + outward * uBleed * push) * uSimScale * uMotion;',
     '  vec2 back = p - vec2(0.0, uShiftY) - vel * uDt;',
-    '  vec3 dye = texture2D(uPrev, back / uRes).rgb;',   // r pane ink, g wash, b brush ink
+    '  vec3 dye = texture2D(uPrev, back / uRes).rgb;',   // r pane ink, g background liquid
 
-    // Ink sources, strictly OUTSIDE the edge; nothing is injected inside a
-    // pane. The pane's ink (R) grows as radial FINGERS rooted on the edge:
-    // the gate noise is sampled at the point projected onto the pane edge,
-    // so it is constant along each outward ray — an open gate feeds a whole
-    // finger from root to tip, with clean pane edge between fingers. The
-    // surrounding wash (G) is only faint far mottling, never an outline.
+    // Pane-ink sources. The pane's ink (R) grows as radial FINGERS rooted on
+    // the edge: the gate noise is sampled at the point projected onto the
+    // pane edge, so it is constant along each outward ray — an open gate
+    // feeds a whole finger from root to tip, with clean edge between fingers.
     '  float s = d / uBand;',   // 0 at the card edge, 1 at the band's outer reach
     '  vec2 pe = (p - outward * max(d, 0.0)) * uCss;',   // projection onto the edge
     // Rotate the noise domain so its grid never aligns with the (axis-
@@ -1134,9 +1261,6 @@ function createInkBoundaryVisual() {
     // its thickness breathing with the same noise; the fingers grow out of it
     '  float root = smoothstep(0.08 + 0.18 * nA, 0.0, s);',
     '  float srcA = max(root, gate * smoothstep(len, 0.0, s)) * side;',
-    // The wash is a halo bound to each finger, reaching past its tip —
-    // watery diffusion around the ink, never a free-floating field
-    '  float srcB = 0.35 * gate * smoothstep(len * 1.6, len * 0.5, s) * side;',
 
     // The pane body itself: saturating injection deep inside, ramping off
     // toward the edge. The interior stays solid, but the boundary shell is
@@ -1144,43 +1268,98 @@ function createInkBoundaryVisual() {
     // pane is a blob of ink whose edge belongs to the fluid.
     '  float srcPane = smoothstep(0.06, -0.35, s);',
 
-    '  vec2 src = vec2(max(srcA, srcPane), srcB);',
+    '  dye.r = dye.r * (1.0 - uDecay * uDt) - 0.0012;',   // sweep quantization residue to zero
+    '  dye.r += max(srcA, srcPane) * (uInject * boost * uDt);',
 
-    '  dye *= 1.0 - uDecay * uDt;',
-    '  dye -= 0.0012;',   // sweep byte-texture quantization residue down to true zero
-    '  dye.rg += src * (uInject * boost * uDt);',
+    // The background liquid: its density relaxes toward a slowly drifting
+    // two-octave noise pattern, so it always shows internal marbling — and
+    // anything that stirs or displaces it leaves a wake that heals over
+    // ~1/uBgRate seconds. The per-frame dither keeps the tiny relaxation
+    // increments alive through byte-texture rounding (which would otherwise
+    // stall them to zero before the pattern fully re-forms).
+    '  vec2 pb = vec2(q.x * 0.94 - q.y * 0.34, q.x * 0.34 + q.y * 0.94);',
+    '  float nB  = noise(pb * 0.011 + vec2(uTime * 0.015, 7.7));',
+    '  float nB2 = noise(pb * 0.035 - vec2(3.3, uTime * 0.02));',
+    '  float gTarget = 0.25 + 0.55 * nB + 0.25 * (nB2 - 0.5);',
+    '  float dith = (hash(p + vec2(fract(uTime) * 61.7, 9.2)) - 0.5) / 255.0;',
+    '  dye.g += clamp(gTarget - dye.g, -1.0, 1.0) * (uBgRate * uDt) + dith;',
 
-    // User ink: clicked splots and drag-stroke stamps, injected as gaussian
-    // bursts of brush ink (with a touch of wash), then left to the fluid
-    '  float splat = 0.0;',
-    '  for (int i = 0; i < ' + SIM.maxSplats + '; i++) {',
-    '    if (i >= uSplatCount) break;',
-    '    vec2 sd = p - uSplats[i].xy;',
-    '    splat += uSplats[i].w * exp(-dot(sd, sd) / (uSplats[i].z * uSplats[i].z));',
-    '  }',
-    '  dye.b += splat * uDt;',
-    '  dye.g += splat * 0.25 * uDt;',
+    // Brush strokes and placed ink sources shove the background liquid
+    // aside — a light rim that heals. (The brush ink itself lives in its
+    // own field; see BRUSH_FRAG.)
+    '  dye.g -= (splatAt(p) + srcInkAt(p)) * 0.4 * uDt;',
 
-    '  gl_FragColor = vec4(clamp(dye, 0.0, 1.0), 1.0);',
+    '  gl_FragColor = vec4(clamp(dye.rg, 0.0, 1.0), 0.0, 1.0);',
     '}'
   ].join('\n');
 
-  // Colorize: dark ink on light paper. Ink coverage interpolates the paper
-  // toward the ink tones — the pane body and everything it sheds (field.r)
-  // are one substance in paneColor; the surrounding wash (field.g) is a
-  // mid-dark layer of the same hue underneath it.
+  // Brush pass: the user's ink is a second advected field with TRUE COLOR —
+  // premultiplied rgb, amount in alpha. New splats are tinted with the
+  // current brush color; ink already on the page keeps whatever color it was
+  // laid down with, and overlapping strokes genuinely mix (premultiplied
+  // sums blend the way pigments do). Changing the brush color therefore
+  // never recolors existing ink.
+  var BRUSH_FRAG = PRECISION + '\n' + FIELD_COMMON + '\n' + [
+    'void main() {',
+    '  vec2 p = gl_FragCoord.xy;',
+    '  vec2 q = p * uCss;',
+    '  float d; float boost; vec2 outward;',
+    '  vec2 vel = velocityAt(p, q, d, boost, outward);',
+    '  vec2 back = p - vec2(0.0, uShiftY) - vel * uDt;',
+    '  vec4 ink = texture2D(uBrushTex, back / uRes);',
+
+    // Own lifetime (the Ink life slider); the quantization sweep scales down
+    // with the decay so a long-life setting is not silently erased by it
+    // (the full sweep alone would clear solid ink in ~14s)
+    '  ink *= 1.0 - uBrushDecay * uDt;',
+    '  ink -= 0.0012 * min(uBrushDecay * 5.0, 1.0);',
+
+    // Deposit paint only into the remaining coverage (else rgb accumulates
+    // past the pigment color and clamps to white); leftover paint on an
+    // already-saturated area RE-PIGMENTS it instead — the stored color pulls
+    // toward the incoming ink, so painting over a wet area mixes colors
+    '  float add = splatAt(p) * uDt;',
+    '  float dep = min(add, 1.0 - ink.a);',
+    '  ink.rgb += uBrushColor * dep;',
+    '  ink.a += dep;',
+    '  float rep = min((add - dep) * 0.3, 1.0);',
+    '  ink.rgb = mix(ink.rgb, uBrushColor * ink.a, rep);',
+
+    // Placed ink sources: each bleeds continuously in the color it was
+    // placed with, using the same deposit/re-pigment rule as the brush
+    '  for (int i = 0; i < ' + SIM.maxSources + '; i++) {',
+    '    if (i >= uSrcCount) break;',
+    '    vec2 sd = p - uSrc[i].xy;',
+    '    float sadd = uSrc[i].w * exp(-dot(sd, sd) / (uSrc[i].z * uSrc[i].z)) * uDt;',
+    '    float sdep = min(sadd, 1.0 - ink.a);',
+    '    ink.rgb += uSrcCol[i] * sdep;',
+    '    ink.a += sdep;',
+    '    float srep = min((sadd - sdep) * 0.3, 1.0);',
+    '    ink.rgb = mix(ink.rgb, uSrcCol[i] * ink.a, srep);',
+    '  }',
+
+    '  gl_FragColor = clamp(ink, 0.0, 1.0);',
+    '}'
+  ].join('\n');
+
+  // Colorize: ink on ink. The background liquid (field.g) interpolates
+  // between its light and deep tones (uBg -> uColB) — that is what makes its
+  // marbling visible; the pane ink (field.r) and the brush ink (field.b)
+  // layer into it.
   var DRAW_FRAG = PRECISION + '\n' + [
     'uniform sampler2D uTex;',
+    'uniform sampler2D uBrushTex;',
     'uniform vec2 uRes;',
     'uniform vec3 uBg;',
     'uniform vec3 uColB;',
     'uniform vec3 uPane;',
-    'uniform vec3 uBrush;',
     'void main() {',
-    '  vec3 field = texture2D(uTex, gl_FragCoord.xy / uRes).rgb;',
+    '  vec2 uv = gl_FragCoord.xy / uRes;',
+    '  vec3 field = texture2D(uTex, uv).rgb;',
     '  vec3 col = mix(uBg, uColB, min(field.g, 1.0));',
     '  col = mix(col, uPane, field.r);',
-    '  col = mix(col, uBrush, field.b);',   // user's brush ink layers on top
+    '  vec4 br = texture2D(uBrushTex, uv);',   // premultiplied: rgb already carries amount
+    '  col = col * (1.0 - min(br.a, 1.0)) + br.rgb;',   // user's ink, in its true colors
     '  gl_FragColor = vec4(col, 1.0);',
     '}'
   ].join('\n');
@@ -1211,8 +1390,9 @@ function createInkBoundaryVisual() {
   }
 
   var stepProg = program(STEP_FRAG);
+  var brushProg = program(BRUSH_FRAG);
   var drawProg = program(DRAW_FRAG);
-  if (!stepProg || !drawProg) {
+  if (!stepProg || !brushProg || !drawProg) {
     canvas.remove();
     return null;
   }
@@ -1235,8 +1415,9 @@ function createInkBoundaryVisual() {
     ];
   }
 
-  // --- Ping-pong dye textures ---
+  // --- Ping-pong textures: dye field + brush ink field ---
   var texA = null, texB = null, fboA = null, fboB = null;
+  var brushTexA = null, brushTexB = null, brushFboA = null, brushFboB = null;
   var simW = 0, simH = 0, simScale = 1;
 
   function makeTarget(w, h) {
@@ -1265,16 +1446,23 @@ function createInkBoundaryVisual() {
     simW = canvas.width = w;
     simH = canvas.height = h;
     simScale = scale;
-    if (texA) { gl.deleteTexture(texA); gl.deleteTexture(texB); gl.deleteFramebuffer(fboA); gl.deleteFramebuffer(fboB); }
+    if (texA) {
+      gl.deleteTexture(texA); gl.deleteTexture(texB); gl.deleteFramebuffer(fboA); gl.deleteFramebuffer(fboB);
+      gl.deleteTexture(brushTexA); gl.deleteTexture(brushTexB); gl.deleteFramebuffer(brushFboA); gl.deleteFramebuffer(brushFboB);
+    }
     var a = makeTarget(w, h);
     var b = makeTarget(w, h);
     texA = a.tex; fboA = a.fbo;
     texB = b.tex; fboB = b.fbo;
+    var ba = makeTarget(w, h);
+    var bb = makeTarget(w, h);
+    brushTexA = ba.tex; brushFboA = ba.fbo;
+    brushTexB = bb.tex; brushFboB = bb.fbo;   // brush field starts empty — no warmup needed
     warmup();   // fresh textures start empty — soak the pane interiors in
   }
 
   // --- Content blocks whose edges the inks trace ---
-  var INK_BLOCKS = '.paper-panel, .card, .timeline-content, .project-nav, .video-container';
+  var INK_BLOCKS = '.navbar, .paper-panel, .card, .timeline-content, .project-nav, .video-container';
   var CLICKABLE = 'a, button, .card, .clickable-media, .project-nav-item';
   var hoverEl = null;
   var boostMap = (typeof WeakMap === 'function') ? new WeakMap() : null;
@@ -1294,6 +1482,261 @@ function createInkBoundaryVisual() {
   var splatData = new Float32Array(SIM.maxSplats * 4);
   var paintDrag = null;
 
+  // --- Placed objects: flow emitters (persistent jets) and ink sources
+  // (persistent bleeding pools). Armed via control-table buttons; the next
+  // click (source) or click-drag (emitter: press = position, drag = the
+  // flow vector) on the open background places one. Document space.
+  var placeMode = null;      // null | 'emitter' | 'source'
+  var emitterDrag = null;
+  var emitters = [];
+  var sources = [];
+  // Placement is allowed over panes (they're fluid too) — only interactive
+  // chrome is off-limits, unlike painting's stricter NO_PAINT rule
+  var NO_PLACE = 'a, button, input, textarea, select, label, .navbar, .ink-controls, .gallery-overlay';
+
+  // --- Emitter arrows: each placed emitter shows its vector as an ink-
+  // styled arrow (dot = position, length ~ speed), absolutely positioned in
+  // document space so it scrolls with the page. A live preview follows the
+  // pointer while the vector is being dragged out.
+  var arrowLayer = document.createElement('div');
+  arrowLayer.className = 'ink-arrows';
+  document.body.appendChild(arrowLayer);
+
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function arrowLen(vx, vy) {
+    var speed = Math.sqrt(vx * vx + vy * vy);
+    return Math.max(30, Math.min(118, 26 + speed * 0.11));
+  }
+
+  function styleArrow(el, x, yDoc, vx, vy) {
+    var len = arrowLen(vx, vy);
+    var ang = Math.atan2(vy, vx) * 180 / Math.PI;
+    el.setAttribute('width', Math.ceil(len));
+    el.setAttribute('height', 18);
+    el.style.left = (x - 4) + 'px';
+    el.style.top = (yDoc - 9) + 'px';
+    el.style.transformOrigin = '4px 9px';
+    el.style.transform = 'rotate(' + ang + 'deg)';
+    el.innerHTML =
+      '<title>Drag the head to re-aim, the body to move</title>' +
+      '<circle class="handle" cx="4" cy="9" r="6.5"></circle>' +
+      '<circle cx="4" cy="9" r="3"></circle>' +
+      '<line x1="10.5" y1="9" x2="' + (len - 11) + '" y2="9"></line>' +
+      '<circle class="handle" cx="' + (len - 5) + '" cy="9" r="6.5"></circle>' +
+      '<polygon points="' + (len - 10) + ',4 ' + len + ',9 ' + (len - 10) + ',14"></polygon>';
+  }
+
+  function makeArrow(x, yDoc, vx, vy) {
+    var el = document.createElementNS(SVG_NS, 'svg');
+    styleArrow(el, x, yDoc, vx, vy);
+    arrowLayer.appendChild(el);
+    return el;
+  }
+
+  // A committed emitter's arrow is a grab handle: dragging its BODY (dot or
+  // shaft) moves the emitter; dragging its HEAD re-aims the vector — the new
+  // direction and speed come from origin -> pointer, exactly like placement.
+  // The jet follows live either way (state is re-read every frame).
+  var moveDrag = null;
+
+  function attachArrowDrag(em) {
+    em.el.classList.add('placed');
+    em.el.addEventListener('pointerdown', function(ev) {
+      if (ev.button !== 0) return;
+      ev.stopPropagation();   // keep the paint/placement handlers out of it
+      ev.preventDefault();
+      var pyDoc = ev.clientY + window.pageYOffset;
+      var gx = ev.clientX - em.x, gy = pyDoc - em.yDoc;
+      var grabDist = Math.sqrt(gx * gx + gy * gy);
+      // snap: the pre-drag state, committed to history on first real move —
+      // a no-op click (or half a double-click) never pollutes the history
+      if (grabDist > arrowLen(em.vx, em.vy) * 0.6) {
+        moveDrag = { em: em, aim: true, snap: snapshot() };
+      } else {
+        moveDrag = { em: em, dx: em.x - ev.clientX, dyDoc: em.yDoc - pyDoc, snap: snapshot() };
+      }
+    });
+    em.el.addEventListener('dblclick', function(ev) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      pushHistory();
+      var idx = emitters.indexOf(em);
+      if (idx >= 0) emitters.splice(idx, 1);
+      em.el.remove();
+      moveDrag = null;
+      saveState();
+    });
+  }
+
+  // --- Undo/redo: snapshot history of the placed objects (not the ink) ---
+  var undoStack = [], redoStack = [];
+
+  function snapshot() {
+    return {
+      emitters: emitters.map(function(e) { return { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy }; }),
+      sources: sources.map(function(s) { return { x: s.x, yDoc: s.yDoc, r: s.r, color: s.color.slice() }; })
+    };
+  }
+
+  // Call BEFORE a mutation: the current state becomes the undo point
+  function pushHistory() {
+    undoStack.push(snapshot());
+    if (undoStack.length > 40) undoStack.shift();
+    redoStack.length = 0;
+    updateHistoryButtons();
+  }
+
+  function applySnapshot(s) {
+    for (var i = 0; i < emitters.length; i++) {
+      if (emitters[i].el) emitters[i].el.remove();
+    }
+    emitters.length = 0;
+    sources.length = 0;
+    s.emitters.forEach(function(e) {
+      var em = { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy, el: makeArrow(e.x, e.yDoc, e.vx, e.vy) };
+      attachArrowDrag(em);
+      emitters.push(em);
+    });
+    s.sources.forEach(function(sr) {
+      sources.push({ x: sr.x, yDoc: sr.yDoc, r: sr.r, color: sr.color.slice() });
+    });
+    saveState();
+  }
+
+  function doUndo() {
+    if (!undoStack.length) return;
+    redoStack.push(snapshot());
+    applySnapshot(undoStack.pop());
+    updateHistoryButtons();
+  }
+
+  function doRedo() {
+    if (!redoStack.length) return;
+    undoStack.push(snapshot());
+    applySnapshot(redoStack.pop());
+    updateHistoryButtons();
+  }
+
+  function updateHistoryButtons() {
+    if (!panel) return;
+    var u = panel.querySelector('button[data-ink="undo"]');
+    var r = panel.querySelector('button[data-ink="redo"]');
+    if (u) u.disabled = !undoStack.length;
+    if (r) r.disabled = !redoStack.length;
+  }
+
+  // --- Persistence: placed objects and panel settings survive navigation
+  // within a visit (sessionStorage, per page) but not a browser restart.
+  // The dye fields themselves are NOT saved — sources re-soak their pools
+  // during warmup, so returning to the page looks continuous anyway.
+  var STORE_KEY = 'inkState:' + location.pathname;
+
+  function saveState() {
+    try {
+      sessionStorage.setItem(STORE_KEY, JSON.stringify({
+        settings: {
+          brushColor: SIM.brushColor,
+          brushScale: SIM.brushScale,
+          brushDecay: SIM.brushDecay,
+          flowSpeed: SIM.flowSpeed,
+          flowScale2: SIM.flowScale2,
+          shearSpeed: SIM.shearSpeed,
+          bleedSpeed: SIM.bleedSpeed,
+          decayRate: SIM.decayRate
+        },
+        emitters: emitters.map(function(e) { return { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy }; }),
+        sources: sources.map(function(s) { return { x: s.x, yDoc: s.yDoc, r: s.r, color: s.color }; })
+      }));
+    } catch (err) {}   // storage may be unavailable (private mode) — optional feature
+  }
+
+  function restoreState() {
+    var raw = null;
+    try { raw = sessionStorage.getItem(STORE_KEY); } catch (err) {}
+    if (!raw) return;
+    try {
+      var st = JSON.parse(raw);
+      var s = st.settings || {};
+      if (typeof s.brushColor === 'string' && /^#[0-9a-f]{6}$/i.test(s.brushColor)) {
+        SIM.brushColor = s.brushColor;
+      }
+      ['brushScale', 'brushDecay', 'flowSpeed', 'flowScale2', 'shearSpeed', 'bleedSpeed', 'decayRate']
+        .forEach(function(key) {
+          if (typeof s[key] === 'number' && isFinite(s[key])) SIM[key] = s[key];
+        });
+      colBrush = hexToVec3(SIM.brushColor);
+      (st.emitters || []).slice(0, SIM.maxEmitters).forEach(function(e) {
+        if (!isFinite(e.x) || !isFinite(e.yDoc) || !isFinite(e.vx) || !isFinite(e.vy)) return;
+        var em = { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy, el: makeArrow(e.x, e.yDoc, e.vx, e.vy) };
+        attachArrowDrag(em);
+        emitters.push(em);
+      });
+      (st.sources || []).slice(0, SIM.maxSources).forEach(function(sr) {
+        if (!isFinite(sr.x) || !isFinite(sr.yDoc) || !isFinite(sr.r) || !sr.color || sr.color.length !== 3) return;
+        sources.push({ x: sr.x, yDoc: sr.yDoc, r: sr.r, color: [+sr.color[0] || 0, +sr.color[1] || 0, +sr.color[2] || 0] });
+      });
+    } catch (err) {}   // malformed state: start fresh
+  }
+
+  // Drag delta -> emitter velocity (CSS px/s): direction from the drag,
+  // speed from its length, capped
+  function dragVector(dx, dy) {
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if (len < 8) return null;   // accidental click
+    var speed = Math.max(SIM.emitterMin, Math.min(len * SIM.emitterGain, SIM.emitterMax));
+    return { vx: (dx / len) * speed, vy: (dy / len) * speed };
+  }
+  var emitData = new Float32Array(SIM.maxEmitters * 4);
+  var srcData = new Float32Array(SIM.maxSources * 4);
+  var srcColData = new Float32Array(SIM.maxSources * 3);
+  var emitCount = 0, srcCount = 0;
+
+  function setPlaceMode(mode) {
+    placeMode = mode;
+    if (emitterDrag && emitterDrag.el) emitterDrag.el.remove();   // abandon any live preview
+    emitterDrag = null;
+    document.documentElement.style.cursor = mode ? 'crosshair' : '';
+    var btns = panel ? panel.querySelectorAll('button[data-ink]') : [];
+    for (var i = 0; i < btns.length; i++) {
+      var arm = btns[i].getAttribute('data-ink') === 'place-' + mode;
+      btns[i].classList.toggle('armed', arm);
+    }
+  }
+
+  // Screen-space uniform data for the placed objects; called each frame
+  function updatePlaced() {
+    var i, k;
+    // An in-progress placement drag counts as a live emitter (last slot;
+    // the oldest committed one yields if the array is already full)
+    var list = emitters;
+    if (emitterDrag && emitterDrag.vx !== undefined) {
+      list = emitters.slice(Math.max(0, emitters.length - (SIM.maxEmitters - 1)));
+      list = list.concat([emitterDrag]);
+    }
+    emitCount = Math.min(list.length, SIM.maxEmitters);
+    for (i = 0; i < emitCount; i++) {
+      var em = list[i];
+      k = i * 4;
+      emitData[k]     = em.x * simScale;
+      emitData[k + 1] = simH - (em.yDoc - window.pageYOffset) * simScale;
+      emitData[k + 2] = em.vx;        // CSS px/s
+      emitData[k + 3] = -em.vy;       // flip to GL y-up
+    }
+    srcCount = sources.length;
+    for (i = 0; i < srcCount; i++) {
+      var sr = sources[i];
+      k = i * 4;
+      srcData[k]     = sr.x * simScale;
+      srcData[k + 1] = simH - (sr.yDoc - window.pageYOffset) * simScale;
+      srcData[k + 2] = Math.max(3, sr.r * simScale);
+      srcData[k + 3] = SIM.sourceRate;
+      srcColData[i * 3]     = sr.color[0];
+      srcColData[i * 3 + 1] = sr.color[1];
+      srcColData[i * 3 + 2] = sr.color[2];
+    }
+  }
+
   function spawnSplat(clientX, clientY, radius, life) {
     splats.push({
       x: clientX,
@@ -1311,7 +1754,7 @@ function createInkBoundaryVisual() {
     for (var i = 0; i < splats.length; i++) {
       var sp = splats[i];
       var t = (now - sp.born) / (sp.life * 1000);
-      if (t >= 1) continue;
+      if (t < 0 || t >= 1) continue;   // t<0 guards clock skew — a "future" splat would blow up env
       var env = (1 - t) * (1 - t);   // hard burst, fast taper
       var k = n * 4;
       splatData[k]     = sp.x * simScale;
@@ -1327,11 +1770,63 @@ function createInkBoundaryVisual() {
 
   function onPaintDown(e) {
     if (e.button !== 0) return;
+
+    if (placeMode) {
+      if (e.target && e.target.closest && e.target.closest(NO_PLACE)) return;
+      if (placeMode === 'source') {
+        pushHistory();
+        sources.push({
+          x: e.clientX,
+          yDoc: e.clientY + window.pageYOffset,
+          r: SIM.sourceRadius * SIM.brushScale,
+          color: colBrush.slice()   // the source keeps this color forever
+        });
+        if (sources.length > SIM.maxSources) sources.shift();
+        saveState();   // mode stays armed — keep placing until the button is toggled off
+      } else {
+        emitterDrag = { x: e.clientX, y: e.clientY, yDoc: e.clientY + window.pageYOffset, el: null };
+      }
+      e.preventDefault();
+      return;
+    }
+
     if (e.target && e.target.closest && e.target.closest(NO_PAINT)) return;
     spawnSplat(e.clientX, e.clientY, SIM.splatRadius * SIM.brushScale * (0.75 + Math.random() * 0.5), 0.55);
     paintDrag = { x: e.clientX, y: e.clientY };
   }
   function onPaintMove(e) {
+    if (moveDrag) {
+      if (moveDrag.snap) {   // first real movement: commit the pre-drag state to history
+        undoStack.push(moveDrag.snap);
+        if (undoStack.length > 40) undoStack.shift();
+        redoStack.length = 0;
+        updateHistoryButtons();
+        moveDrag.snap = null;
+      }
+      var mem = moveDrag.em;
+      if (moveDrag.aim) {
+        var av = dragVector(e.clientX - mem.x, (e.clientY + window.pageYOffset) - mem.yDoc);
+        if (av) { mem.vx = av.vx; mem.vy = av.vy; }
+      } else {
+        mem.x = e.clientX + moveDrag.dx;
+        mem.yDoc = e.clientY + window.pageYOffset + moveDrag.dyDoc;
+      }
+      styleArrow(mem.el, mem.x, mem.yDoc, mem.vx, mem.vy);
+      return;
+    }
+    if (emitterDrag) {
+      // Live rubber-band preview of the vector being dragged out. The
+      // vector is stored on the drag state, so updatePlaced() feeds it to
+      // the sim as a live emitter — the jet blows while you aim it.
+      var v = dragVector(e.clientX - emitterDrag.x, e.clientY - emitterDrag.y);
+      if (v) {
+        emitterDrag.vx = v.vx;
+        emitterDrag.vy = v.vy;
+        if (!emitterDrag.el) emitterDrag.el = makeArrow(emitterDrag.x, emitterDrag.yDoc, v.vx, v.vy);
+        else styleArrow(emitterDrag.el, emitterDrag.x, emitterDrag.yDoc, v.vx, v.vy);
+      }
+      return;
+    }
     if (!paintDrag) return;
     var dx = e.clientX - paintDrag.x;
     var dy = e.clientY - paintDrag.y;
@@ -1339,7 +1834,35 @@ function createInkBoundaryVisual() {
     paintDrag = { x: e.clientX, y: e.clientY };
     spawnSplat(e.clientX, e.clientY, SIM.strokeRadius * SIM.brushScale * (0.8 + Math.random() * 0.4), 0.4);
   }
-  function onPaintUp() { paintDrag = null; }
+  function onPaintUp(e) {
+    if (moveDrag) {
+      moveDrag = null;
+      saveState();   // a move/re-aim drag just ended
+    }
+    if (emitterDrag) {
+      var v = (e && e.clientX !== undefined) ?
+        dragVector(e.clientX - emitterDrag.x, e.clientY - emitterDrag.y) : null;
+      if (v) {
+        pushHistory();
+        var el = emitterDrag.el || makeArrow(emitterDrag.x, emitterDrag.yDoc, v.vx, v.vy);
+        styleArrow(el, emitterDrag.x, emitterDrag.yDoc, v.vx, v.vy);
+        var em = { x: emitterDrag.x, yDoc: emitterDrag.yDoc, vx: v.vx, vy: v.vy, el: el };
+        attachArrowDrag(em);
+        emitters.push(em);
+        if (emitters.length > SIM.maxEmitters) {
+          var dead = emitters.shift();
+          if (dead.el) dead.el.remove();
+        }
+        emitterDrag = null;   // committed — the arrow now belongs to the emitter
+        saveState();   // mode stays armed — keep placing until the button is toggled off
+      } else {
+        // Accidental click: discard any preview, stay armed for a retry
+        if (emitterDrag.el) emitterDrag.el.remove();
+        emitterDrag = null;
+      }
+    }
+    paintDrag = null;
+  }
 
   document.addEventListener('pointerdown', onPaintDown);
   document.addEventListener('pointermove', onPaintMove);
@@ -1364,11 +1887,19 @@ function createInkBoundaryVisual() {
       cur += (target - cur) * Math.min(1, SIM.boostEase * dt);
       if (boostMap) boostMap.set(el, cur);
 
+      // The fixed navbar hugs the viewport's top edge: push its top and side
+      // edges far offscreen so only its bottom edge lives in the fluid — no
+      // rounded corners or stray tendrils at the screen border
+      var left = r.left, top = r.top, right = r.right, bottom = r.bottom;
+      if (top <= 1 && r.width >= window.innerWidth - 2) {
+        top -= 160; left -= 160; right += 160;
+      }
+
       var k = count * 4;
-      rectData[k]     = (r.left + r.width / 2) * simScale;
-      rectData[k + 1] = simH - (r.top + r.height / 2) * simScale;   // flip to GL y-up
-      rectData[k + 2] = (r.width / 2) * simScale;
-      rectData[k + 3] = (r.height / 2) * simScale;
+      rectData[k]     = ((left + right) / 2) * simScale;
+      rectData[k + 1] = simH - ((top + bottom) / 2) * simScale;   // flip to GL y-up
+      rectData[k + 2] = ((right - left) / 2) * simScale;
+      rectData[k + 3] = ((bottom - top) / 2) * simScale;
       boostData[count] = cur;
       count++;
     }
@@ -1381,59 +1912,105 @@ function createInkBoundaryVisual() {
     for (var i = 0; i < names.length; i++) out[names[i]] = gl.getUniformLocation(prog, names[i]);
     return out;
   }
-  var stepU = locs(stepProg, ['uPrev', 'uRes', 'uTime', 'uDt', 'uShiftY', 'uMotion', 'uCss',
-    'uSimScale', 'uRects', 'uBoost', 'uCount', 'uBand', 'uCorner', 'uSpeed', 'uInject', 'uDecay', 'uFlow', 'uBleed',
-    'uSplats', 'uSplatCount']);
-  var drawU = locs(drawProg, ['uTex', 'uRes', 'uBg', 'uColB', 'uPane', 'uBrush']);
+  // Both field passes share the same uniform set (unused ones resolve to a
+  // null location, which gl.uniform* silently ignores)
+  var FIELD_UNIFORMS = ['uPrev', 'uBrushTex', 'uRes', 'uTime', 'uDt', 'uShiftY', 'uMotion', 'uCss',
+    'uSimScale', 'uRects', 'uBoost', 'uCount', 'uBand', 'uCorner', 'uAmorph', 'uSpeed', 'uInject', 'uDecay', 'uFlow', 'uBleed',
+    'uShear', 'uBgRate', 'uBrushDecay', 'uBrushColor', 'uSplats', 'uSplatCount',
+    'uEmit', 'uEmitCount', 'uEmitRad', 'uSrc', 'uSrcCol', 'uSrcCount'];
+  var stepU = locs(stepProg, FIELD_UNIFORMS);
+  var brushU = locs(brushProg, FIELD_UNIFORMS);
+  var drawU = locs(drawProg, ['uTex', 'uBrushTex', 'uRes', 'uBg', 'uColB', 'uPane']);
 
   var colBg = hexToVec3(SIM.bgColor);
-  var colB = hexToVec3(SIM.inkOuter);
+  var colB = hexToVec3(SIM.bgDeep);
   var colPane = hexToVec3(SIM.paneColor);
   var colBrush = hexToVec3(SIM.brushColor);
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
   function motionScale() { return (reduceMotion && reduceMotion.matches) ? 0 : 1; }
 
-  // One sim step: read texA, write texB, swap
+  // Send the shared uniform set; the previous dye and brush fields are bound
+  // on texture units 0 and 1 by the caller
+  function setFieldUniforms(u, dt, timeSec, shiftY, count, splatCount) {
+    gl.uniform1i(u.uPrev, 0);
+    gl.uniform1i(u.uBrushTex, 1);
+    gl.uniform2f(u.uRes, simW, simH);
+    gl.uniform1f(u.uTime, timeSec);
+    gl.uniform1f(u.uDt, dt);
+    gl.uniform1f(u.uShiftY, shiftY);
+    gl.uniform1f(u.uMotion, motionScale());
+    gl.uniform1f(u.uCss, 1 / simScale);
+    gl.uniform1f(u.uSimScale, simScale);
+    gl.uniform4fv(u.uRects, rectData);
+    gl.uniform1fv(u.uBoost, boostData);
+    gl.uniform1i(u.uCount, count);
+    gl.uniform1f(u.uBand, SIM.bandWidth * simScale);
+    gl.uniform1f(u.uCorner, SIM.cornerRadius * simScale);
+    gl.uniform1f(u.uAmorph, SIM.amorph * simScale);
+    gl.uniform1f(u.uSpeed, SIM.flowSpeed);
+    gl.uniform1f(u.uInject, SIM.injectRate);
+    gl.uniform1f(u.uDecay, SIM.decayRate);
+    gl.uniform3f(u.uFlow, SIM.flowScale1, SIM.flowScale2, SIM.flowEvolve);
+    gl.uniform1f(u.uBleed, SIM.bleedSpeed);
+    gl.uniform1f(u.uShear, SIM.shearSpeed);
+    gl.uniform1f(u.uBgRate, SIM.bgRate);
+    gl.uniform1f(u.uBrushDecay, SIM.brushDecay);
+    gl.uniform3fv(u.uBrushColor, colBrush);
+    gl.uniform4fv(u.uSplats, splatData);
+    gl.uniform1i(u.uSplatCount, splatCount || 0);
+    gl.uniform4fv(u.uEmit, emitData);
+    gl.uniform1i(u.uEmitCount, emitCount);
+    gl.uniform1f(u.uEmitRad, SIM.emitterRadius * simScale);
+    gl.uniform4fv(u.uSrc, srcData);
+    gl.uniform3fv(u.uSrcCol, srcColData);
+    gl.uniform1i(u.uSrcCount, srcCount);
+  }
+
+  function bindFieldInputs() {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texA);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, brushTexA);
+  }
+
+  // One dye step: read texA (+ brush field for the shear), write texB, swap
   function stepPass(dt, timeSec, shiftY, count, splatCount) {
     gl.viewport(0, 0, simW, simH);
     gl.useProgram(stepProg);
     bindQuad(stepProg);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboB);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texA);
-    gl.uniform1i(stepU.uPrev, 0);
-    gl.uniform2f(stepU.uRes, simW, simH);
-    gl.uniform1f(stepU.uTime, timeSec);
-    gl.uniform1f(stepU.uDt, dt);
-    gl.uniform1f(stepU.uShiftY, shiftY);
-    gl.uniform1f(stepU.uMotion, motionScale());
-    gl.uniform1f(stepU.uCss, 1 / simScale);
-    gl.uniform1f(stepU.uSimScale, simScale);
-    gl.uniform4fv(stepU.uRects, rectData);
-    gl.uniform1fv(stepU.uBoost, boostData);
-    gl.uniform1i(stepU.uCount, count);
-    gl.uniform1f(stepU.uBand, SIM.bandWidth * simScale);
-    gl.uniform1f(stepU.uCorner, SIM.cornerRadius * simScale);
-    gl.uniform1f(stepU.uSpeed, SIM.flowSpeed);
-    gl.uniform1f(stepU.uInject, SIM.injectRate);
-    gl.uniform1f(stepU.uDecay, SIM.decayRate);
-    gl.uniform3f(stepU.uFlow, SIM.flowScale1, SIM.flowScale2, SIM.flowEvolve);
-    gl.uniform1f(stepU.uBleed, SIM.bleedSpeed);
-    gl.uniform4fv(stepU.uSplats, splatData);
-    gl.uniform1i(stepU.uSplatCount, splatCount || 0);
+    bindFieldInputs();
+    setFieldUniforms(stepU, dt, timeSec, shiftY, count, splatCount);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
     var t = texA; texA = texB; texB = t;
     var f = fboA; fboA = fboB; fboB = f;
   }
 
+  // One brush step: advect the user's true-color ink through the same flow
+  function brushPass(dt, timeSec, shiftY, count, splatCount) {
+    gl.viewport(0, 0, simW, simH);
+    gl.useProgram(brushProg);
+    bindQuad(brushProg);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, brushFboB);
+    bindFieldInputs();
+    setFieldUniforms(brushU, dt, timeSec, shiftY, count, splatCount);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    var t = brushTexA; brushTexA = brushTexB; brushTexB = t;
+    var f = brushFboA; brushFboA = brushFboB; brushFboB = f;
+  }
+
   // Soak-in: after the dye textures are (re)created, run a few big sim steps
-  // so the pane interiors are already full of ink on the first visible paint
+  // so the pane interiors are full of ink and the background liquid's
+  // marbling is mostly formed on the first visible paint
   function warmup() {
     var count = gatherRects(1 / 60);
-    for (var i = 0; i < 8; i++) {
+    updatePlaced();   // restored/kept sources and emitters soak in with the panes
+    for (var i = 0; i < 12; i++) {
       stepPass(0.35, i * 0.35, 0, count, 0);
+      brushPass(0.35, i * 0.35, 0, count, 0);
     }
   }
 
@@ -1462,7 +2039,9 @@ function createInkBoundaryVisual() {
 
     var count = gatherRects(dt);
     var splatCount = updateSplats(now);
+    updatePlaced();
     stepPass(dt, timeSec, shiftY, count, splatCount);
+    brushPass(dt, timeSec, shiftY, count, splatCount);
 
     // Colorize to screen
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -1470,12 +2049,14 @@ function createInkBoundaryVisual() {
     bindQuad(drawProg);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texA);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, brushTexA);
     gl.uniform1i(drawU.uTex, 0);
+    gl.uniform1i(drawU.uBrushTex, 1);
     gl.uniform2f(drawU.uRes, simW, simH);
     gl.uniform3fv(drawU.uBg, colBg);
     gl.uniform3fv(drawU.uColB, colB);
     gl.uniform3fv(drawU.uPane, colPane);
-    gl.uniform3fv(drawU.uBrush, colBrush);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
     rafId = requestAnimationFrame(frame);
@@ -1490,6 +2071,7 @@ function createInkBoundaryVisual() {
     }
   }
 
+  restoreState();   // before resize(): restored sources soak in during warmup
   resize();
   window.addEventListener('resize', resize);
   document.addEventListener('visibilitychange', onVisibility);
@@ -1506,21 +2088,58 @@ function createInkBoundaryVisual() {
   panel.innerHTML =
     '<label>Brush <input type="color" data-ink="brush" value="' + SIM.brushColor + '"></label>' +
     '<label>Size <input type="range" data-ink="size" min="0.5" max="3" step="0.1" value="' + SIM.brushScale + '"></label>' +
+    '<label>Ink life <input type="range" data-ink="life" min="0" max="100" step="1" value="' +
+      Math.round(100 * Math.log(SIM.brushDecay / 6) / Math.log(0.001)) + '"></label>' +
     '<label>Turbulence <input type="range" data-ink="flow" min="0" max="12000" step="200" value="' + SIM.flowSpeed + '"></label>' +
     '<label>Mixing <input type="range" data-ink="mix" min="0.02" max="0.09" step="0.005" value="' + SIM.flowScale2 + '"></label>' +
+    '<label>Shear <input type="range" data-ink="shear" min="0" max="80" step="2" value="' + SIM.shearSpeed + '"></label>' +
     '<label>Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
-    '<label>Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>';
+    '<label>Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>' +
+    '<div class="ink-buttons">' +
+    '<button type="button" data-ink="place-emitter" title="Then click-drag the background: press = position, drag = flow direction and strength">Place flow emitter</button>' +
+    '<button type="button" data-ink="place-source" title="Then click the background to place a bleeding ink source in the current brush color">Place ink source</button>' +
+    '<button type="button" data-ink="clear-placed" title="Remove all placed emitters and sources">Clear</button>' +
+    '<button type="button" class="mini" data-ink="undo" title="Undo" disabled>&#8630;</button>' +
+    '<button type="button" class="mini" data-ink="redo" title="Redo" disabled>&#8631;</button>' +
+    '</div>';
   document.body.appendChild(panel);
+
+  panel.addEventListener('click', function(e) {
+    var btn = (e.target && e.target.closest) ? e.target.closest('button[data-ink]') : null;
+    if (!btn) return;
+    var k = btn.getAttribute('data-ink');
+    if (k === 'undo') {
+      doUndo();
+    } else if (k === 'redo') {
+      doRedo();
+    } else if (k === 'clear-placed') {
+      if (emitters.length || sources.length) pushHistory();
+      for (var i = 0; i < emitters.length; i++) {
+        if (emitters[i].el) emitters[i].el.remove();
+      }
+      emitters.length = 0;
+      sources.length = 0;
+      setPlaceMode(null);
+      saveState();
+    } else if (k === 'place-emitter') {
+      setPlaceMode(placeMode === 'emitter' ? null : 'emitter');
+    } else if (k === 'place-source') {
+      setPlaceMode(placeMode === 'source' ? null : 'source');
+    }
+  });
 
   panel.addEventListener('input', function(e) {
     var knob = e.target.getAttribute('data-ink');
     var v = e.target.value;
-    if (knob === 'brush')      colBrush = hexToVec3(v);
+    if (knob === 'brush')      { SIM.brushColor = v; colBrush = hexToVec3(v); }
     else if (knob === 'size')  SIM.brushScale = parseFloat(v);
+    else if (knob === 'life')  SIM.brushDecay = 6 * Math.pow(0.001, parseFloat(v) / 100);
     else if (knob === 'flow')  SIM.flowSpeed = parseFloat(v);
     else if (knob === 'mix')   SIM.flowScale2 = parseFloat(v);
+    else if (knob === 'shear') SIM.shearSpeed = parseFloat(v);
     else if (knob === 'bleed') SIM.bleedSpeed = parseFloat(v);
     else if (knob === 'fade')  SIM.decayRate = parseFloat(v);
+    saveState();
   });
 
   frame();
@@ -1538,6 +2157,8 @@ function createInkBoundaryVisual() {
       document.removeEventListener('pointermove', onPaintMove);
       window.removeEventListener('pointerup', onPaintUp);
       document.removeEventListener('pointercancel', onPaintUp);
+      document.documentElement.style.cursor = '';
+      arrowLayer.remove();
       panel.remove();
       canvas.remove();
     }

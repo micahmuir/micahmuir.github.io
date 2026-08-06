@@ -147,32 +147,60 @@ verification rabbit hole worth remembering:
 # Ink-Boundary Theme (About page test)
 
 A second experiment on this branch: the About page's background visual is no longer
-the watercolor bloom canvas — it's a tiny GPU fluid simulation in which **the content
-panes themselves are blobs of ink** whose boundaries continuously mix and diffuse into
-a light paper background. The panes are not drawn as rectangles at all; they are
-regions of strong dye injection inside the same advected fluid field as their bleed,
-so the pane body, its edge, and its tendrils are one continuous substance with a
-genuinely fluid, marbling interface.
+the watercolor bloom canvas — it's a tiny GPU simulation of **two liquids**. The
+background itself is an ink: a parchment-toned liquid with visible internal marbling
+that reacts when stirred. Each content pane is a blob of dark ink suspended in it —
+not drawn as a rectangle at all, but a region of strong dye injection inside the same
+advected fluid field as its bleed, so the pane body, its edge, and its tendrils are
+one continuous substance. An interface-shear term adds swirl along every dye boundary,
+so where the two inks meet they actively roll up and curl into each other: ink mixing
+with ink, not ink running into paper.
 
-Current palette: near-black warm grey ink (`#20221f`) on creamy beige paper
-(`#f2ead9`), with a warm mid-grey wash (`#8f8878`) between them.
+Current palette: near-black warm grey pane ink (`#20221f`) in a background liquid
+that marbles between creamy beige (`#f2ead9`) and deep parchment (`#d2c5a6`).
 
 ## Architecture
 
 All of it lives in `createInkBoundaryVisual()` in [assets/js/main.js](assets/js/main.js)
-(section header "BACKGROUND VISUAL 3"). Cost per frame: two fragment passes over a
-low-res buffer (≤720px long side, ≤0.5× resolution) — one sim step, one colorize.
-No geometry, no CPU per-pixel work.
+(section header "BACKGROUND VISUAL 3"). Cost per frame: three fragment passes over a
+reduced buffer (≤1200px long side, ≤0.62× resolution) — dye step, brush step,
+colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics.
 
 - **Dye field**: two ping-pong RGBA byte textures. R = pane ink (body + everything it
-  sheds), G = the mid-tone wash. Semi-Lagrangian advection each frame.
+  sheds), G = the background liquid's density. Semi-Lagrangian advection each frame.
+- **Brush field**: a second ping-pong texture pair holding the user's ink in TRUE
+  COLOR — premultiplied rgb, amount in alpha — advected through the identical flow
+  (shared `velocityAt` shader chunk). New splats are tinted with the current brush
+  color; laid ink keeps the color it was painted with, and overlapping strokes mix
+  premultiplied-style, like pigments. Changing the brush color never recolors
+  existing ink. Injection deposits only into remaining coverage (else rgb would
+  accumulate past the pigment color and clamp to white); leftover paint on a
+  saturated area re-pigments it gradually, so painting over a wet area mixes.
 - **Velocity**: curl of a two-octave value-noise stream function (divergence-free =
   reads as liquid), plus an **outward bleed current** along the SDF gradient near
-  every pane edge so the panes continuously push ink away.
-- **Pane geometry**: visible content blocks (`.paper-panel`, `.card`, …) are gathered
-  every frame via `getBoundingClientRect` into a rounded-rect SDF (max 8 rects,
-  corner radius matches `--border-radius`). Because rects are re-measured per frame,
-  panes track scrolling and hover-lift transforms automatically.
+  every pane edge so the panes continuously push ink away, plus **interface shear**:
+  extra velocity along the iso-contours of dark-ink density (the density gradient
+  rotated 90°), which makes every ink/background boundary roll up into curls. The
+  shear speed *saturates* (`min(gm/0.3, 1) * uShear`) — without the cap it feeds
+  back (stretching sharpens the gradient, which shears harder) and the mixing layer
+  runs away until ink floods the screen.
+- **Background liquid**: G relaxes toward a slowly drifting two-octave noise pattern
+  (`bgRate` per second), so the background always shows marbling, and anything that
+  stirs or displaces it leaves a wake that heals. A ±½-LSB per-frame dither keeps
+  the tiny relaxation increments alive through byte-texture rounding. Brush splats
+  *subtract* G — the stroke shoves the background liquid aside, leaving a light rim.
+- **Pane geometry**: visible content blocks (`.navbar`, `.paper-panel`, `.card`, …)
+  are gathered every frame via `getBoundingClientRect` into a rounded-rect SDF
+  (max 8 rects, corner radius matches `--border-radius`). The SDF is then
+  displaced by slow drifting two-octave noise (`amorph`, CSS px), so the blob's
+  outline **meanders** instead of tracing the straight CSS rectangle — tendrils
+  root on an organic edge at varied angles, never marching off a ruler line.
+  Because rects are re-measured per frame, panes track scrolling, hover-lift
+  transforms, and the navbar's auto-hide slide automatically. The fixed navbar is a special case: its
+  top and side edges are pushed far offscreen before upload, so only its bottom
+  edge lives in the fluid — no rounded corners or stray tendrils at the screen
+  border. Its glass chrome is stripped by a `.page-about.ink-active .navbar` rule;
+  the nav links render directly on the ink.
 - **Sources** (all in the step shader, all strictly attached to the pane):
   - `srcPane` — saturating injection deep inside each pane, ramping off toward the
     edge. Keeps the interior solid while leaving the boundary shell slow-fed enough
@@ -185,27 +213,80 @@ No geometry, no CPU per-pixel work.
     constant along its outward ray and an open gate grows a complete radial tendril
     rooted on the pane. The gate field crawls slowly (fast drift smears fingers into
     smudge within one dye lifetime — learned the hard way).
-  - `srcB` wash — a halo bound to each finger, reaching past its tip.
   - All sources start slightly *inside* the edge (invisible there — same color as the
     body) so nothing can ever appear detached from the pane.
 - **User ink**: clicking the open background drops an ink splot; click-dragging lays
   stroke stamps along the pointer path — both are gaussian injection bursts
-  (`uSplats`, up to 16 live) that the fluid then mixes like any other ink. Brush ink
-  lives in its own dye channel (B) with its own display color, independent of the
-  pane ink. Clicks on panes, links, and controls are excluded (`NO_PAINT` selector).
-  Splats are stored in document space so they stay put when the page scrolls.
+  (`uSplats`, up to 16 live) into the brush field, which the fluid then mixes like
+  any other ink. Clicks on panes, links, and controls are excluded (`NO_PAINT`
+  selector). Splats are stored in document space so they stay put when the page
+  scrolls.
+- **Placeable objects** (control-table buttons, both document-anchored, max 8
+  each, oldest dropped; **Clear** removes them all):
+  - *Flow emitter* — arm the button, then click-drag: press = position, drag =
+    the flow vector (length sets speed via `emitterGain`, between `emitterMin`
+    and `emitterMax`). Drags under 8px are ignored (accidental click) and the
+    button stays armed. The jet is a LAMINAR LANE inside the shared
+    `velocityAt`: elongated downstream (reach grows with speed, up to
+    ~7×`emitterRadius`), narrow across the axis, velocity decaying smoothly
+    along it — and inside the lane the ambient turbulence (85%) and interface
+    shear (70%) are suppressed in proportion to lane weight, so carried
+    pigment travels as a long concentrated stream that only breaks up where
+    the lane dissipates. All three fluids ride it. Each emitter shows its
+    vector as an ink-styled SVG arrow (dot = position, length ~ speed, ring
+    handles marking both ends) in a document-anchored `.ink-arrows` overlay.
+    The placement drag is itself a LIVE emitter — `updatePlaced()` feeds the
+    in-progress drag to the sim as an extra emitter, so the jet blows while
+    it is being aimed and commits seamlessly on release. A committed arrow
+    is a grab handle: dragging its body (origin ring) MOVES the emitter,
+    dragging its HEAD ring RE-AIMS the vector (direction + speed, like
+    placement) — jet following live. Arrows are removed by Clear/stop and
+    hidden in print.
+  - Placement modes are STICKY: keep placing until the armed button is
+    clicked again (or another mode button / Clear is pressed).
+  - Double-clicking an emitter's arrow deletes it. (Sources have no DOM
+    handle — remove them via undo or Clear.)
+  - **Undo/redo** (↺/↻ mini-buttons): snapshot history of the placed objects
+    (max 40 entries) covering placements, deletions, moves, re-aims, and
+    Clear. Snapshots are pushed *before* each mutation; move/re-aim drags
+    commit their pre-drag snapshot lazily on first real movement, so no-op
+    clicks never pollute the history. The ink fields are not part of history.
+  - Placement uses a looser exclusion than painting (`NO_PLACE`): panes are
+    allowed (they're fluid — an emitter under a blob carves flow through it);
+    only links, nav, and the control table are off-limits.
+  - **Persistence**: placed objects and all panel settings survive navigation
+    within a visit — `sessionStorage`, keyed `inkState:<pathname>` (~300
+    bytes), saved on every mutation, restored at sim init *before* warmup so
+    source pools are already soaked in at first paint. Not saved: the dye
+    fields themselves (free-hand strokes are ephemeral by design). Dies with
+    the browser session; storage failures (private mode) degrade silently.
+  - *Ink source* — arm the button, then click the background: a persistent
+    bleeding pool that injects brush-field ink at `sourceRate`, forever tinted
+    with the brush color at placement (colors stored per source in
+    `uSrcCol`). Sources also shove the background liquid like brush strokes.
+  - While armed the cursor is a crosshair and the button inverts to charcoal;
+    placement exits the mode.
 - **Control table**: the sim appends a small fixed panel (`.ink-controls`,
-  bottom-right) with live knobs — brush color, brush size, turbulence (`flowSpeed`),
-  mixing detail (`flowScale2`), bleed, and fade (`decayRate`). Sliders simply mutate
+  bottom-right) with live knobs — brush color, brush size, brush ink life
+  (`brushDecay`, an exponential slider from ~6/s instant dispersal to ~0.006/s
+  linger-for-minutes painting; its quantization sweep scales down with it so long
+  life is not silently erased), turbulence (`flowSpeed`), mixing detail
+  (`flowScale2`), shear (`shearSpeed`), bleed, and fade (`decayRate`, pane ink
+  only). Sliders simply mutate
   `SIM` (uniforms are re-sent every frame). The panel exists only while the sim runs
   and is removed by `stop()`; print styles hide it.
 - **Scroll anchoring**: the advection lookup is offset by the per-frame scroll delta,
   so dye translates with the page content.
 - **Warmup**: the pane body is accumulated dye, so whenever the sim textures are
-  (re)created, 8 large sim steps run synchronously — first visible paint already has
-  solid panes.
-- **Colorize pass**: ink-on-paper interpolation, `mix(mix(bg, wash, G), ink, R)`.
-  No tone mapping — the three `SIM` hex colors are literal on-screen colors.
+  (re)created, 12 large sim steps run synchronously — first visible paint already has
+  solid panes and mostly-formed background marbling.
+- **Colorize pass**: ink-on-ink interpolation,
+  `mix(mix(mix(bgLight, bgDeep, G), paneInk, R), brushInk, B)`.
+  No tone mapping — the `SIM` hex colors are literal on-screen colors.
+- **Shader gotcha (learned the hard way)**: swizzled compound assignment on two
+  components (`dye.rb *= x`) miscompiled in at least one GL stack — the decay
+  silently stopped applying and pane ink slowly flooded the screen. Write
+  per-component (`dye.r = dye.r * fade - …`) in this shader.
 
 ## Page integration
 
@@ -216,8 +297,14 @@ No geometry, no CPU per-pixel work.
   `.page-about.ink-active` then strips ALL pane chrome — background, border,
   box-shadow, backdrop blur, hover glows — because the sim paints the pane surfaces
   itself. No `ink-active` class → panes keep their normal glass styling.
-- The page background color is set both in `SIM.bgColor` and in the
-  `.page-about.ink-active` CSS rule (screen-only) — **keep the two in sync**.
+- The `.page-about.ink-active` CSS background (screen-only) sits at the *midpoint*
+  of `SIM.bgColor` and `SIM.bgDeep` (currently `#e2d7bf`) so uncovered page area
+  blends into the marbling — **keep it in sync** when changing the palette.
+- Text selection is disabled page-wide while `ink-active` (screen CSS) — click-drag
+  is the paint brush, and selection highlighting fights it.
+- `ink-active` also overrides `--theme-color`/`--theme-rgb` to the palette's cream,
+  and recolors the nav links cream-on-charcoal, so no emerald accents remain while
+  the ink theme runs.
 - `prefers-reduced-motion` freezes the flow (panes and bands render, nothing stirs);
   hidden tabs pause the loop; print hides the canvas entirely.
 
@@ -225,10 +312,13 @@ No geometry, no CPU per-pixel work.
 
 | Knob | Effect |
 |---|---|
-| `bgColor` / `inkOuter` / `paneColor` | The whole palette: paper, wash, ink. Literal on-screen colors |
+| `bgColor` / `bgDeep` / `paneColor` / `brushColor` | The whole palette: background liquid (light + deep marbling tones), pane ink, brush ink. Literal on-screen colors |
+| `bgRate` | How fast the background liquid re-forms its marbling after being stirred |
+| `shearSpeed` | Interface shear — how aggressively the two inks curl into each other at every boundary. 0 = passive diffusion only |
 | `decayRate` | Ink lifetime → how far bleed survives from the pane. **Raise to keep neighboring panes from merging into one pool**; lower for a connected inkscape |
 | `injectRate` | Overall ink supply / density |
 | `bandWidth` | Reach of the root/finger source region (CSS px) |
+| `amorph` | Boundary wobble amplitude (CSS px). Total swing is ~±1.5× this — keep below the panes' text padding |
 | `flowSpeed`, `flowScale1/2`, `flowEvolve` | Turbulence strength, swirl sizes, how fast the flow pattern morphs |
 | `bleedSpeed` | Outward current — how insistently panes push ink away |
 | `srcPane` ramp (in-shader `smoothstep(0.06, -0.35, s)`) | How deep the boundary shell erodes into the pane body |
@@ -240,7 +330,7 @@ No geometry, no CPU per-pixel work.
 1. In `initBackgroundVisuals()`, extend the routing condition beyond
    `page-about` (or route per body class with a per-page palette lookup, like
    `PAGE_PALETTES` does for the watercolor).
-2. Give the page its own `bgColor`/`inkOuter`/`paneColor` if desired.
+2. Give the page its own `bgColor`/`bgDeep`/`paneColor` if desired.
 3. Duplicate the two CSS pieces for that page class: the chrome-stripping
    `.ink-active` rules and the background-color sync rule.
 4. Check the page's content blocks are covered by the `INK_BLOCKS` selector, and

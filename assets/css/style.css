@@ -1605,12 +1605,52 @@ figure.link-to-page a:hover {
   -webkit-backdrop-filter: none;
 }
 
-/* Light-paper mode: the page background matches the sim's paper tone
-   (SIM.bgColor in main.js — keep in sync) so the canvas edges and any
-   uncovered page area blend invisibly. Screen only; print stays white. */
+/* Click-drag paints ink — text selection would fight the brush, so it's off
+   for the whole page while the sim runs (form controls keep their behavior).
+   The theme accent also flips from emerald to the ink palette's cream, so
+   every themed element (nav active pill, etc.) matches the charcoal/cream. */
+.page-about.ink-active {
+  --theme-color: #f2ead9;
+  --theme-rgb: 242, 234, 217;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+/* Nav links on the ink bar: cream on charcoal */
+.page-about.ink-active .nav-links a {
+  color: rgba(242, 234, 217, 0.68);
+}
+
+.page-about.ink-active .nav-links a:hover {
+  color: #f2ead9;
+  background: rgba(242, 234, 217, 0.08);
+}
+
+.page-about.ink-active .nav-links a.active {
+  color: #f2ead9;
+  background: rgba(242, 234, 217, 0.13);
+  border-color: rgba(242, 234, 217, 0.3);
+}
+
+/* The navbar is an ink blob too: the sim paints its body (its rect is fed to
+   the fluid with top/side edges pushed offscreen, so only the bottom edge
+   bleeds). Strip the glass chrome; the links render on the ink itself. */
+.page-about.ink-active .navbar {
+  background: none;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Liquid-background mode: the page background sits at the midpoint of the
+   sim's two background-liquid tones (SIM.bgColor / SIM.bgDeep in main.js —
+   keep in sync) so the canvas edges and any uncovered page area blend
+   invisibly into the marbling. Screen only; print stays white. */
 @media screen {
   .page-about.ink-active {
-    background-color: #f2ead9 !important;
+    background-color: #e2d7bf !important;
   }
 }
 
@@ -1655,6 +1695,106 @@ figure.link-to-page a:hover {
   border-radius: 4px;
   background: none;
   cursor: pointer;
+}
+
+/* Placement buttons: an armed button inverts to charcoal until the user
+   clicks (ink source) or click-drags (flow emitter) on the background */
+.ink-controls .ink-buttons {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.ink-controls .ink-buttons button {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  padding: 4px 5px;
+  border: 1px solid rgba(32, 34, 31, 0.4);
+  border-radius: 5px;
+  background: none;
+  color: #20221f;
+  cursor: pointer;
+}
+
+.ink-controls .ink-buttons button:hover {
+  background: rgba(32, 34, 31, 0.08);
+}
+
+.ink-controls .ink-buttons button.armed {
+  background: #20221f;
+  color: #f2ead9;
+}
+
+.ink-controls .ink-buttons button.mini {
+  flex: 0 0 auto;
+  width: 26px;
+  padding: 4px 0;
+  font-size: 0.8rem;
+}
+
+.ink-controls .ink-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ink-controls .ink-buttons button:disabled:hover {
+  background: none;
+}
+
+/* Emitter vector arrows: document-anchored overlay (scrolls with content),
+   drawn in charcoal ink with a faint cream halo so they read on both the
+   parchment background and the dark pane blobs */
+.ink-arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.ink-arrows svg {
+  position: absolute;
+  overflow: visible;
+  filter: drop-shadow(0 0 2px rgba(242, 234, 217, 0.85));
+}
+
+/* Committed emitters are draggable by their arrow; previews are not */
+.ink-arrows svg.placed {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.ink-arrows svg.placed:active {
+  cursor: grabbing;
+}
+
+.ink-arrows line {
+  stroke: rgba(32, 34, 31, 0.7);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.ink-arrows circle,
+.ink-arrows polygon {
+  fill: rgba(32, 34, 31, 0.7);
+}
+
+/* Ring handles marking the two grab zones: origin (move) and head (re-aim) */
+.ink-arrows circle.handle {
+  fill: rgba(242, 234, 217, 0.35);
+  stroke: rgba(32, 34, 31, 0.65);
+  stroke-width: 1.5;
+}
+
+@media print {
+  .ink-arrows {
+    display: none !important;
+  }
 }
 
 @media print {
