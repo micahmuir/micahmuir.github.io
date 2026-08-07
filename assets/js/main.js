@@ -1130,12 +1130,12 @@ function createInkBoundaryVisual() {
                              // the pane's halo and only its far side clears into
                              // open parchment
     motifDrift:    0.9,      // Lateral travel along the edge across one pass (radii)
-    motifSpin:     0.035,    // Rotation while travelling (rad/s), direction
-                             // alternating per launch. Deliberately gentle: ~50
-                             // degrees across a whole pass. Elongated shapes stop
-                             // reading as themselves once they are far off their
-                             // natural orientation, and a launch is phased so it
-                             // sits upright at the peak, where most of it shows
+    motifSpin:     0.16,     // Peak rotation rate (rad/s), direction alternating
+                             // per launch. Scaled by the same rise curve as the
+                             // ink, so a shape is nearly still while sunk in the
+                             // halo and turns fastest at the top of its peek —
+                             // the motion shows up exactly where the silhouette
+                             // does. ~150 degrees across a whole pass
     motifShow:     26,       // Seconds from first emergence to fully withdrawn
     motifCycle:    10,       // Seconds between launches. Far shorter than a pass, so
                              // two or three are always in the air at once
@@ -2523,22 +2523,12 @@ function createInkBoundaryVisual() {
   // and most of each silhouette stays buried in its halo. Positions are
   // recomputed from the pane's live rect every frame, so the whole procession
   // rides scrolling and reflow for free.
-  // alongEdge: lay the shape's long axis PARALLEL to the edge it rises from.
-  // Only a slice of each silhouette ever clears the ink, and a slice across
-  // the long axis of a brush is an unreadable blob — a slice along it still
-  // reads as a brush. Round shapes do not care.
-  var MOTIF_KINDS = [
-    { kind: 0, tilt:  0.00, alongEdge: false },   // gear
-    { kind: 1, tilt: -0.05, alongEdge: false },   // mug, set down almost level
-    { kind: 2, tilt: -0.38, alongEdge: true  },   // paintbrush
-    { kind: 3, tilt: -0.06, alongEdge: false },   // open book — already wide
-    { kind: 4, tilt:  0.12, alongEdge: false },   // magnifying glass, lens down
-    { kind: 5, tilt:  0.00, alongEdge: false },   // peace sign
-    { kind: 6, tilt:  0.10, alongEdge: true  },   // scissors
-    { kind: 7, tilt: -0.30, alongEdge: false },   // power drill, nose dipped
-    { kind: 8, tilt:  0.22, alongEdge: true  },   // wrench
-    { kind: 9, tilt: -0.08, alongEdge: false }    // boot
-  ];
+  // Each launch takes a random start angle, so a shape never rises at the same
+  // attitude twice and the procession never settles into a pattern. Nothing
+  // here fixes an orientation: the shapes are read by their outline, and a
+  // brush or wrench crossing the edge at an angle reads as a thing tumbling
+  // past rather than a label stamped on the page.
+  var MOTIF_KINDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   // Where along the pane's perimeter each rise happens. A launch takes the
   // next station with room that nothing else is occupying, so the count here
   // is also the cap on how many can be in the air: the bottom edge carries
@@ -2591,20 +2581,12 @@ function createInkBoundaryVisual() {
       }
       if (taken) continue;
       motifStation = idx;
-      var kd = MOTIF_KINDS[motifIdx];
-      var spin = SIM.motifSpin * motifDir;
-      // A shape's long axis is local Y, which already runs along a side
-      // edge; only the bottom edge needs the quarter turn
-      var base = kd.tilt + ((kd.alongEdge && MOTIF_STATIONS[idx].edge === 'bottom') ? Math.PI * 0.5 : 0);
       return {
-        kind: kd.kind,
+        kind: MOTIF_KINDS[motifIdx],
         station: idx,
         dir: motifDir,
-        // Start half a pass' worth of turn BEFORE the shape's natural angle,
-        // so the turn carries it through that angle at the peak of the rise —
-        // the moment the most of it is out of the ink
-        rot: base - spin * SIM.motifShow * 0.5,
-        spin: spin,
+        rot: Math.random() * Math.PI * 2,
+        spin: SIM.motifSpin * motifDir,
         clock: 0
       };
     }
@@ -2636,7 +2618,9 @@ function createInkBoundaryVisual() {
       }
       for (var i = motifs.length - 1; i >= 0; i--) {
         motifs[i].clock += dt;
-        motifs[i].rot += motifs[i].spin * dt;
+        // Turn on the same half-sine that drives the rise: barely moving while
+        // buried, fastest at the peak of the peek
+        motifs[i].rot += motifs[i].spin * Math.sin(Math.PI * (motifs[i].clock / SIM.motifShow)) * dt;
         if (motifs[i].clock >= SIM.motifShow) motifs.splice(i, 1);
       }
     }
