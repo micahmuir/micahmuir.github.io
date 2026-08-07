@@ -215,6 +215,74 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
     smudge within one dye lifetime — learned the hard way).
   - All sources start slightly *inside* the edge (invisible there — same color as the
     body) so nothing can ever appear detached from the pane.
+  - **Motifs** — a procession of recognizable silhouettes (gear, mug,
+    paintbrush, open book, magnifying glass, peace sign, scissors, power drill,
+    wrench, boot) that rise from behind the bio pane's edge, turn as they arc
+    along it, and set back into it. One launches every `motifCycle` (10s) and a
+    pass takes `motifShow` (26s), so **two or three are always in the air** at
+    different stations — hence the uniform arrays and `maxMotifs`. Built as SDFs
+    (`sdGear`, `sdMug`, `sdBrush`, `sdBook`, `sdLens`, `sdPeace`, `sdScissors`,
+    `sdDrill`, `sdWrench`, `sdBoot`) in each shape's own rotated frame, wobbled by
+    the same `bump` noise the panes use so the outline is hand-inked rather than
+    plotted, and each skipped outside its bounding circle so the cost stays
+    local. The **occlusion is arithmetic, not masking**: this is the one source
+    that RELAXES toward a target (`max(0, target - dye.r)`) instead of adding,
+    at a density (`motifInk` 0.70) under the pane's saturated 1.0 — so it lifts
+    thin ink up to tendril shade and does nothing at all where the pane's own
+    ink is denser. It is therefore invisible under the pane body and its inner
+    halo, and surfaces only out in the tendril zone.
+    Tuning notes, each learned by looking:
+    - `motifRate` (20/s) is the recognizability knob. The flow drags ink off the
+      shape at ~35 CSS px/s; at 1.7/s the gear was an unreadable smudge and at
+      8/s the brush handle still dissolved. A hard stamp keeps the silhouette
+      while the flow takes only what leaves it — which is the intended look.
+    - The coverage ramp must be TIGHT (`uBand * 0.06`). At `0.22` it spanned
+      ~24 CSS px, wider than a brush handle, so slender shapes never reached
+      full density and faded out while the chunky gear survived.
+    - The rise is measured against the ink mass, not the CSS rect: the pane's
+      halo stays saturated ~60 CSS px out and only thins near ~110. `motifPeak`
+      is deliberately shallow (1.05 radii) so most of each shape stays buried —
+      which is why the density has to be high. The two trade directly: the less
+      of a silhouette clears the ink, the darker it must be to read at all.
+    - Only a *slice* of each shape ever shows, so the slice has to carry it.
+      Round shapes are fine; elongated ones are laid ALONG the edge they rise
+      from (`alongEdge`), because a slice across a brush is an unreadable blob
+      while a slice along it still reads as a brush. The brush's handle /
+      ferrule / bristle widths are stepped well past real proportions for the
+      same reason — that stepped side profile is the whole of what shows. The
+      mug's body tapers toward its base and its handle hangs low, so its lower
+      half alone still reads as a vessel; the lip slot, its clearest cue, sits
+      too high to be seen at this peek depth.
+    - Shapes need internal negative space to read at low contrast — the gear's
+      bore, hub gap and spokes; the magnifier's lens ring; the peace sign's
+      cut-up circle; the scissors' handle loops; the wrench's ring end and open
+      jaw. Two rules govern every silhouette: **no feature thinner than ~0.1R**
+      (the flow erases anything finer however hard it is re-stamped) and **put
+      the identifying feature LOW in the frame**, since a shallow rise only ever
+      shows the lower part — which is why the magnifier carries its lens down
+      and its grip up, and the drill is nose-dipped.
+    - Two orientation bugs worth remembering, both invisible in code review and
+      obvious on sight: a subtraction cut on the wrong side (the wrench's jaw
+      notch faced its shaft, so it read as a second closed ring), and a slot
+      sized against the wrong dimension (the book's page lines nearly split its
+      leaves into planks).
+    - The icon geometry is far quicker to check in isolation than in the
+      procession — `mkpreview.ps1` in the session scratchpad lifts the SDF GLSL
+      straight out of `main.js` and renders all ten in a grid, with a shaded
+      band marking how much of each stays sunk in the ink at `motifPeak`.
+    - Rotation is gentle (`motifSpin`, ~50° across a pass) and PHASED: a launch
+      starts half a pass' turn before the shape's natural angle, so it passes
+      through upright at the peak, when the most of it is out of the ink. At
+      double this rate the brush ended up sideways and unreadable.
+    - Stations (which pane edge, where along it) are taken at launch from those
+      with `motifRadius * 1.8` of room outside that nothing else occupies — so
+      a shape never rises into the viewport border, and two never overlap. The
+      station list is therefore also the concurrency cap: on a laptop width
+      only the bottom edge has room, so it carries five stations. With fewer,
+      the 10s launch cadence silently throttled to "whenever one frees up".
+    - Positions are recomputed from the pane's live rect every frame, so the
+      procession rides scrolling and reflow for free. Under
+      `prefers-reduced-motion` the clock stops and one shape holds a quiet peek.
 - **User ink**: clicking the open background drops an ink splot; click-dragging lays
   stroke stamps along the pointer path — both are gaussian injection bursts
   (`uSplats`, up to 16 live) into the brush field, which the fluid then mixes like
@@ -243,9 +311,18 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
     placement) — jet following live. Arrows are removed by Clear objects/stop
     and hidden in print.
   - Placement modes are STICKY: keep placing until the armed button is
-    clicked again (or another mode button / Clear objects is pressed).
-  - Double-clicking an emitter's arrow deletes it. (Sources have no DOM
-    handle — remove them via undo or Clear objects.)
+    clicked again (or another mode button / Clear objects is pressed). Object
+    handles stay live while a mode is armed — the move that usually follows a
+    placement is a nudge of the thing just placed, so the grab has to win over
+    placing another one on top of it.
+  - **Faint until pointed at**: placed arrows and source markers sit at 0.26
+    opacity so they don't compete with the ink, easing to full on hover or for
+    the duration of a drag (a `.dragging` class, since the pointer leaves the
+    element mid-drag). Touch devices (`hover: none`) hold them at 0.7 — there
+    is no hover to reveal them with. The live placement preview never fades.
+  - **Double-click an object to delete it** — both arrows and source markers;
+    the control table carries this as a one-line note under the placement
+    buttons. Deletions go through the undo history like any other mutation.
   - **Undo/redo** (↺/↻ mini-buttons): snapshot history of the placed objects
     (max 40 entries) covering placements, deletions, moves, re-aims, and
     Clear objects. Snapshots are pushed *before* each mutation; move/re-aim drags
@@ -264,6 +341,10 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
     bleeding pool that injects brush-field ink at `sourceRate`, forever tinted
     with the brush color at placement (colors stored per source in
     `uSrcCol`). Sources also shove the background liquid like brush strokes.
+    A pool is invisible as an object, so it gets a small marker on its center
+    in the same `.ink-arrows` overlay — a dot in the pool's own color inside a
+    dashed 15px grab ring that washes charcoal on hover. That marker is the
+    handle: drag it to move the pool, double-click it to delete it.
   - While armed the cursor is a crosshair and the button inverts to charcoal;
     placement exits the mode.
 - **Clear canvas** (`clearFields()`): wipes the dye state rather than the
@@ -281,6 +362,13 @@ colorize. No geometry, no CPU per-pixel work; ~2 ms/frame on integrated graphics
   only). Sliders simply mutate
   `SIM` (uniforms are re-sent every frame). The panel exists only while the sim runs
   and is removed by `stop()`; print styles hide it.
+  - Five of those knobs open at fixed fractions of their slider ranges:
+    **turbulence 35%** (`flowSpeed` 4200 of 0–12000), **mixing 10%**
+    (`flowScale2` 0.027 of 0.02–0.09, step tightened to 0.001 so a tenth of the
+    range is an exact stop), **shear 20%** (`shearSpeed` 16 of 0–80), **bleed
+    90%** (`bleedSpeed` 36 of 0–40), and **ink life 50%** (`brushDecay` 0.19 —
+    the midpoint of the exponential curve, `6 * 0.001^0.5`). A returning visitor
+    keeps whatever they last set: `sessionStorage` restores over these.
 - **Scroll anchoring**: the advection lookup is offset by the per-frame scroll delta,
   so dye translates with the page content.
 - **Warmup**: the pane body is accumulated dye, so whenever the sim textures are

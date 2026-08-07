@@ -1716,8 +1716,8 @@ figure.link-to-page a:hover {
 /* Collapsed: the panel folds down to a small round tab — mostly hidden,
    just the nib glyph showing */
 .ink-controls.collapsed {
-  width: 46px;
-  height: 46px;
+  width: 92px;
+  height: 92px;
   padding: 0;
   border-radius: 50%;
   display: flex;
@@ -1727,6 +1727,7 @@ figure.link-to-page a:hover {
 }
 
 .ink-controls.collapsed > label,
+.ink-controls.collapsed > .ink-note,
 .ink-controls.collapsed > .ink-buttons {
   display: none;
 }
@@ -1742,13 +1743,15 @@ figure.link-to-page a:hover {
 
 .ink-controls.collapsed .ink-toggle .when-closed {
   display: block;
-  font-size: 1.25rem;
+  font-size: 2.5rem;
 }
 
-/* A slow soft breathing of ink-shadow around the collapsed tab, inviting a
-   press; the class is removed for good on first open */
+/* A slow soft breathing of ink-shadow around the collapsed tab, plus a shake
+   of the nib every five seconds to catch the eye; both are removed for good
+   on first open */
 .ink-controls.glow {
-  animation: ink-controls-pulse 2.4s ease-in-out infinite;
+  animation: ink-controls-pulse 2.4s ease-in-out infinite,
+             ink-controls-wiggle 5s ease-in-out infinite;
 }
 
 @keyframes ink-controls-pulse {
@@ -1757,6 +1760,26 @@ figure.link-to-page a:hover {
   }
   50% {
     box-shadow: 0 0 18px 5px rgba(32, 34, 31, 0.45);
+  }
+}
+
+/* The shake itself takes about half a second; the rest of the five is spent
+   sitting still, so it reads as an occasional nudge rather than a jitter */
+@keyframes ink-controls-wiggle {
+  0%, 10%, 100% {
+    transform: rotate(0deg);
+  }
+  2% {
+    transform: rotate(-13deg);
+  }
+  4% {
+    transform: rotate(11deg);
+  }
+  6% {
+    transform: rotate(-8deg);
+  }
+  8% {
+    transform: rotate(5deg);
   }
 }
 
@@ -1820,6 +1843,15 @@ figure.link-to-page a:hover {
   color: #f2ead9;
 }
 
+/* Quiet hint under the placement buttons — how to get rid of what you placed */
+.ink-controls .ink-note {
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  text-align: center;
+  opacity: 0.6;
+  font-style: italic;
+}
+
 .ink-controls .ink-buttons button.mini {
   flex: 0 0 auto;
   width: 26px;
@@ -1856,14 +1888,36 @@ figure.link-to-page a:hover {
   filter: drop-shadow(0 0 2px rgba(242, 234, 217, 0.85));
 }
 
-/* Committed emitters are draggable by their arrow; previews are not */
-.ink-arrows svg.placed {
+/* Committed emitters are draggable by their arrow; previews are not.
+   A placed object sits faint so it doesn't compete with the ink — pointing at
+   it brings it up to full strength, which also says which one a double-click
+   would delete or a drag would move. The live placement preview stays bright. */
+.ink-arrows svg.placed,
+.ink-arrows svg.ink-source {
   pointer-events: auto;
   cursor: grab;
+  opacity: 0.26;
+  transition: opacity 0.22s ease;
 }
 
-.ink-arrows svg.placed:active {
+.ink-arrows svg.placed:hover,
+.ink-arrows svg.placed.dragging,
+.ink-arrows svg.ink-source:hover,
+.ink-arrows svg.ink-source.dragging {
+  opacity: 1;
+}
+
+.ink-arrows svg.placed:active,
+.ink-arrows svg.ink-source:active {
   cursor: grabbing;
+}
+
+/* Touch: no hover to reveal them with, so keep placed objects readable */
+@media (hover: none) {
+  .ink-arrows svg.placed,
+  .ink-arrows svg.ink-source {
+    opacity: 0.7;
+  }
 }
 
 .ink-arrows line {
@@ -1882,6 +1936,28 @@ figure.link-to-page a:hover {
   fill: rgba(242, 234, 217, 0.35);
   stroke: rgba(32, 34, 31, 0.65);
   stroke-width: 1.5;
+}
+
+/* Ink source marker: a dot in the pool's own color inside a dashed ring that
+   marks the grab zone. The ring washes in on hover — the subtle highlight
+   that picks out which pool the pointer has. */
+.ink-arrows svg.ink-source .halo {
+  fill: rgba(32, 34, 31, 0);
+  stroke: rgba(32, 34, 31, 0.55);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3.5;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.ink-arrows svg.ink-source:hover .halo,
+.ink-arrows svg.ink-source.dragging .halo {
+  fill: rgba(32, 34, 31, 0.14);
+  stroke: rgba(32, 34, 31, 0.85);
+}
+
+.ink-arrows svg.ink-source .dot {
+  stroke: rgba(32, 34, 31, 0.7);
+  stroke-width: 1;
 }
 
 @media print {
@@ -1914,7 +1990,7 @@ figure.link-to-page a:hover {
 /* =======================================================================================
    PROJECT SPLIT VIEW
    Immersive project page layout: sticky media stage + thumbnail ribbon on the
-   right, scrollable write-up column on the left. Below 960px the media stage
+   right, scrollable write-up column on the left. Below 1300px the media stage
    moves to the top of the page with the write-up underneath.
 ======================================================================================= */
 .project-split {
@@ -2108,28 +2184,64 @@ body.stage-fullscreen-open {
   pointer-events: none;
 }
 
-/* Narrow screens: media stage on top, write-up scrolls underneath */
-@media (max-width: 960px) {
-  .project-split {
-    display: block;
-    padding: 0.5rem 1rem 2rem;
+/* Narrow screens: media view on top, write-up scrolling underneath it.
+   The split is sized to fill the viewport exactly, so the page itself never
+   scrolls and the write-up column is the only thing that does. That keeps
+   the media view — and the fixed navbar — in sight the whole way down the
+   write-up, and the write-up's own scrollbar always reaches its last line
+   no matter how tall the screen is. */
+@media (max-width: 1300px) {
+  .main-content:has(.project-split) {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
+  .project-split {
+    display: flex;
+    flex-direction: column;
+    /* align-items overrides the grid layout's `start`, which would shrink-wrap
+       both columns to the width of the thumbnail ribbon. The explicit width is
+       needed because the rule's own `margin: 0 auto` suppresses cross-axis
+       stretching, leaving the split sized to its content and overflowing
+       narrow screens. */
+    align-items: stretch;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem 1rem;
+  }
+
+  /* The rail takes the height its media needs, capped so the write-up always
+     keeps a readable share of the viewport. The write-up then flexes into
+     whatever is left — from a zero basis, so its very tall content doesn't
+     drag the rail down with it when flex distributes the shortfall. */
   .project-media-rail {
     position: static;
-    max-height: none;
-    margin-bottom: 1.25rem;
+    flex: 0 0 auto;
+    min-height: 0;
+    max-height: 50%;
+    margin-bottom: 0;
   }
 
-  /* The write-up becomes its own scroll container: scrolling inside it
-     moves only the write-up (overscroll-behavior stops chaining to the
-     page, so the media view holds still), while scrolling over the media
-     view scrolls the page as usual, letting the media slide away to give
-     the write-up more of the viewport. */
+  /* Free to shrink within the rail's capped height (the image inside is
+     object-fit: contain, so it just letterboxes) */
+  .media-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+
   .project-writeup {
-    max-height: calc(100vh - 90px);
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-gutter: stable;
     scrollbar-width: thin;
     scrollbar-color: rgba(var(--theme-rgb), 0.5) transparent;
   }
@@ -2145,10 +2257,6 @@ body.stage-fullscreen-open {
 
   .project-writeup::-webkit-scrollbar-track {
     background: transparent;
-  }
-
-  .media-stage {
-    max-height: 62vh;
   }
 
   .media-thumb {

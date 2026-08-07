@@ -1,10 +1,10 @@
-/* Project split view: media stage + thumbnail ribbon.
+﻿/* Project split view: media stage + thumbnail ribbon.
  *
  * The ribbon is the source of truth. Each .media-thumb button declares its
  * media via data attributes:
- *   data-type="youtube" data-id="VIDEOID"     — YouTube embed
- *   data-type="image"   data-src="photo.png"  — image
- *   data-caption="Shown under the stage"      — optional
+ *   data-type="youtube" data-id="VIDEOID"     â€” YouTube embed
+ *   data-type="image"   data-src="photo.png"  â€” image
+ *   data-caption="Shown under the stage"      â€” optional
  * The first thumb is loaded into the stage on page load (without autoplay);
  * clicking a thumb swaps the stage content (videos autoplay on click).
  * Clicking the stage while it shows an image toggles fullscreen (real
@@ -83,7 +83,7 @@
     });
 
     // Clicking the stage toggles fullscreen for images (video iframes
-    // consume their own clicks — YouTube's player has its own control)
+    // consume their own clicks â€” YouTube's player has its own control)
     stage.addEventListener('click', function () {
       if (!stage.classList.contains('is-image')) return;
       if (isFullscreen(stage)) {

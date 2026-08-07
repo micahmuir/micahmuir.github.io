@@ -992,15 +992,20 @@ function createInkBoundaryVisual() {
     decayRate:     0.18,     // Fractional dye decay per second — sets tendril lifetime
 
     // -- Turbulent flow: curl noise --
-    flowSpeed:     5600,     // Overall stirring strength (raw curl magnitude is ~0.01,
-                             // so this lands around 40-55 CSS px/s of drift)
+    // The five values the control table exposes are set at fixed fractions of
+    // their slider ranges: turbulence 35%, mixing 10%, shear 20%, bleed 90%,
+    // ink life 50% — a calmer, coarser stir than the sim's own calibration,
+    // with the panes pushing hard outward
+    flowSpeed:     4200,     // Overall stirring strength (raw curl magnitude is ~0.01,
+                             // so this lands around 30-40 CSS px/s of drift)
     flowScale1:    0.009,    // Large swirls: ~110 CSS px wavelength
-    flowScale2:    0.055,    // Fine filaments: ~18 CSS px wavelength
+    flowScale2:    0.027,    // Fine filaments: ~37 CSS px wavelength — coarse, so the
+                             // background marbles in broad veils rather than fine grain
     flowEvolve:    0.09,     // How fast the flow pattern itself morphs over time
-    bleedSpeed:    14,       // Outward current from every pane edge (CSS px/s) — the
+    bleedSpeed:    36,       // Outward current from every pane edge (CSS px/s) — the
                              // panes continuously push fresh ink away as they bleed,
                              // stretching the seep points into fingers
-    shearSpeed:    26,       // Interface shear: extra swirl along every dye
+    shearSpeed:    16,       // Interface shear: extra swirl along every dye
                              // boundary (CSS px/s at full saturation). This is
                              // what makes the two inks actively roll up and
                              // curl into each other where they meet, instead
@@ -1015,10 +1020,11 @@ function createInkBoundaryVisual() {
     //    control panel can recolor it independently of the pane ink --
     brushColor:    '#8c2f22',   // Default brush ink (control panel can change it)
     brushScale:    1,        // Brush size multiplier (control panel)
-    brushDecay:    0.2,      // Brush ink decay (1/s), separate from the pane fade.
+    brushDecay:    0.19,     // Brush ink decay (1/s), separate from the pane fade.
                              // The "Ink life" slider maps exponentially onto
                              // 6 (instant dispersal) .. 0.006 (lingers minutes,
-                             // for painting)
+                             // for painting); 0.19 is the midpoint of that curve
+                             // (6 * 0.001^0.5), i.e. the slider at 50%
     splatRadius:   34,       // Single-click splot radius (CSS px, ±random)
     strokeRadius:  16,       // Radius of each stroke stamp while dragging (CSS px)
     strokeSpacing: 12,       // Distance dragged between stroke stamps (CSS px)
@@ -1037,6 +1043,52 @@ function createInkBoundaryVisual() {
     sourceRadius:  26,       // Gaussian radius of an ink source (CSS px)
     sourceRate:    8,        // Dye injection at a source's center (dye/s)
     maxSources:    8,        // Uniform-array size; oldest source drops first
+
+    // -- Motifs: a procession of recognizable silhouettes (gear, mug, brush,
+    //    book, magnifier, peace sign, scissors, drill, wrench, boot) that rise
+    //    from behind the bio pane's edge and set back into it, one launching
+    //    every motifCycle. They inject the SAME pane ink, only to a partial density —
+    //    so they read as tendril-shade grey, and wherever the pane's own ink
+    //    is already denser they simply are not there. That is the whole
+    //    occlusion model: the shape is "behind the frame" because the frame's
+    //    ink outranks it, with no masking anywhere --
+    motifRadius:   96,       // Silhouette outer radius (CSS px)
+    motifInk:      0.70,     // Peak dye density it holds (pane body is 1.0). Has to
+                             // sit clearly above the surrounding tendrils, or the
+                             // silhouette just reads as one more blob in the wash —
+                             // and the shallower the rise, the denser it must be to
+                             // show through the halo it stays buried in
+    motifRate:     20.0,     // How fast it re-asserts itself against the flow (1/s).
+                             // This is the recognizability knob: the flow drags ink
+                             // off the shape at ~35 CSS px/s, so a slow stamp is
+                             // smeared shapeless before it is ever legible — at 8/s
+                             // the gear survived but the brush handle dissolved
+                             // outright. At 20/s the silhouette refills within a
+                             // couple of frames and the flow can only take what
+                             // leaves it, which is exactly the look: a firm shape
+                             // shedding ink downstream
+    // The "frame" the eye reads is not the CSS rect — it is the pane's ink
+    // mass, which stays saturated for ~60 CSS px past the edge and only
+    // thins out around ~110. So the rise is measured against THAT: at rest
+    // the shape sits inside the solid halo (invisible by density alone), and
+    // at peak its center clears the halo, leaving the outer half of the
+    // silhouette in open parchment and the inner half drowned in ink
+    motifHide:    -0.60,     // At rest, center this many radii INSIDE the pane edge
+    motifPeak:     1.05,     // At the peak of the rise, this many radii outside.
+                             // A shallow peek: most of the silhouette stays sunk in
+                             // the pane's halo and only its far side clears into
+                             // open parchment
+    motifDrift:    0.9,      // Lateral travel along the edge across one pass (radii)
+    motifSpin:     0.035,    // Rotation while travelling (rad/s), direction
+                             // alternating per launch. Deliberately gentle: ~50
+                             // degrees across a whole pass. Elongated shapes stop
+                             // reading as themselves once they are far off their
+                             // natural orientation, and a launch is phased so it
+                             // sits upright at the peak, where most of it shows
+    motifShow:     26,       // Seconds from first emergence to fully withdrawn
+    motifCycle:    10,       // Seconds between launches. Far shorter than a pass, so
+                             // two or three are always in the air at once
+    maxMotifs:     4,        // Uniform-array size: ceil(motifShow / motifCycle), + 1
 
     maxRects:      8         // Uniform-array size; visible blocks beyond this are skipped
   };
@@ -1106,6 +1158,10 @@ function createInkBoundaryVisual() {
     'uniform int   uSrcCount;',
     'uniform vec4  uHole;',      // selected nav pill: xy = center, zw = half-size (sim px, y-up)
     'uniform float uHoleAmt;',   // eased 0..1 — a fresh selection bursts in through this
+    'uniform vec4  uMotif[' + SIM.maxMotifs + '];',     // xy center (sim px), z radius, w ink target
+    'uniform vec2  uMotifRC[' + SIM.maxMotifs + '];',   // (cos, sin) of each one's rotation
+    'uniform float uMotifKind[' + SIM.maxMotifs + '];', // 0 gear, 1 mug, 2 paintbrush
+    'uniform int   uMotifCount;',
 
     'float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }',
 
@@ -1170,6 +1226,206 @@ function createInkBoundaryVisual() {
     '  float d = sdRoundRect(p, uHole.xy, h, min(h.x, h.y));',
     '  if (abs(d) > uBand * 1.5) return d;',
     '  return d - 0.5 * bump(p + vec2(53.0, 17.0));',
+    '}',
+
+    // --- Motif silhouettes, in the shape's own frame, sized in radii of R.
+    // Built from the same max/min CSG the panes use; only the sign matters
+    // here (the coverage smoothstep spans a few px), so exactness of the
+    // distance away from the outline is not worth paying for.
+    //
+    // Two rules govern every one of these, both learned the hard way (see
+    // GALLERY_THEME.md): no feature thinner than ~0.1R, because the flow
+    // erases anything finer no matter how hard it is re-stamped; and put the
+    // identifying feature LOW in the frame, because a shallow rise only ever
+    // shows the shape's lower part.
+
+    // Angle is always a literal at the call site, so the trig folds away
+    'vec2 rotp(vec2 p, float a) {',
+    '  float c = cos(a), s = sin(a);',
+    '  return vec2(p.x * c - p.y * s, p.x * s + p.y * c);',
+    '}',
+
+    // Toothed rim, an annular gap, four spokes, hub and bore — the gap and
+    // the spokes are what make it read as a GEAR rather than a cog stamp
+    'float sdGear(vec2 p, float R) {',
+    '  float r = length(p);',
+    '  float a = atan(p.y, p.x + 1e-4);',   // atan(0,0) is undefined, and one NaN
+                                           // here would advect across the field
+    '  float tooth = smoothstep(-0.20, 0.30, cos(a * 8.0));',   // 8 flat-topped teeth
+    '  float d = r - R * (0.66 + 0.24 * tooth);',               // deeper teeth read further
+    '  float gap = max(r - 0.50 * R, 0.26 * R - r);',           // rim / hub separation
+    '  d = max(d, -gap);',
+    '  float spokes = max(min(abs(p.x), abs(p.y)) - 0.10 * R, r - 0.55 * R);',
+    '  d = min(d, spokes);',
+    '  return max(d, 0.15 * R - r);',                           // bore
+    '}',
+
+    // Body, a handle ring on the right, and a slot carved under the lip. That
+    // slot is what makes it a vessel rather than a lozenge: it lets a line of
+    // parchment through where the opening would be
+    'float sdMug(vec2 p, float R) {',
+    // Tapered body: narrower at the base. The lip slot is the clearest cue
+    // but it sits high, where a shallow rise leaves it buried — the taper and
+    // the handle are what have to carry the shape from its lower half alone,
+    // so the handle is large and hangs low on purpose
+    '  vec2 q = p;',
+    '  q.x /= 0.84 + 0.16 * smoothstep(-0.5 * R, 0.5 * R, p.y);',
+    '  float body = sdRoundRect(q, vec2(-0.15 * R, 0.0), vec2(0.46 * R, 0.52 * R), 0.10 * R);',
+    '  float slot = sdRoundRect(p, vec2(-0.14 * R, 0.30 * R), vec2(0.34 * R, 0.055 * R), 0.05 * R);',
+    '  body = max(body, -slot);',
+    '  vec2 hp = p - vec2(0.34 * R, -0.10 * R);',
+    '  float ring = abs(length(hp) - 0.35 * R) - 0.105 * R;',
+    '  return min(body, max(ring, -hp.x));',   // keep the outer half of the ring
+    '}',
+
+    // Handle, ferrule, and bristles tapering to a point down the local -Y.
+    // Everything here is deliberately chunky — a scale-thin handle is gone
+    // within a frame or two of flow no matter how hard it is re-stamped — and
+    // stubbier than a real brush, so the silhouette fills its radius instead
+    // of being a long thin line lost in a wash
+    'float sdBrush(vec2 p, float R) {',
+    // The three parts step in width — thin handle, a proud ferrule collar,
+    // then the swell of the bristles tapering to a point. Lying along an
+    // edge, that stepped SIDE profile is the whole of what shows, so the
+    // steps are exaggerated well past a real brush's proportions
+    '  float handle  = sdRoundRect(p, vec2(0.0,  0.38 * R), vec2(0.135 * R, 0.52 * R), 0.12 * R);',
+    '  float ferrule = sdRoundRect(p, vec2(0.0, -0.24 * R), vec2(0.300 * R, 0.17 * R), 0.03 * R);',
+    '  float t = clamp((-p.y - 0.38 * R) / (0.52 * R), 0.0, 1.0);',
+    '  float w = 0.32 * R * (1.0 - 0.88 * t * t);',
+    '  float bris = max(abs(p.x) - w, max(-0.90 * R - p.y, p.y + 0.38 * R));',
+    '  return min(handle, min(ferrule, bris));',
+    '}',
+
+    // Open book: two leaves splayed off a spine. The splay is exaggerated so
+    // the silhouette is a wide shallow V — legible even when only its lower
+    // edge has cleared the ink — and a slot is carved in each leaf so it
+    // reads as paper rather than a slab
+    'float sdBook(vec2 p, float R) {',
+    '  vec2 lp = rotp(p - vec2(-0.42 * R, -0.04 * R),  0.36);',
+    '  vec2 rp = rotp(p - vec2( 0.42 * R, -0.04 * R), -0.36);',
+    '  float left  = sdRoundRect(lp, vec2(0.0), vec2(0.44 * R, 0.30 * R), 0.06 * R);',
+    '  float right = sdRoundRect(rp, vec2(0.0), vec2(0.44 * R, 0.30 * R), 0.06 * R);',
+    '  float spine = sdRoundRect(p, vec2(0.0, -0.14 * R), vec2(0.10 * R, 0.30 * R), 0.04 * R);',
+    '  float d = min(min(left, right), spine);',
+    // A page line down each leaf, so the leaves read as stacked paper
+    // splaying open rather than two planks. Sized against the LEAF, not the
+    // radius — at half again this thickness it cut each leaf in two
+    '  float sl = sdRoundRect(lp, vec2(-0.02 * R, 0.10 * R), vec2(0.30 * R, 0.05 * R), 0.04 * R);',
+    '  float sr = sdRoundRect(rp, vec2( 0.02 * R, 0.10 * R), vec2(0.30 * R, 0.05 * R), 0.04 * R);',
+    '  return max(d, -min(sl, sr));',
+    '}',
+
+    // Magnifying glass, lens DOWN: the ring is the whole of the read, so it
+    // is the part that has to emerge first
+    'float sdLens(vec2 p, float R) {',
+    '  vec2 c = vec2(-0.16 * R, -0.20 * R);',
+    '  float ring = abs(length(p - c) - 0.44 * R) - 0.115 * R;',
+    '  vec2 h = rotp(p - vec2(0.38 * R, 0.42 * R), -0.785);',   // grip axis to +Y
+    '  float grip = sdRoundRect(h, vec2(0.0), vec2(0.105 * R, 0.30 * R), 0.09 * R);',
+    '  return min(ring, grip);',
+    '}',
+
+    // Peace sign: ring, full vertical bar, two legs down from the center
+    'float sdPeace(vec2 p, float R) {',
+    '  float ring = abs(length(p) - 0.66 * R) - 0.105 * R;',
+    '  float bar = max(abs(p.x) - 0.09 * R, abs(p.y) - 0.66 * R);',
+    '  vec2 q = rotp(vec2(abs(p.x), p.y), 0.785);',            // both legs at once
+    '  float leg = max(abs(q.y) - 0.09 * R, max(-q.x, q.x - 0.60 * R));',
+    '  return min(ring, min(bar, leg));',
+    '}',
+
+    // Scissors, mirrored about X: blades up and out, shanks down and out to
+    // ring handles. The pair reads as an X, which is the whole silhouette
+    'float sdScissors(vec2 p, float R) {',
+    '  vec2 q = vec2(abs(p.x), p.y);',
+    '  vec2 pv = vec2(0.0, 0.06 * R);',
+    '  vec2 b = rotp(q - pv, 0.31);',                          // blade axis to +Y
+    '  float t = clamp(b.y / (0.80 * R), 0.0, 1.0);',
+    '  float blade = max(abs(b.x) - 0.12 * R * (1.0 - 0.60 * t), max(-b.y, b.y - 0.80 * R));',
+    '  vec2 s = rotp(q - pv, -0.49);',                         // shank axis to -Y
+    '  float shank = max(abs(s.x) - 0.085 * R, max(s.y, -s.y - 0.62 * R));',
+    '  float ring = abs(length(q - (pv + vec2(0.47, -0.88) * 0.72 * R)) - 0.21 * R) - 0.08 * R;',
+    '  float pivot = length(p - pv) - 0.10 * R;',
+    '  return min(min(blade, shank), min(ring, pivot));',
+    '}',
+
+    // Cordless drill in profile: body, chuck and bit forward, pistol grip and
+    // battery below. The grip-and-battery L is what carries it from below
+    'float sdDrill(vec2 p, float R) {',
+    '  float body  = sdRoundRect(p, vec2(-0.06 * R,  0.26 * R), vec2(0.40 * R, 0.24 * R), 0.13 * R);',
+    '  float chuck = sdRoundRect(p, vec2( 0.44 * R,  0.24 * R), vec2(0.13 * R, 0.16 * R), 0.04 * R);',
+    '  float bit   = sdRoundRect(p, vec2( 0.70 * R,  0.24 * R), vec2(0.17 * R, 0.05 * R), 0.02 * R);',
+    '  vec2 h = rotp(p - vec2(-0.16 * R, -0.20 * R), 0.20);',
+    '  float grip  = sdRoundRect(h, vec2(0.0), vec2(0.165 * R, 0.34 * R), 0.08 * R);',
+    '  float batt  = sdRoundRect(p, vec2(-0.30 * R, -0.60 * R), vec2(0.27 * R, 0.16 * R), 0.05 * R);',
+    '  return min(min(body, chuck), min(bit, min(grip, batt)));',
+    '}',
+
+    // Combination wrench: shaft with a closed ring at one end and an open
+    // jaw at the other. Both ends carry negative space, which is what makes
+    // them read at this contrast
+    'float sdWrench(vec2 p, float R) {',
+    '  float shaft = sdRoundRect(p, vec2(0.0, 0.0), vec2(0.115 * R, 0.52 * R), 0.06 * R);',
+    '  float ring = abs(length(p - vec2(0.0, 0.66 * R)) - 0.20 * R) - 0.085 * R;',
+    '  vec2 j = p - vec2(0.0, -0.68 * R);',
+    '  float jaw = abs(length(j) - 0.23 * R) - 0.10 * R;',
+    // The opening faces AWAY from the shaft — cut downward, not up, or the
+    // notch hides behind the shaft and the jaw reads as a second closed ring
+    '  jaw = max(jaw, -max(abs(j.x) - 0.16 * R, j.y - 0.05 * R));',
+    '  return min(shaft, min(ring, jaw));',
+    '}',
+
+    // Boot: shaft up, foot forward, sole and heel underneath — the L is the
+    // read, and the sole is the part that surfaces first
+    'float sdBoot(vec2 p, float R) {',
+    '  float shaft = sdRoundRect(p, vec2(-0.26 * R,  0.26 * R), vec2(0.25 * R, 0.52 * R), 0.08 * R);',
+    '  float foot  = sdRoundRect(p, vec2( 0.04 * R, -0.42 * R), vec2(0.55 * R, 0.22 * R), 0.11 * R);',
+    '  float toe   = sdRoundRect(p, vec2( 0.48 * R, -0.40 * R), vec2(0.16 * R, 0.16 * R), 0.13 * R);',
+    '  float sole  = sdRoundRect(p, vec2( 0.02 * R, -0.66 * R), vec2(0.60 * R, 0.09 * R), 0.03 * R);',
+    '  float heel  = sdRoundRect(p, vec2(-0.38 * R, -0.78 * R), vec2(0.17 * R, 0.11 * R), 0.02 * R);',
+    '  return min(min(shaft, foot), min(toe, min(sole, heel)));',
+    '}',
+
+    // Strongest motif ink asked for at a sim-px position. Several are in the
+    // air at once (one launches every motifCycle seconds, each takes far
+    // longer than that to rise and set), so this is a max over the live
+    // slots. Each outline takes the same wobble the panes get, so it is
+    // hand-inked rather than plotted; and each is skipped outside its
+    // bounding circle, which keeps the whole feature off the bill for the
+    // large majority of the screen it does not occupy.
+    'float motifInkAt(vec2 p) {',
+    '  float best = 0.0;',
+    '  float e = max(uBand * 0.06, 1.0);',
+    '  float wob = 0.16 * bump(p + vec2(31.0, 7.0));',   // un-plots the outline
+                                                        // without eating the detail
+    '  for (int i = 0; i < ' + SIM.maxMotifs + '; i++) {',
+    '    if (i >= uMotifCount) break;',
+    '    if (uMotif[i].w <= 0.0) continue;',
+    '    vec2 rel = p - uMotif[i].xy;',
+    '    if (dot(rel, rel) > uMotif[i].z * uMotif[i].z * 2.6) continue;',
+    '    vec2 rc = uMotifRC[i];',
+    '    vec2 lp = vec2(rel.x * rc.x + rel.y * rc.y, -rel.x * rc.y + rel.y * rc.x);',
+    // k is uniform across the whole draw for a given slot, so this chain
+    // costs one taken branch per pixel, not ten
+    '    float d;',
+    '    float k = uMotifKind[i];',
+    '    float rr = uMotif[i].z;',
+    '    if (k < 0.5)      d = sdGear(lp, rr);',
+    '    else if (k < 1.5) d = sdMug(lp, rr);',
+    '    else if (k < 2.5) d = sdBrush(lp, rr);',
+    '    else if (k < 3.5) d = sdBook(lp, rr);',
+    '    else if (k < 4.5) d = sdLens(lp, rr);',
+    '    else if (k < 5.5) d = sdPeace(lp, rr);',
+    '    else if (k < 6.5) d = sdScissors(lp, rr);',
+    '    else if (k < 7.5) d = sdDrill(lp, rr);',
+    '    else if (k < 8.5) d = sdWrench(lp, rr);',
+    '    else              d = sdBoot(lp, rr);',
+    // Keep this edge TIGHT. At uBand * 0.22 the ramp spans ~24 CSS px, which
+    // is wider than a brush handle — thin features then never reach full
+    // coverage and fade out entirely while the gear survives.
+    '    best = max(best, smoothstep(e, -e, d - wob) * uMotif[i].w);',
+    '  }',
+    '  return best;',
     '}',
 
     // Combined ink density at a sim-px position (pane ink + brush ink) —
@@ -1311,6 +1567,17 @@ function createInkBoundaryVisual() {
 
     '  dye.r = dye.r * (1.0 - uDecay * uDt) - 0.0012;',   // sweep quantization residue to zero
     '  dye.r += max(srcA, srcPane) * (uInject * boost * uDt);',
+
+    // The rising motif. Unlike every other ink source this one RELAXES TOWARD
+    // a target instead of adding: it lifts thin ink up to its own modest
+    // density and does nothing at all where the field is already darker. So
+    // it is invisible under the pane body and under the dense inner halo, and
+    // only surfaces out in the tendril zone — a shape behind the frame,
+    // achieved by arithmetic rather than by masking. What it does deposit is
+    // ordinary pane ink, so the flow immediately starts eroding and dragging
+    // it, and the outline stays legible only because it is re-asserted.
+    '  float mv = motifInkAt(p);',
+    '  dye.r += max(0.0, mv - dye.r) * (' + SIM.motifRate.toFixed(2) + ' * uDt);',
 
     // The selected nav pill: the background liquid holds a clear pool in the
     // navbar's ink. Clearing mirrors the pane injection in reverse —
@@ -1639,7 +1906,7 @@ function createInkBoundaryVisual() {
     el.style.transformOrigin = '4px 9px';
     el.style.transform = 'rotate(' + ang + 'deg)';
     el.innerHTML =
-      '<title>Drag the head to re-aim, the body to move</title>' +
+      '<title>Drag the head to re-aim, the body to move; double-click to delete</title>' +
       '<circle class="handle" cx="4" cy="9" r="6.5"></circle>' +
       '<circle cx="4" cy="9" r="3"></circle>' +
       '<line x1="10.5" y1="9" x2="' + (len - 11) + '" y2="9"></line>' +
@@ -1666,6 +1933,7 @@ function createInkBoundaryVisual() {
       if (ev.button !== 0) return;
       ev.stopPropagation();   // keep the paint/placement handlers out of it
       ev.preventDefault();
+      em.el.classList.add('dragging');   // hold it at full opacity for the whole drag
       var pyDoc = ev.clientY + window.pageYOffset;
       var gx = ev.clientX - em.x, gy = pyDoc - em.yDoc;
       var grabDist = Math.sqrt(gx * gx + gy * gy);
@@ -1687,6 +1955,79 @@ function createInkBoundaryVisual() {
       moveDrag = null;
       saveState();
     });
+  }
+
+  // --- Ink source markers: a source is only a bleeding pool in the dye
+  // field, so it gets a small document-anchored dot on its center to make it
+  // grabbable. Like the arrows it sits faint until pointed at; the hover
+  // highlight names the one pool a double-click deletes or a drag moves.
+  var SRC_HIT = 15;   // CSS px: half the marker box, i.e. the center hit radius
+
+  function styleSourceMarker(el, s) {
+    var c = s.color;
+    var rgb = 'rgb(' + Math.round(c[0] * 255) + ',' + Math.round(c[1] * 255) + ',' +
+      Math.round(c[2] * 255) + ')';
+    el.setAttribute('width', SRC_HIT * 2);
+    el.setAttribute('height', SRC_HIT * 2);
+    el.style.left = (s.x - SRC_HIT) + 'px';
+    el.style.top = (s.yDoc - SRC_HIT) + 'px';
+    // fill goes in a style attribute, not a presentation attribute — the
+    // .ink-arrows circle rule would otherwise win over the source's color
+    el.innerHTML =
+      '<title>Drag to move; double-click to delete</title>' +
+      '<circle class="halo" cx="' + SRC_HIT + '" cy="' + SRC_HIT + '" r="11"></circle>' +
+      '<circle class="dot" cx="' + SRC_HIT + '" cy="' + SRC_HIT + '" r="4.5" style="fill:' + rgb + '"></circle>';
+  }
+
+  function attachSourceDrag(s) {
+    s.el.addEventListener('pointerdown', function(ev) {
+      // The handle stays live even while a placement mode is armed: modes are
+      // sticky, so the very next thing after dropping a pool is usually a drag
+      // to nudge it — the grab has to win over placing another one
+      if (ev.button !== 0) return;
+      ev.stopPropagation();
+      ev.preventDefault();
+      s.el.classList.add('dragging');
+      moveDrag = {
+        src: s,
+        dx: s.x - ev.clientX,
+        dyDoc: s.yDoc - (ev.clientY + window.pageYOffset),
+        snap: snapshot()
+      };
+    });
+    s.el.addEventListener('dblclick', function(ev) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      pushHistory();
+      var idx = sources.indexOf(s);
+      if (idx >= 0) sources.splice(idx, 1);
+      s.el.remove();
+      moveDrag = null;
+      saveState();
+    });
+  }
+
+  // Single entry point for a pool: marker, handles, and oldest-first eviction
+  function addSource(x, yDoc, r, color) {
+    var s = { x: x, yDoc: yDoc, r: r, color: color };
+    s.el = document.createElementNS(SVG_NS, 'svg');
+    s.el.setAttribute('class', 'ink-source');
+    styleSourceMarker(s.el, s);
+    arrowLayer.appendChild(s.el);
+    attachSourceDrag(s);
+    sources.push(s);
+    while (sources.length > SIM.maxSources) {
+      var dead = sources.shift();
+      if (dead.el) dead.el.remove();
+    }
+    return s;
+  }
+
+  function clearSources() {
+    for (var i = 0; i < sources.length; i++) {
+      if (sources[i].el) sources[i].el.remove();
+    }
+    sources.length = 0;
   }
 
   // --- Undo/redo: snapshot history of the placed objects (not the ink) ---
@@ -1712,14 +2053,14 @@ function createInkBoundaryVisual() {
       if (emitters[i].el) emitters[i].el.remove();
     }
     emitters.length = 0;
-    sources.length = 0;
+    clearSources();
     s.emitters.forEach(function(e) {
       var em = { x: e.x, yDoc: e.yDoc, vx: e.vx, vy: e.vy, el: makeArrow(e.x, e.yDoc, e.vx, e.vy) };
       attachArrowDrag(em);
       emitters.push(em);
     });
     s.sources.forEach(function(sr) {
-      sources.push({ x: sr.x, yDoc: sr.yDoc, r: sr.r, color: sr.color.slice() });
+      addSource(sr.x, sr.yDoc, sr.r, sr.color.slice());
     });
     saveState();
   }
@@ -1802,7 +2143,7 @@ function createInkBoundaryVisual() {
       });
       (st.sources || []).slice(0, SIM.maxSources).forEach(function(sr) {
         if (!isFinite(sr.x) || !isFinite(sr.yDoc) || !isFinite(sr.r) || !sr.color || sr.color.length !== 3) return;
-        sources.push({ x: sr.x, yDoc: sr.yDoc, r: sr.r, color: [+sr.color[0] || 0, +sr.color[1] || 0, +sr.color[2] || 0] });
+        addSource(sr.x, sr.yDoc, sr.r, [+sr.color[0] || 0, +sr.color[1] || 0, +sr.color[2] || 0]);
       });
     } catch (err) {}   // malformed state: start fresh
   }
@@ -1849,6 +2190,7 @@ function createInkBoundaryVisual() {
           s.x = ref.cx + (s.x - layoutRef.cx) * sx;
           s.yDoc = ref.top + (s.yDoc - layoutRef.top) * sy;
           s.r *= (sx + sy) / 2;
+          if (s.el) styleSourceMarker(s.el, s);
         });
       }
     }
@@ -1952,13 +2294,9 @@ function createInkBoundaryVisual() {
       if (e.target && e.target.closest && e.target.closest(NO_PLACE)) return;
       if (placeMode === 'source') {
         pushHistory();
-        sources.push({
-          x: e.clientX,
-          yDoc: e.clientY + window.pageYOffset,
-          r: SIM.sourceRadius * SIM.brushScale,
-          color: colBrush.slice()   // the source keeps this color forever
-        });
-        if (sources.length > SIM.maxSources) sources.shift();
+        // the source keeps the current brush color forever
+        addSource(e.clientX, e.clientY + window.pageYOffset,
+          SIM.sourceRadius * SIM.brushScale, colBrush.slice());
         saveState();   // mode stays armed — keep placing until the button is toggled off
       } else {
         emitterDrag = { x: e.clientX, y: e.clientY, yDoc: e.clientY + window.pageYOffset, el: null };
@@ -1979,6 +2317,13 @@ function createInkBoundaryVisual() {
         redoStack.length = 0;
         updateHistoryButtons();
         moveDrag.snap = null;
+      }
+      if (moveDrag.src) {   // a pool: position only, no vector to re-aim
+        var ms = moveDrag.src;
+        ms.x = e.clientX + moveDrag.dx;
+        ms.yDoc = e.clientY + window.pageYOffset + moveDrag.dyDoc;
+        styleSourceMarker(ms.el, ms);
+        return;
       }
       var mem = moveDrag.em;
       if (moveDrag.aim) {
@@ -2013,6 +2358,8 @@ function createInkBoundaryVisual() {
   }
   function onPaintUp(e) {
     if (moveDrag) {
+      var dragged = moveDrag.src || moveDrag.em;
+      if (dragged && dragged.el) dragged.el.classList.remove('dragging');   // let it fade back out
       moveDrag = null;
       saveState();   // a move/re-aim drag just ended
     }
@@ -2107,6 +2454,159 @@ function createInkBoundaryVisual() {
     }
   }
 
+  // --- Motifs: a shape launches every motifCycle seconds, rises from behind
+  // the bio pane's edge, turns as it arcs along it, and sets back in. A pass
+  // takes far longer than the launch interval, so two or three are always in
+  // the air at different stations. The pane is the hill: the rise is shallow
+  // and most of each silhouette stays buried in its halo. Positions are
+  // recomputed from the pane's live rect every frame, so the whole procession
+  // rides scrolling and reflow for free.
+  // alongEdge: lay the shape's long axis PARALLEL to the edge it rises from.
+  // Only a slice of each silhouette ever clears the ink, and a slice across
+  // the long axis of a brush is an unreadable blob — a slice along it still
+  // reads as a brush. Round shapes do not care.
+  var MOTIF_KINDS = [
+    { kind: 0, tilt:  0.00, alongEdge: false },   // gear
+    { kind: 1, tilt: -0.05, alongEdge: false },   // mug, set down almost level
+    { kind: 2, tilt: -0.38, alongEdge: true  },   // paintbrush
+    { kind: 3, tilt: -0.06, alongEdge: false },   // open book — already wide
+    { kind: 4, tilt:  0.12, alongEdge: false },   // magnifying glass, lens down
+    { kind: 5, tilt:  0.00, alongEdge: false },   // peace sign
+    { kind: 6, tilt:  0.10, alongEdge: true  },   // scissors
+    { kind: 7, tilt: -0.30, alongEdge: false },   // power drill, nose dipped
+    { kind: 8, tilt:  0.22, alongEdge: true  },   // wrench
+    { kind: 9, tilt: -0.08, alongEdge: false }    // boot
+  ];
+  // Where along the pane's perimeter each rise happens. A launch takes the
+  // next station with room that nothing else is occupying, so the count here
+  // is also the cap on how many can be in the air: the bottom edge carries
+  // five of them because on a laptop width it is the ONLY edge with room —
+  // with fewer, the launch cadence would silently throttle to whenever a
+  // station frees up. Ordered so consecutive launches land far apart.
+  var MOTIF_STATIONS = [
+    { edge: 'bottom', along: 0.18 },
+    { edge: 'right',  along: 0.34 },
+    { edge: 'bottom', along: 0.50 },
+    { edge: 'left',   along: 0.58 },
+    { edge: 'bottom', along: 0.82 },
+    { edge: 'right',  along: 0.70 },
+    { edge: 'bottom', along: 0.34 },
+    { edge: 'left',   along: 0.30 },
+    { edge: 'bottom', along: 0.66 }
+  ];
+
+  var motifs = [];            // live passes, oldest first
+  var motifData = new Float32Array(SIM.maxMotifs * 4);   // xy center, z radius, w ink
+  var motifRCData = new Float32Array(SIM.maxMotifs * 2); // (cos, sin) per motif
+  var motifKindData = new Float32Array(SIM.maxMotifs);
+  var motifCount = 0;
+  var motifTimer = SIM.motifCycle - 5;   // a few quiet seconds before the first
+  var motifIdx = -1;          // which shape comes next
+  var motifStation = -1;
+  var motifDir = 1;           // which way it slides and turns — alternates
+
+  // Room outside a pane edge, in CSS px — a shape needs open page to rise
+  // into, or it just scrapes along under the viewport border
+  function edgeRoom(r, edge) {
+    if (edge === 'left')   return r.left;
+    if (edge === 'right')  return window.innerWidth - r.right;
+    return window.innerHeight - r.bottom;
+  }
+
+  // Launch the next shape at the next station that has room and is not
+  // already occupied; returns null if nowhere on the pane will take one
+  function launchMotif(r) {
+    motifIdx = (motifIdx + 1) % MOTIF_KINDS.length;
+    motifDir = -motifDir;
+    for (var i = 1; i <= MOTIF_STATIONS.length; i++) {
+      var idx = (motifStation + i) % MOTIF_STATIONS.length;
+      // Needs room for the halo AND the emerged part, or the shape would
+      // rise into the viewport border instead of into open page
+      if (edgeRoom(r, MOTIF_STATIONS[idx].edge) < SIM.motifRadius * 1.8) continue;
+      var taken = false;
+      for (var j = 0; j < motifs.length; j++) {
+        if (motifs[j].station === idx) { taken = true; break; }
+      }
+      if (taken) continue;
+      motifStation = idx;
+      var kd = MOTIF_KINDS[motifIdx];
+      var spin = SIM.motifSpin * motifDir;
+      // A shape's long axis is local Y, which already runs along a side
+      // edge; only the bottom edge needs the quarter turn
+      var base = kd.tilt + ((kd.alongEdge && MOTIF_STATIONS[idx].edge === 'bottom') ? Math.PI * 0.5 : 0);
+      return {
+        kind: kd.kind,
+        station: idx,
+        dir: motifDir,
+        // Start half a pass' worth of turn BEFORE the shape's natural angle,
+        // so the turn carries it through that angle at the peak of the rise —
+        // the moment the most of it is out of the ink
+        rot: base - spin * SIM.motifShow * 0.5,
+        spin: spin,
+        clock: 0
+      };
+    }
+    return null;
+  }
+
+  function updateMotif(dt) {
+    motifCount = 0;
+    var pane = document.querySelector('.paper-panel');
+    if (!pane) return;
+    var r = pane.getBoundingClientRect();
+    if (r.width < 120 || r.height < 120) return;
+
+    var still = motionScale() === 0;
+    if (still) {
+      // Reduced motion: no procession — one shape holds a quiet peek
+      if (!motifs.length) {
+        var one = launchMotif(r);
+        if (one) { one.clock = SIM.motifShow * 0.55; motifs.push(one); }
+      }
+    } else {
+      motifTimer += dt;
+      if (motifTimer >= SIM.motifCycle) {
+        motifTimer -= SIM.motifCycle;
+        if (motifs.length < SIM.maxMotifs) {
+          var m = launchMotif(r);
+          if (m) motifs.push(m);
+        }
+      }
+      for (var i = motifs.length - 1; i >= 0; i--) {
+        motifs[i].clock += dt;
+        motifs[i].rot += motifs[i].spin * dt;
+        if (motifs[i].clock >= SIM.motifShow) motifs.splice(i, 1);
+      }
+    }
+
+    for (var n = 0; n < motifs.length && motifCount < SIM.maxMotifs; n++) {
+      var mo = motifs[n];
+      var st = MOTIF_STATIONS[mo.station];
+      var ax, ay, nx, ny, tx, ty;     // anchor, outward normal, edge tangent
+      if (st.edge === 'bottom')     { ax = r.left + r.width * st.along;  ay = r.bottom; nx =  0; ny = 1; tx = 1; ty = 0; }
+      else if (st.edge === 'left')  { ax = r.left;  ay = r.top + r.height * st.along;   nx = -1; ny = 0; tx = 0; ty = 1; }
+      else                          { ax = r.right; ay = r.top + r.height * st.along;   nx =  1; ny = 0; tx = 0; ty = 1; }
+
+      // Rise and set: a half-sine out along the edge normal, with a slow
+      // slide along the edge across the whole pass. On the side stations
+      // that slide is vertical, which is where the shape most reads as a sun
+      // tracking across behind a ridge.
+      var t = mo.clock / SIM.motifShow;
+      var s = Math.sin(Math.PI * t);
+      var out = SIM.motifRadius * (SIM.motifHide + (SIM.motifPeak - SIM.motifHide) * s);
+      var lat = (t - 0.5) * SIM.motifDrift * SIM.motifRadius * mo.dir;
+      var k = motifCount * 4;
+      motifData[k]     = (ax + nx * out + tx * lat) * simScale;
+      motifData[k + 1] = simH - (ay + ny * out + ty * lat) * simScale;   // flip to GL y-up
+      motifData[k + 2] = SIM.motifRadius * simScale;
+      motifData[k + 3] = SIM.motifInk * s;      // fades in and out with the rise
+      motifRCData[motifCount * 2]     = Math.cos(mo.rot);
+      motifRCData[motifCount * 2 + 1] = Math.sin(mo.rot);
+      motifKindData[motifCount] = mo.kind;
+      motifCount++;
+    }
+  }
+
   function gatherRects(dt) {
     var els = document.querySelectorAll(INK_BLOCKS);
     var count = 0;
@@ -2150,7 +2650,8 @@ function createInkBoundaryVisual() {
   var FIELD_UNIFORMS = ['uPrev', 'uBrushTex', 'uRes', 'uTime', 'uDt', 'uShiftY', 'uMotion', 'uCss',
     'uSimScale', 'uRects', 'uBoost', 'uCount', 'uBand', 'uCorner', 'uAmorph', 'uSpeed', 'uInject', 'uDecay', 'uFlow', 'uBleed',
     'uShear', 'uBgRate', 'uBrushDecay', 'uBrushColor', 'uSplats', 'uSplatCount',
-    'uEmit', 'uEmitCount', 'uEmitRad', 'uSrc', 'uSrcCol', 'uSrcCount', 'uHole', 'uHoleAmt'];
+    'uEmit', 'uEmitCount', 'uEmitRad', 'uSrc', 'uSrcCol', 'uSrcCount', 'uHole', 'uHoleAmt',
+    'uMotif', 'uMotifRC', 'uMotifKind', 'uMotifCount'];
   var stepU = locs(stepProg, FIELD_UNIFORMS);
   var brushU = locs(brushProg, FIELD_UNIFORMS);
   var drawU = locs(drawProg, ['uTex', 'uBrushTex', 'uRes', 'uBg', 'uColB', 'uPane']);
@@ -2200,6 +2701,10 @@ function createInkBoundaryVisual() {
     gl.uniform1i(u.uSrcCount, srcCount);
     gl.uniform4fv(u.uHole, holeData);
     gl.uniform1f(u.uHoleAmt, holeAmt);
+    gl.uniform4fv(u.uMotif, motifData);
+    gl.uniform2fv(u.uMotifRC, motifRCData);
+    gl.uniform1fv(u.uMotifKind, motifKindData);
+    gl.uniform1i(u.uMotifCount, motifCount);
   }
 
   function bindFieldInputs() {
@@ -2245,6 +2750,7 @@ function createInkBoundaryVisual() {
   function warmup(brushPreserved) {
     var count = gatherRects(1 / 60);
     updatePlaced();   // restored/kept sources and emitters soak in with the panes
+    updateMotif(0);   // a motif mid-rise at (re)build time soaks in with them
     for (var i = 0; i < 12; i++) {
       stepPass(0.35, i * 0.35, 0, count, 0);
       if (!brushPreserved) brushPass(0.35, i * 0.35, 0, count, 0);
@@ -2292,6 +2798,7 @@ function createInkBoundaryVisual() {
 
     var count = gatherRects(dt);
     updateHole(dt);
+    updateMotif(dt);
     reserveCanvas();
     var splatCount = updateSplats(now);
     updatePlaced();
@@ -2354,7 +2861,7 @@ function createInkBoundaryVisual() {
     '<label>Ink life <input type="range" data-ink="life" min="0" max="100" step="1" value="' +
       Math.round(100 * Math.log(SIM.brushDecay / 6) / Math.log(0.001)) + '"></label>' +
     '<label>Turbulence <input type="range" data-ink="flow" min="0" max="12000" step="200" value="' + SIM.flowSpeed + '"></label>' +
-    '<label>Mixing <input type="range" data-ink="mix" min="0.02" max="0.09" step="0.005" value="' + SIM.flowScale2 + '"></label>' +
+    '<label>Mixing <input type="range" data-ink="mix" min="0.02" max="0.09" step="0.001" value="' + SIM.flowScale2 + '"></label>' +
     '<label>Shear <input type="range" data-ink="shear" min="0" max="80" step="2" value="' + SIM.shearSpeed + '"></label>' +
     '<label>Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
     '<label>Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>' +
@@ -2362,6 +2869,7 @@ function createInkBoundaryVisual() {
     '<button type="button" data-ink="place-emitter" title="Then click-drag the background: press = position, drag = flow direction and strength">Place flow emitter</button>' +
     '<button type="button" data-ink="place-source" title="Then click the background to place a bleeding ink source in the current brush color">Place ink source</button>' +
     '</div>' +
+    '<div class="ink-note">Double click object to delete</div>' +
     '<div class="ink-buttons">' +
     '<button type="button" data-ink="clear-placed" title="Remove all placed emitters and sources">Clear objects</button>' +
     '<button type="button" data-ink="clear-canvas" title="Wipe all laid ink — the panes and any placed sources soak back in">Clear canvas</button>' +
@@ -2392,7 +2900,7 @@ function createInkBoundaryVisual() {
         if (emitters[i].el) emitters[i].el.remove();
       }
       emitters.length = 0;
-      sources.length = 0;
+      clearSources();
       setPlaceMode(null);
       saveState();
     } else if (k === 'clear-canvas') {
