@@ -2400,6 +2400,9 @@ function createInkBoundaryVisual() {
           SIM.sourceRadius * SIM.brushScale, colBrush.slice());
         saveState();   // mode stays armed — keep placing until the button is toggled off
       } else {
+        // A second finger landing mid-drag (multi-touch) restarts the
+        // placement — drop the stale preview or its arrow leaks in the layer
+        if (emitterDrag && emitterDrag.el) emitterDrag.el.remove();
         emitterDrag = { x: e.clientX, y: e.clientY, yDoc: e.clientY + window.pageYOffset, el: null };
       }
       e.preventDefault();
@@ -2471,7 +2474,10 @@ function createInkBoundaryVisual() {
       saveState();   // a move/re-aim drag just ended
     }
     if (emitterDrag) {
-      var v = (e && e.clientX !== undefined) ?
+      // pointercancel means the browser took the gesture (touch scroll) —
+      // its coordinates are junk, so discard the placement instead of
+      // committing a phantom emitter aimed at wherever they point
+      var v = (e && e.type !== 'pointercancel' && e.clientX !== undefined) ?
         dragVector(e.clientX - emitterDrag.x, e.clientY - emitterDrag.y) : null;
       if (v) {
         pushHistory();
@@ -2970,8 +2976,10 @@ function createInkBoundaryVisual() {
     '<label data-row="bleed">Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
     '<label data-row="fade">Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>' +
     '<div class="ink-actions">' +
-    '<div class="ink-buttons">' +
-    '<button type="button" data-ink="paint-toggle" title="Touchscreens: arm this to paint by dragging; leave it off to scroll the page normally">Touch paint</button>' +
+    // Touch-only: mouse/pen drags paint directly, so outside the mobile
+    // breakpoint this row is hidden entirely (CSS .ink-touch-only)
+    '<div class="ink-buttons ink-touch-only">' +
+    '<button type="button" data-ink="paint-toggle" title="Arm this to paint by dragging; leave it off to scroll the page normally">Toggle paint mode</button>' +
     '</div>' +
     '<div class="ink-buttons">' +
     '<button type="button" data-ink="place-emitter" title="Then click-drag the background: press = position, drag = flow direction and strength">Place flow emitter</button>' +
@@ -3026,6 +3034,9 @@ function createInkBoundaryVisual() {
       emitters.length = 0;
       clearSources();
       setPlaceMode(null);
+      // Sweep the whole marker layer: anything the arrays no longer track
+      // (an orphaned placement preview) dies with the rest
+      while (arrowLayer.firstChild) arrowLayer.firstChild.remove();
       saveState();
     } else if (k === 'clear-canvas') {
       clearFields();

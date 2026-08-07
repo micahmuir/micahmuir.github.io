@@ -684,21 +684,6 @@ a:hover {
 }
 
 @media (max-width: 390px) {
-  .project-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .project-nav-item {
-    font-size: 1rem;
-    padding: 0.75rem 0.5rem;
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    border-radius: 10px;
-    margin: 0;
-  }
   .card-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -852,6 +837,23 @@ body.page-leaving .main-content {
   .project-nav-item {
     font-size: 1rem;
     padding: 0.85rem 0.5rem;
+  }
+}
+
+/* Too narrow for the two labels side by side: stack the switch. The pill
+   radius goes with the row layout — a stacked container gets a rounded
+   rect, its buttons a concentric inner radius (outer = inner + padding). */
+@media (max-width: 420px) {
+  .project-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    border-radius: 20px;
+  }
+  .project-nav-item {
+    padding: 0.75rem 0.5rem;
+    border-radius: 14px;
   }
 }
 
@@ -1951,7 +1953,8 @@ img.bookmark-image {
 
 .ink-controls.collapsed > label,
 .ink-controls.collapsed > .ink-note,
-.ink-controls.collapsed > .ink-buttons {
+.ink-controls.collapsed > .ink-chips,
+.ink-controls.collapsed > .ink-actions {
   display: none;
 }
 
@@ -2067,6 +2070,13 @@ img.bookmark-image {
 .ink-controls .ink-actions {
   display: grid;
   gap: 5px;
+}
+
+/* Paint-mode toggle exists for touch scrolling ambiguity — pointless with a
+   mouse, so it only appears at mobile widths (the dock's media query flips
+   every .ink-buttons group to display: contents, which overrides this) */
+.ink-controls .ink-buttons.ink-touch-only {
+  display: none;
 }
 
 /* Placement buttons: an armed button inverts to charcoal until the user
@@ -2273,7 +2283,7 @@ img.bookmark-image {
     display: none;
   }
 
-  .ink-controls > label.active {
+  .ink-controls:not(.collapsed) > label.active {
     display: flex;
   }
 
