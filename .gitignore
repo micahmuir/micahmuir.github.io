@@ -1,0 +1,7 @@
+# Local tooling and source material - the site publishes from this repo,
+# so only actual web content should be tracked.
+*.py
+*.zip
+__pycache__/
+card_snippet.txt
+GALLERY_THEME.md
