@@ -313,6 +313,11 @@ function makeMediaClickable() {
       if (media.closest('.project-media-rail')) {
         return;
       }
+
+      // The bio headshot is decoration, not gallery content
+      if (media.classList.contains('profile-image')) {
+        return;
+      }
       
       // Make clickable
       media.classList.add('clickable-media');

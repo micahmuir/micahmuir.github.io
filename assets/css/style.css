@@ -2236,7 +2236,7 @@ img.bookmark-image {
    knob, a single slider for whichever chip is active, and the action buttons
    flattened into one thumb-scrollable strip. The collapsed tab stays the
    small round nib, half-size so it doesn't sit so large over page content. */
-@media (max-width: 768px) {
+@media (max-width: 1179px) {
   .ink-controls.collapsed {
     width: 46px;
     height: 46px;
