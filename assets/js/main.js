@@ -2285,6 +2285,19 @@ function createInkBoundaryVisual() {
     }
   }
 
+  // Touch drag is ambiguous between "paint" and "scroll" — a finger dragging
+  // down could mean either. Off by default so touch scrolling stays native;
+  // arming this via the panel (mirrors setPlaceMode) commits the page to
+  // painting until toggled off, and sets touch-action: none so the browser
+  // doesn't fight the drag with its own pan gesture.
+  var touchPaintArmed = false;
+  function setTouchPaint(on) {
+    touchPaintArmed = on;
+    document.documentElement.style.touchAction = on ? 'none' : '';
+    var btn = panel ? panel.querySelector('button[data-ink="paint-toggle"]') : null;
+    if (btn) btn.classList.toggle('armed', on);
+  }
+
   // Screen-space uniform data for the placed objects; called each frame
   function updatePlaced() {
     var i, k;
@@ -2367,7 +2380,13 @@ function createInkBoundaryVisual() {
       return;
     }
 
+    // On touch, drag is ambiguous with scroll — only paint once the user has
+    // explicitly armed touch-paint mode. Mouse/pen drags never scroll the
+    // page, so they're never gated.
+    if (e.pointerType === 'touch' && !touchPaintArmed) return;
+
     if (e.target && e.target.closest && e.target.closest(NO_PAINT)) return;
+    if (e.pointerType === 'touch') e.preventDefault();
     spawnSplat(e.clientX, e.clientY, SIM.splatRadius * SIM.brushScale * (0.75 + Math.random() * 0.5), 0.55);
     paintDrag = { x: e.clientX, y: e.clientY };
   }
@@ -2912,6 +2931,9 @@ function createInkBoundaryVisual() {
     '<label>Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
     '<label>Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>' +
     '<div class="ink-buttons">' +
+    '<button type="button" data-ink="paint-toggle" title="Touchscreens: arm this to paint by dragging; leave it off to scroll the page normally">Touch paint</button>' +
+    '</div>' +
+    '<div class="ink-buttons">' +
     '<button type="button" data-ink="place-emitter" title="Then click-drag the background: press = position, drag = flow direction and strength">Place flow emitter</button>' +
     '<button type="button" data-ink="place-source" title="Then click the background to place a bleeding ink source in the current brush color">Place ink source</button>' +
     '</div>' +
@@ -2955,6 +2977,8 @@ function createInkBoundaryVisual() {
       setPlaceMode(placeMode === 'emitter' ? null : 'emitter');
     } else if (k === 'place-source') {
       setPlaceMode(placeMode === 'source' ? null : 'source');
+    } else if (k === 'paint-toggle') {
+      setTouchPaint(!touchPaintArmed);
     }
   });
 
@@ -2988,6 +3012,7 @@ function createInkBoundaryVisual() {
       window.removeEventListener('pointerup', onPaintUp);
       document.removeEventListener('pointercancel', onPaintUp);
       document.documentElement.style.cursor = '';
+      document.documentElement.style.touchAction = '';
       var mainEl = document.querySelector('.main-content');
       if (mainEl) mainEl.style.paddingBottom = '';
       arrowLayer.remove();
