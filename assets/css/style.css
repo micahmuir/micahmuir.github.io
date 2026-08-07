@@ -2195,6 +2195,19 @@ img.bookmark-image {
   }
 }
 
+/* Collapsed tab is the only thing on screen before the panel is opened —
+   half-size on mobile so it doesn't sit so large over page content */
+@media (max-width: 768px) {
+  .ink-controls.collapsed {
+    width: 46px;
+    height: 46px;
+  }
+
+  .ink-controls.collapsed .ink-toggle .when-closed {
+    font-size: 1.25rem;
+  }
+}
+
 /* Liquid ink-boundary sim canvas (About-page theme test) — upscaled from a
    low-res GPU dye field; the slight blur hides bilinear interpolation while
    keeping tendrils crisp. Same 100lvh trick as the watercolor canvas. */
