@@ -1989,8 +1989,41 @@ function createInkBoundaryVisual() {
   // The jet follows live either way (state is re-read every frame).
   var moveDrag = null;
 
+  // Deleting a placed object: dblclick covers mouse. On touch (and pen) the
+  // grab handler's preventDefault suppresses the synthesized mouse events, so
+  // dblclick never arrives — two quick pointerdowns on the same object are
+  // detected by hand instead. Registered BEFORE the drag handler so a
+  // recognized second tap can stop it from starting another grab.
+  function attachTapDelete(el, del) {
+    var lastT = -1e9, lastX = 0, lastY = 0;
+    el.addEventListener('pointerdown', function(ev) {
+      if (ev.pointerType === 'mouse' || ev.button !== 0) return;
+      var dx = ev.clientX - lastX, dy = ev.clientY - lastY;
+      if (ev.timeStamp - lastT < 400 && dx * dx + dy * dy < 35 * 35) {
+        ev.stopImmediatePropagation();   // the drag handler never sees this tap
+        ev.preventDefault();
+        del();
+        return;
+      }
+      lastT = ev.timeStamp; lastX = ev.clientX; lastY = ev.clientY;
+    });
+    el.addEventListener('dblclick', function(ev) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      del();
+    });
+  }
+
   function attachArrowDrag(em) {
     em.el.classList.add('placed');
+    attachTapDelete(em.el, function() {
+      pushHistory();
+      var idx = emitters.indexOf(em);
+      if (idx >= 0) emitters.splice(idx, 1);
+      em.el.remove();
+      moveDrag = null;
+      saveState();
+    });
     em.el.addEventListener('pointerdown', function(ev) {
       if (ev.button !== 0) return;
       ev.stopPropagation();   // keep the paint/placement handlers out of it
@@ -2006,16 +2039,6 @@ function createInkBoundaryVisual() {
       } else {
         moveDrag = { em: em, dx: em.x - ev.clientX, dyDoc: em.yDoc - pyDoc, snap: snapshot() };
       }
-    });
-    em.el.addEventListener('dblclick', function(ev) {
-      ev.stopPropagation();
-      ev.preventDefault();
-      pushHistory();
-      var idx = emitters.indexOf(em);
-      if (idx >= 0) emitters.splice(idx, 1);
-      em.el.remove();
-      moveDrag = null;
-      saveState();
     });
   }
 
@@ -2042,6 +2065,14 @@ function createInkBoundaryVisual() {
   }
 
   function attachSourceDrag(s) {
+    attachTapDelete(s.el, function() {
+      pushHistory();
+      var idx = sources.indexOf(s);
+      if (idx >= 0) sources.splice(idx, 1);
+      s.el.remove();
+      moveDrag = null;
+      saveState();
+    });
     s.el.addEventListener('pointerdown', function(ev) {
       // The handle stays live even while a placement mode is armed: modes are
       // sticky, so the very next thing after dropping a pool is usually a drag
@@ -2056,16 +2087,6 @@ function createInkBoundaryVisual() {
         dyDoc: s.yDoc - (ev.clientY + window.pageYOffset),
         snap: snapshot()
       };
-    });
-    s.el.addEventListener('dblclick', function(ev) {
-      ev.stopPropagation();
-      ev.preventDefault();
-      pushHistory();
-      var idx = sources.indexOf(s);
-      if (idx >= 0) sources.splice(idx, 1);
-      s.el.remove();
-      moveDrag = null;
-      saveState();
     });
   }
 
@@ -2921,15 +2942,29 @@ function createInkBoundaryVisual() {
       '<span class="when-closed">&#10002;</span>' +
       '<span class="when-open">&#10002; ink controls &#9662;</span>' +
     '</button>' +
-    '<label>Brush <input type="color" data-ink="brush" value="' + SIM.brushColor + '"></label>' +
-    '<label>Size <input type="range" data-ink="size" min="0.5" max="3" step="0.1" value="' + SIM.brushScale + '"></label>' +
-    '<label>Ink life <input type="range" data-ink="life" min="0" max="100" step="1" value="' +
+    // Chip strip — only visible on narrow viewports, where the panel becomes
+    // a slim bottom dock: the chips stand in for the stacked slider rows, and
+    // tapping one reveals just that knob's slider beneath the strip
+    '<div class="ink-chips">' +
+    '<button type="button" data-chip="brush">Brush</button>' +
+    '<button type="button" data-chip="size">Size</button>' +
+    '<button type="button" data-chip="life">Ink life</button>' +
+    '<button type="button" data-chip="flow">Turbulence</button>' +
+    '<button type="button" data-chip="mix">Mixing</button>' +
+    '<button type="button" data-chip="shear">Shear</button>' +
+    '<button type="button" data-chip="bleed">Bleed</button>' +
+    '<button type="button" data-chip="fade">Fade</button>' +
+    '</div>' +
+    '<label data-row="brush">Brush <input type="color" data-ink="brush" value="' + SIM.brushColor + '"></label>' +
+    '<label data-row="size">Size <input type="range" data-ink="size" min="0.5" max="3" step="0.1" value="' + SIM.brushScale + '"></label>' +
+    '<label data-row="life">Ink life <input type="range" data-ink="life" min="0" max="100" step="1" value="' +
       Math.round(100 * Math.log(SIM.brushDecay / 6) / Math.log(0.001)) + '"></label>' +
-    '<label>Turbulence <input type="range" data-ink="flow" min="0" max="12000" step="200" value="' + SIM.flowSpeed + '"></label>' +
-    '<label>Mixing <input type="range" data-ink="mix" min="0.02" max="0.09" step="0.001" value="' + SIM.flowScale2 + '"></label>' +
-    '<label>Shear <input type="range" data-ink="shear" min="0" max="80" step="2" value="' + SIM.shearSpeed + '"></label>' +
-    '<label>Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
-    '<label>Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>' +
+    '<label data-row="flow">Turbulence <input type="range" data-ink="flow" min="0" max="12000" step="200" value="' + SIM.flowSpeed + '"></label>' +
+    '<label data-row="mix">Mixing <input type="range" data-ink="mix" min="0.02" max="0.09" step="0.001" value="' + SIM.flowScale2 + '"></label>' +
+    '<label data-row="shear">Shear <input type="range" data-ink="shear" min="0" max="80" step="2" value="' + SIM.shearSpeed + '"></label>' +
+    '<label data-row="bleed">Bleed <input type="range" data-ink="bleed" min="0" max="40" step="1" value="' + SIM.bleedSpeed + '"></label>' +
+    '<label data-row="fade">Fade <input type="range" data-ink="fade" min="0.05" max="0.6" step="0.01" value="' + SIM.decayRate + '"></label>' +
+    '<div class="ink-actions">' +
     '<div class="ink-buttons">' +
     '<button type="button" data-ink="paint-toggle" title="Touchscreens: arm this to paint by dragging; leave it off to scroll the page normally">Touch paint</button>' +
     '</div>' +
@@ -2937,13 +2972,14 @@ function createInkBoundaryVisual() {
     '<button type="button" data-ink="place-emitter" title="Then click-drag the background: press = position, drag = flow direction and strength">Place flow emitter</button>' +
     '<button type="button" data-ink="place-source" title="Then click the background to place a bleeding ink source in the current brush color">Place ink source</button>' +
     '</div>' +
-    '<div class="ink-note">Double click object to delete</div>' +
     '<div class="ink-buttons">' +
     '<button type="button" data-ink="clear-placed" title="Remove all placed emitters and sources">Clear objects</button>' +
     '<button type="button" data-ink="clear-canvas" title="Wipe all laid ink — the panes and any placed sources soak back in">Clear canvas</button>' +
     '<button type="button" class="mini" data-ink="undo" title="Undo" disabled>&#8630;</button>' +
     '<button type="button" class="mini" data-ink="redo" title="Redo" disabled>&#8631;</button>' +
-    '</div>';
+    '</div>' +
+    '</div>' +
+    '<div class="ink-note">Double click or double tap an object to delete</div>';
   document.body.appendChild(panel);
 
   panel.addEventListener('click', function(e) {
@@ -2951,6 +2987,21 @@ function createInkBoundaryVisual() {
     if (panel.classList.contains('collapsed')) {
       panel.classList.remove('collapsed');
       panel.classList.remove('glow');
+      return;
+    }
+    // Chip strip (mobile dock): a chip shows its one slider; tapping the
+    // active chip again folds the slider away and gives the space back
+    var chip = (e.target && e.target.closest) ? e.target.closest('button[data-chip]') : null;
+    if (chip) {
+      var wasActive = chip.classList.contains('active');
+      panel.querySelectorAll('.ink-chips button.active, label.active').forEach(function(el) {
+        el.classList.remove('active');
+      });
+      if (!wasActive) {
+        chip.classList.add('active');
+        var row = panel.querySelector('label[data-row="' + chip.getAttribute('data-chip') + '"]');
+        if (row) row.classList.add('active');
+      }
       return;
     }
     var btn = (e.target && e.target.closest) ? e.target.closest('button[data-ink]') : null;

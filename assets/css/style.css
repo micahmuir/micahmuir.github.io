@@ -2036,6 +2036,39 @@ img.bookmark-image {
   cursor: pointer;
 }
 
+/* Chip strip: the mobile dock's stand-in for the stacked slider rows — one
+   small pill per knob, tapping one reveals just that slider. Desktop shows
+   every slider at once, so the strip only exists on narrow viewports. */
+.ink-controls .ink-chips {
+  display: none;
+}
+
+.ink-controls .ink-chips button {
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: 0.64rem;
+  line-height: 1.2;
+  padding: 5px 9px;
+  border: 1px solid rgba(32, 34, 31, 0.4);
+  border-radius: 999px;
+  background: none;
+  color: #20221f;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ink-controls .ink-chips button.active {
+  background: #20221f;
+  color: #f2ead9;
+}
+
+/* Action groups: stacked rows on desktop, flattened into one scrollable
+   strip by the mobile dock */
+.ink-controls .ink-actions {
+  display: grid;
+  gap: 5px;
+}
+
 /* Placement buttons: an armed button inverts to charcoal until the user
    clicks (ink source) or click-drags (flow emitter) on the background */
 .ink-controls .ink-buttons {
@@ -2119,6 +2152,9 @@ img.bookmark-image {
 .ink-arrows svg.ink-source {
   pointer-events: auto;
   cursor: grab;
+  /* Touch: a finger on a handle is always a grab or a double-tap delete —
+     never a page scroll or a double-tap zoom */
+  touch-action: none;
   opacity: 0.26;
   transition: opacity 0.22s ease;
 }
@@ -2195,8 +2231,11 @@ img.bookmark-image {
   }
 }
 
-/* Collapsed tab is the only thing on screen before the panel is opened —
-   half-size on mobile so it doesn't sit so large over page content */
+/* Mobile: the full control table would eat a third of the screen, so the
+   open panel becomes a slim dock along the bottom edge instead — a chip per
+   knob, a single slider for whichever chip is active, and the action buttons
+   flattened into one thumb-scrollable strip. The collapsed tab stays the
+   small round nib, half-size so it doesn't sit so large over page content. */
 @media (max-width: 768px) {
   .ink-controls.collapsed {
     width: 46px;
@@ -2205,6 +2244,74 @@ img.bookmark-image {
 
   .ink-controls.collapsed .ink-toggle .when-closed {
     font-size: 1.25rem;
+  }
+
+  .ink-controls:not(.collapsed) {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .ink-controls .ink-chips {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 1px;
+  }
+
+  .ink-controls .ink-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Sliders live behind the chips: only the active chip's row is shown,
+     stretched to the dock's full width */
+  .ink-controls > label {
+    display: none;
+  }
+
+  .ink-controls > label.active {
+    display: flex;
+  }
+
+  .ink-controls > label.active input[type="range"] {
+    width: auto;
+    flex: 1;
+  }
+
+  /* All three button groups collapse into one scrollable strip */
+  .ink-controls .ink-actions {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .ink-controls .ink-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ink-controls .ink-actions .ink-buttons {
+    display: contents;
+  }
+
+  .ink-controls .ink-actions .ink-buttons button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 5px 8px;
+  }
+
+  .ink-controls .ink-actions .ink-buttons button.mini {
+    width: 30px;
+    padding: 5px 0;
+  }
+
+  .ink-controls .ink-note {
+    font-size: 0.58rem;
   }
 }
 
