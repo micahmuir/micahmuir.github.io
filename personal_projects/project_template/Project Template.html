@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Template - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '▸';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!--
+    ================================================================================
+    PROJECT PUBLICATION TEMPLATE  (live document — headings may evolve)
+    ================================================================================
+    This page is the canonical structure for project publication pages. Mirror the
+    write-up headings below in the Notion template used to author new projects:
+
+      Background and Motivation
+        (optional sub-headings, e.g. "The Problem", "Prior Art")
+      Design and Conception
+        (optional sub-headings, e.g. "Architecture", "Iterations")
+      Usage
+        (optional sub-headings, e.g. "In Action", "Results")
+
+    Publishing workflow: author in Notion following this structure, export as
+    HTML, then run notion_to_project.py — it wraps the export in this split-view
+    layout automatically (media rail on the right / top, write-up scrolling on
+    the left / below).
+
+    Media rail rules:
+      - Each <button class="media-thumb"> in the ribbon is one media item.
+      - data-type="youtube" + data-id="VIDEOID", or data-type="image" + data-src.
+      - data-caption text appears under the main stage when the item is active.
+      - The FIRST thumb is the primary media — it fills the stage on page load.
+      - Add class "is-video" to video thumbs to get the play badge.
+      - Images embedded in the write-up STAY inline (they scale down
+        proportionally to the column width); the ribbon may list them too so
+        every media item is reachable from the stage. Videos live only in the
+        rail — the write-up references them in prose ("the media strip shows…").
+      - Clicking the stage while it shows an image toggles fullscreen
+        (videos use the YouTube player's own fullscreen control).
+    ================================================================================
+  -->
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+          <!-- PRIMARY media first — fills the stage on load -->
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="DvwK-FK2mSM"
+                  data-caption="Primary media — the hero video or image for the project">
+            <img src="https://img.youtube.com/vi/DvwK-FK2mSM/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <!-- Additional media / embeds -->
+          <button class="media-thumb" type="button" data-type="image" data-src="../mat_project/diagram.png"
+                  data-caption="Additional media item — diagrams, photos, renders">
+            <img src="../mat_project/diagram.png" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            <h1>Project Title</h1>
+            <p>One or two sentence hook: what the project is and the headline result. Mention any exhibitions, publications, or deployments up front.</p>
+
+            <h2>Background and Motivation</h2>
+            <p>Why this project exists. The itch that started it, the problem observed, and any constraints or goals set at the outset.</p>
+            <h3>Optional sub-heading</h3>
+            <p>Sub-headings are optional under every section — use them when a section grows past a few paragraphs (e.g. "The Problem", "Prior Art").</p>
+
+            <h2>Design and Conception</h2>
+            <p>How the solution took shape: architecture, key decisions, trade-offs, and the iterations along the way. Reference ribbon media from the text ("the system diagram in the media strip shows…").</p>
+            <figure class="image"><a href="../mat_project/diagram.png"><img style="width:420px" src="../mat_project/diagram.png" alt="Example inline image"></a><figcaption>Inline images stay in the write-up and scale proportionally to the column</figcaption></figure>
+            <h3>Optional sub-heading</h3>
+            <p>E.g. "Architecture", "Electronics", "Software", "Iterations".</p>
+
+            <h2>Usage</h2>
+            <p>The project in the real world: how it is used, performance numbers, what people did with it, and where it goes next.</p>
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

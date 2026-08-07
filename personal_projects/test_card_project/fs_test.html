@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Card - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '▸';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon (first thumb loads on page load) -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="DvwK-FK2mSM"
+                  data-caption="Embodied Particles — three days at the Lloyd Center, Portland OR">
+            <img src="https://img.youtube.com/vi/DvwK-FK2mSM/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="otG2o5SEMO0"
+                  data-caption="System overview: lidar-driven projection mapping">
+            <img src="https://img.youtube.com/vi/otG2o5SEMO0/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="diagram.png"
+                  data-caption="Signal chain: lidar → TouchDesigner → projector">
+            <img src="diagram.png" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="8Lr2bAI5sjk"
+                  data-caption="Early experiment: Leap Motion attractors and colliders">
+            <img src="https://img.youtube.com/vi/8Lr2bAI5sjk/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="lidar_chops.png"
+                  data-caption="Operator sequence encoding XYZ position data as an image frame">
+            <img src="lidar_chops.png" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="lidar_objects.png"
+                  data-caption="Physical objects used to quickly align lidar">
+            <img src="lidar_objects.png" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="image.png"
+                  data-caption="Resulting lidar outlines">
+            <img src="image.png" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="-x52zNiNcaI"
+                  data-caption="Blob detection routine tracking objects in the scan zone">
+            <img src="https://img.youtube.com/vi/-x52zNiNcaI/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="tef3gADUe9g"
+                  data-caption="Detection output driving particle attractors and colliders">
+            <img src="https://img.youtube.com/vi/tef3gADUe9g/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            <h1>Interactive Projection Mapping Installation</h1>
+            <p><strong>Featured at:</strong> <a href="https://ceti.institute/artwork/embodied-particles/" target="_blank" rel="noopener noreferrer">Embodied Particles — CETI Institute</a></p>
+            <p>This is the finished version of this spatial mapping/interaction project. I created an exhibition that ran for 3 consecutive days at the Lloyd Center in Portland Oregon. About 2000 people came through and interacted with the exhibit. I was thrilled!</p>
+
+            <h2 id="background">Background and Motivation</h2>
+            <p>I'm an avid believer in the benefits of physical activity for general wellbeing. I originally started designing the system as a positioning aid for yoga poses, where a number of static hand and foot locations could be queued up like a slideshow, but over time and through incremental education and improvement it has evolved into a platform for all kinds of spatial interaction and projection mapping experiments.</p>
+
+            <h2 id="design">Design and Conception</h2>
+            <div class="column-list">
+              <div style="width:50%" class="column">
+                <figure class="image"><a href="diagram.png"><img style="width:349px" src="diagram.png" alt="System diagram"></a><figcaption>Signal chain: lidar → TouchDesigner → projector</figcaption></figure>
+              </div>
+              <div style="width:50%" class="column">
+                <p>I created a projection pipeline using a lidar sensor to provide live object detection to a TouchDesigner network, and used some simple GLSL shaders to generate a variety of live visuals which are then projected onto the area of a yoga mat.</p>
+                <p>Effectively, it becomes a scalable multitouch display that people can interact with.</p>
+              </div>
+            </div>
+
+            <h3>Early Experiments</h3>
+            <p>Before I got the cinegrey mat I had a length of beige canvas as a projection surface and a 300 lumen miniprojector. The early experiment video shows interactive floor projection with a simulated particle system and a basic force interaction model, so that the leap motion device on the floor in front of me could act as attractors and colliders, depending on how tightly I clenched my fist.</p>
+            <p>From a previous project, I had access to a VLP-16 puck, which was drastic overkill for mapping my office floor. Ultimately I wanted this pipeline to be lidar-agnostic, so that I could mix and match different lidars depending on the room size, and whether or not I needed multiple lidar units to detect objects in the infrared shadow of other units.</p>
+
+            <h3>LiDAR Integration</h3>
+            <p>Below shows a set of objects in the scan zone, and their corresponding return map. I generated this map visual by converting the cartesian coordinates of a 360 degree scan to RGBA components of a 1 x number-of-points-in-the-cloud texture. This was to instance a single circle across the entire point cloud to "thicken" the cloud, and make it more suitable for blob detection.</p>
+            <figure class="image"><a href="lidar_chops.png"><img style="width:710px" src="lidar_chops.png" alt="Lidar operator sequence"></a><figcaption>Operator sequence encoding XYZ position data as an image frame</figcaption></figure>
+            <div class="column-list">
+              <div style="width:50%" class="column">
+                <figure class="image"><a href="lidar_objects.png"><img style="width:388px" src="lidar_objects.png" alt="Alignment objects"></a><figcaption>Physical objects used to quickly align lidar</figcaption></figure>
+              </div>
+              <div style="width:50%" class="column">
+                <figure class="image"><a href="image.png"><img style="width:331px" src="image.png" alt="Lidar outlines"></a><figcaption>Resulting lidar outlines</figcaption></figure>
+              </div>
+            </div>
+            <p>The blob detection routine (in the media strip) tracks objects as I walk around them. I transcribed the U, V, width, and height values of each blob again into the RGBA channels of an image, with a pixel count equal to the current number of detected blobs.</p>
+
+            <h2 id="usage">Usage</h2>
+            <p>From there, I had positional information I could overlay over my projection area to drive other real-time visuals I've designed. The detection output feeds the XY location of attractors and collider inputs to a simple particle simulation I made. I now have a flexible system where I can acquire raw sensor output, process it into usable interaction data, and pipe it into interactive installations at 35-60 FPS.</p>
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+<script>window.__fs=0; Element.prototype.requestFullscreen = function(){ window.__fs++; }; window.addEventListener("load", function(){ setTimeout(function(){ var t = document.querySelectorAll(".media-thumb"); t[2].click(); setTimeout(function(){ var s=document.querySelector(".media-stage"); document.title = "FS=" + window.__fs + " pseudo=" + s.classList.contains("stage-fullscreen") + " isimg=" + s.classList.contains("is-image"); }, 400); }, 400); });</script></body>
+</html>
+

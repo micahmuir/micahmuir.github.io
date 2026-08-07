@@ -80,11 +80,11 @@
 /* =======================================================================================
    PAGE-SPECIFIC COLOR OVERRIDES
 ======================================================================================= */
-/* About Page - Teal Theme */
+/* About Page - Teal Theme (accent matched to the ink-boundary sim's inner ink) */
 .page-about {
-  --theme-color: var(--teal-color);
-  --theme-rgb: 45, 212, 191;
-  --bg-anim-color: 45, 212, 191;
+  --theme-color: #00c896;
+  --theme-rgb: 0, 200, 150;
+  --bg-anim-color: 0, 200, 150;
 }
 
 /* Resume Page - Warm Amber Theme */
@@ -204,7 +204,11 @@ body {
   color: var(--text-dark);
   background-color: #000000;
   position: relative;
+  /* `clip` (where supported) clips horizontal overflow like `hidden` but
+     without making body a scroll container, so position: sticky descendants
+     (the project media rail) keep tracking the viewport scroll */
   overflow-x: hidden;
+  overflow-x: clip;
   width: 100%;
   max-width: 100vw;
 }
@@ -1164,7 +1168,8 @@ body.page-leaving .main-content {
   }
 
   .gallery-overlay,
-  #watercolor-canvas {
+  #watercolor-canvas,
+  #ink-canvas {
     display: none !important;
   }
 }
@@ -1550,6 +1555,229 @@ figure.link-to-page a:hover {
   color: #0a0a0b !important;
 }
 
+/* =======================================================================================
+   NOTION BLOCK SUPPORT
+   Notion HTML exports ship their own stylesheet that the converter drops, so
+   the block types below need site styling to survive the trip: callouts,
+   toggles, code blocks, quotes, tables, to-do lists, and text highlights.
+======================================================================================= */
+
+/* Callout blocks: icon + text in a soft panel */
+figure.callout {
+  display: flex !important;
+  gap: 0.75rem;
+  align-items: flex-start;
+  text-align: left !important;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0 !important;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  background: rgba(var(--theme-rgb), 0.08);
+}
+
+figure.callout p {
+  margin-bottom: 0.5rem;
+}
+
+figure.callout p:last-child {
+  margin-bottom: 0;
+}
+
+span.icon img {
+  width: 1.1em !important;
+  height: 1.1em !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  vertical-align: -0.15em;
+  box-shadow: none !important;
+}
+
+/* Toggle blocks: suppress the template's ▸ bullet (the disclosure triangle
+   is the marker) and indent the revealed content */
+.project-content ul.toggle {
+  padding-left: 0;
+}
+
+.project-content ul.toggle > li {
+  padding-left: 0;
+}
+
+.project-content ul.toggle > li::before {
+  content: none;
+}
+
+.project-content details {
+  margin: 0.75rem 0;
+}
+
+.project-content summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.project-content details > *:not(summary) {
+  margin-left: 1.5rem;
+}
+
+/* Code blocks */
+.project-content pre.code {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  text-align: left;
+}
+
+.project-content pre.code code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  background: none;
+  color: var(--text-light);
+  white-space: pre;
+}
+
+/* Inline code */
+.project-content code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  background: rgba(var(--theme-rgb), 0.12);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+}
+
+/* Quote blocks */
+.project-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 3px solid var(--theme-color);
+  color: var(--text-medium);
+  font-size: 1.05rem;
+}
+
+/* Simple tables */
+.project-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+.project-content th,
+.project-content td {
+  border: 1px solid var(--surface-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.project-content th {
+  background: rgba(var(--theme-rgb), 0.12);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* To-do lists: suppress the ▸ bullet, draw the exported checkbox divs */
+.project-content ul.to-do-list {
+  padding-left: 0;
+}
+
+.project-content ul.to-do-list > li {
+  padding-left: 0;
+}
+
+.project-content ul.to-do-list > li::before {
+  content: none;
+}
+
+.project-content .checkbox {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 0.45em;
+  vertical-align: -0.1em;
+  border: 1px solid var(--surface-border);
+  border-radius: 3px;
+}
+
+.project-content .checkbox.checkbox-on {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+}
+
+.project-content .to-do-children-checked {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Text highlights (Notion colors map onto the page accent) */
+.project-content mark[class*="highlight-"] {
+  background: rgba(var(--theme-rgb), 0.3);
+  color: inherit;
+  padding: 0 0.15em;
+  border-radius: 2px;
+}
+
+/* Bookmark cards (non-YouTube links pasted as previews) */
+figure a.bookmark {
+  display: flex !important;
+  align-items: stretch;
+  text-align: left !important;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+figure a.bookmark:hover {
+  border-color: rgba(var(--theme-rgb), 0.6);
+}
+
+.bookmark-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+}
+
+.bookmark-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+}
+
+.bookmark-description {
+  font-size: 0.85rem;
+  color: var(--text-medium);
+}
+
+.bookmark-href {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 0.4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+img.icon.bookmark-icon {
+  width: 1em !important;
+  height: 1em !important;
+  display: inline-block !important;
+  margin: 0 0.35em 0 0 !important;
+  vertical-align: -0.15em;
+  box-shadow: none !important;
+}
+
+img.bookmark-image {
+  flex: 0 0 30%;
+  max-width: 30% !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
 /* True black backgrounds on every page — OLED friendly; the particle
    canvas carries the per-page accent color instead of a tinted body */
 .page-about,
@@ -1577,4 +1805,702 @@ figure.link-to-page a:hover {
   pointer-events: none;
   opacity: 0.85;
   /* blur is set from JS SIM settings */
+}
+
+/* About-page theme test: while the ink sim runs (body.ink-active) it paints
+   the pane interiors itself, per-pixel continuous with the edge bleed — so
+   the CSS panes carry NO surface of their own. No background, border, shadow,
+   or glass blur; the first visible transition is the ink mixing at the edge. */
+.page-about.ink-active .paper-panel,
+.page-about.ink-active .card {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.page-about.ink-active .paper-panel:hover,
+.page-about.ink-active .card:hover {
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Click-drag paints ink — text selection would fight the brush, so it's off
+   for the whole page while the sim runs (form controls keep their behavior).
+   The theme accent also flips from emerald to the ink palette's cream, so
+   every themed element (nav active pill, etc.) matches the charcoal/cream. */
+.page-about.ink-active {
+  --theme-color: #f2ead9;
+  --theme-rgb: 242, 234, 217;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+/* Nav links on the ink bar: cream on charcoal */
+.page-about.ink-active .nav-links a {
+  color: rgba(242, 234, 217, 0.68);
+}
+
+/* Hover: the pool of background liquid migrates to the hovered pill
+   (updateHole in main.js eases the hole toward whichever link is hovered),
+   so the hovered label sinks to the ink color — slightly delayed to let the
+   pool swim over — while the selected pill it abandoned returns to cream as
+   the navbar re-inks it. */
+.page-about.ink-active .nav-links a:hover {
+  color: #20221f;
+  background: none;
+  transition: color 0.3s ease 0.15s;
+}
+
+.page-about.ink-active .nav-links:has(a:hover) a.active:not(:hover) {
+  color: rgba(242, 234, 217, 0.68);
+}
+
+/* Selection: the pill is carved out of the navbar's ink by the fluid sim
+   itself — a pool of the background liquid bursts through, and its boundary
+   roils and mixes with the charcoal exactly like the content pane borders
+   (see holeSD / uHole in main.js). CSS contributes nothing visual here
+   except sinking the label to the ink color, slightly delayed so the pool
+   has cleared beneath it, so it stays legible on the light liquid. */
+.page-about.ink-active .nav-links a.active,
+.page-about.ink-active .nav-links a.active:hover {
+  color: #20221f;
+  background: none;
+  border-color: transparent;
+  transition: color 0.3s ease 0.2s;
+}
+
+/* The navbar is an ink blob too: the sim paints its body (its rect is fed to
+   the fluid with top/side edges pushed offscreen, so only the bottom edge
+   bleeds). Strip the glass chrome; the links render on the ink itself. */
+.page-about.ink-active .navbar {
+  background: none;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Liquid-background mode: the page background sits at the midpoint of the
+   sim's two background-liquid tones (SIM.bgColor / SIM.bgDeep in main.js —
+   keep in sync) so the canvas edges and any uncovered page area blend
+   invisibly into the marbling. Screen only; print stays white. */
+@media screen {
+  .page-about.ink-active {
+    background-color: #e2d7bf !important;
+  }
+}
+
+/* Ink control table — small fixed panel of live sim knobs, created by the
+   ink sim itself (only present while it runs). Styled as a paper card. */
+.ink-controls {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 50;
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  background: rgba(242, 234, 217, 0.92);
+  border: 1px solid rgba(32, 34, 31, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(32, 34, 31, 0.18);
+  font-size: 0.72rem;
+  line-height: 1;
+  color: #20221f;
+  user-select: none;
+}
+
+/* Collapse toggle: header row when the table is open, and the whole visible
+   face of the panel when collapsed */
+.ink-controls .ink-toggle {
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  border: none;
+  background: none;
+  color: #20221f;
+  cursor: pointer;
+  padding: 0 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ink-controls .ink-toggle .when-closed {
+  display: none;
+}
+
+/* Collapsed: the panel folds down to a small round tab — mostly hidden,
+   just the nib glyph showing */
+.ink-controls.collapsed {
+  width: 92px;
+  height: 92px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ink-controls.collapsed > label,
+.ink-controls.collapsed > .ink-note,
+.ink-controls.collapsed > .ink-buttons {
+  display: none;
+}
+
+.ink-controls.collapsed .ink-toggle {
+  padding: 0;
+  pointer-events: none;   /* the whole tab is the click target */
+}
+
+.ink-controls.collapsed .ink-toggle .when-open {
+  display: none;
+}
+
+.ink-controls.collapsed .ink-toggle .when-closed {
+  display: block;
+  font-size: 2.5rem;
+}
+
+/* A slow soft breathing of ink-shadow around the collapsed tab, plus a shake
+   of the nib every five seconds to catch the eye; both are removed for good
+   on first open */
+.ink-controls.glow {
+  animation: ink-controls-pulse 2.4s ease-in-out infinite,
+             ink-controls-wiggle 5s ease-in-out infinite;
+}
+
+@keyframes ink-controls-pulse {
+  0%, 100% {
+    box-shadow: 0 2px 10px rgba(32, 34, 31, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 18px 5px rgba(32, 34, 31, 0.45);
+  }
+}
+
+/* The shake itself takes about half a second; the rest of the five is spent
+   sitting still, so it reads as an occasional nudge rather than a jitter */
+@keyframes ink-controls-wiggle {
+  0%, 10%, 100% {
+    transform: rotate(0deg);
+  }
+  2% {
+    transform: rotate(-13deg);
+  }
+  4% {
+    transform: rotate(11deg);
+  }
+  6% {
+    transform: rotate(-8deg);
+  }
+  8% {
+    transform: rotate(5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-controls.glow {
+    animation: none;
+    box-shadow: 0 0 14px 3px rgba(32, 34, 31, 0.35);
+  }
+}
+
+.ink-controls label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #20221f;
+}
+
+.ink-controls input[type="range"] {
+  width: 96px;
+  accent-color: #20221f;
+}
+
+.ink-controls input[type="color"] {
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid rgba(32, 34, 31, 0.4);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+/* Placement buttons: an armed button inverts to charcoal until the user
+   clicks (ink source) or click-drags (flow emitter) on the background */
+.ink-controls .ink-buttons {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.ink-controls .ink-buttons button {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.66rem;
+  line-height: 1.2;
+  padding: 4px 5px;
+  border: 1px solid rgba(32, 34, 31, 0.4);
+  border-radius: 5px;
+  background: none;
+  color: #20221f;
+  cursor: pointer;
+}
+
+.ink-controls .ink-buttons button:hover {
+  background: rgba(32, 34, 31, 0.08);
+}
+
+.ink-controls .ink-buttons button.armed {
+  background: #20221f;
+  color: #f2ead9;
+}
+
+/* Quiet hint under the placement buttons — how to get rid of what you placed */
+.ink-controls .ink-note {
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  text-align: center;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.ink-controls .ink-buttons button.mini {
+  flex: 0 0 auto;
+  width: 26px;
+  padding: 4px 0;
+  font-size: 0.8rem;
+}
+
+.ink-controls .ink-buttons button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ink-controls .ink-buttons button:disabled:hover {
+  background: none;
+}
+
+/* Emitter vector arrows: document-anchored overlay (scrolls with content),
+   drawn in charcoal ink with a faint cream halo so they read on both the
+   parchment background and the dark pane blobs */
+.ink-arrows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.ink-arrows svg {
+  position: absolute;
+  overflow: visible;
+  filter: drop-shadow(0 0 2px rgba(242, 234, 217, 0.85));
+}
+
+/* Committed emitters are draggable by their arrow; previews are not.
+   A placed object sits faint so it doesn't compete with the ink — pointing at
+   it brings it up to full strength, which also says which one a double-click
+   would delete or a drag would move. The live placement preview stays bright. */
+.ink-arrows svg.placed,
+.ink-arrows svg.ink-source {
+  pointer-events: auto;
+  cursor: grab;
+  opacity: 0.26;
+  transition: opacity 0.22s ease;
+}
+
+.ink-arrows svg.placed:hover,
+.ink-arrows svg.placed.dragging,
+.ink-arrows svg.ink-source:hover,
+.ink-arrows svg.ink-source.dragging {
+  opacity: 1;
+}
+
+.ink-arrows svg.placed:active,
+.ink-arrows svg.ink-source:active {
+  cursor: grabbing;
+}
+
+/* Touch: no hover to reveal them with, so keep placed objects readable */
+@media (hover: none) {
+  .ink-arrows svg.placed,
+  .ink-arrows svg.ink-source {
+    opacity: 0.7;
+  }
+}
+
+.ink-arrows line {
+  stroke: rgba(32, 34, 31, 0.7);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.ink-arrows circle,
+.ink-arrows polygon {
+  fill: rgba(32, 34, 31, 0.7);
+}
+
+/* Ring handles marking the two grab zones: origin (move) and head (re-aim) */
+.ink-arrows circle.handle {
+  fill: rgba(242, 234, 217, 0.35);
+  stroke: rgba(32, 34, 31, 0.65);
+  stroke-width: 1.5;
+}
+
+/* Ink source marker: a dot in the pool's own color inside a dashed ring that
+   marks the grab zone. The ring washes in on hover — the subtle highlight
+   that picks out which pool the pointer has. */
+.ink-arrows svg.ink-source .halo {
+  fill: rgba(32, 34, 31, 0);
+  stroke: rgba(32, 34, 31, 0.55);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3.5;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.ink-arrows svg.ink-source:hover .halo,
+.ink-arrows svg.ink-source.dragging .halo {
+  fill: rgba(32, 34, 31, 0.14);
+  stroke: rgba(32, 34, 31, 0.85);
+}
+
+.ink-arrows svg.ink-source .dot {
+  stroke: rgba(32, 34, 31, 0.7);
+  stroke-width: 1;
+}
+
+@media print {
+  .ink-arrows {
+    display: none !important;
+  }
+}
+
+@media print {
+  .ink-controls {
+    display: none !important;
+  }
+}
+
+/* Liquid ink-boundary sim canvas (About-page theme test) — upscaled from a
+   low-res GPU dye field; the slight blur hides bilinear interpolation while
+   keeping tendrils crisp. Same 100lvh trick as the watercolor canvas. */
+#ink-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100lvh;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+/* =======================================================================================
+   PROJECT SPLIT VIEW
+   Immersive project page layout: sticky media stage + thumbnail ribbon on the
+   right, scrollable write-up column on the left. Below 1300px the media stage
+   moves to the top of the page with the write-up underneath.
+======================================================================================= */
+.project-split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 2rem;
+  align-items: start;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 3rem;
+}
+
+.project-writeup {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+/* The write-up panel is a reading surface, not a card — no hover lift */
+.project-writeup .paper-panel:hover {
+  transform: none;
+  box-shadow: var(--shadow-medium);
+  border-color: var(--surface-border);
+}
+
+/* Top edges of the write-up panel and the media stage sit flush */
+.project-writeup .paper-panel {
+  margin-top: 0;
+}
+
+.project-writeup .project-content h1 {
+  margin-top: 0;
+}
+
+/* Inline write-up images keep their authored (Notion) widths but scale
+   down proportionally when the column is narrower */
+.project-writeup .project-content img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.project-media-rail {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: calc(100vh - 116px);
+}
+
+/* Main media stage — hosts one image or embed at a time */
+.media-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100vh - 290px);
+  background: #000;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-medium);
+  flex: 0 1 auto;
+}
+
+.media-stage iframe,
+.media-stage video,
+.media-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.media-stage img,
+.media-stage video {
+  object-fit: contain;
+}
+
+/* When the stage shows an image, clicking it toggles fullscreen */
+.media-stage.is-image {
+  cursor: zoom-in;
+}
+
+.media-stage:fullscreen {
+  border: none;
+  border-radius: 0;
+  max-height: none;
+  cursor: zoom-out;
+  background: #000;
+}
+
+/* Pseudo-fullscreen fallback for browsers without the Fullscreen API (iOS) */
+.media-stage.stage-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  width: auto;
+  aspect-ratio: auto;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+  cursor: zoom-out;
+  background: #000;
+}
+
+body.stage-fullscreen-open {
+  overflow: hidden;
+}
+
+.media-stage-caption {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text-medium);
+  text-align: center;
+  margin: 0;
+  min-height: 1.4em;
+}
+
+/* Thumbnail ribbon for additional media and embeds */
+.media-ribbon {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.25rem 0.15rem 0.6rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--theme-rgb), 0.5) transparent;
+}
+
+.media-ribbon::-webkit-scrollbar {
+  height: 6px;
+}
+
+.media-ribbon::-webkit-scrollbar-thumb {
+  background: rgba(var(--theme-rgb), 0.5);
+  border-radius: 3px;
+}
+
+.media-ribbon::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.media-thumb {
+  flex: 0 0 auto;
+  width: 118px;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  padding: 0;
+  background: #000;
+  border: 2px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), border-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.media-thumb img,
+.media-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.media-thumb:hover {
+  opacity: 1;
+  border-color: rgba(var(--theme-rgb), 0.6);
+  transform: translateY(-2px);
+}
+
+.media-thumb.active {
+  opacity: 1;
+  border-color: var(--theme-color);
+  box-shadow: var(--glow-theme);
+}
+
+/* Play badge on video thumbnails */
+.media-thumb.is-video::after {
+  content: '\25B6';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.25);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+/* Narrow screens: media view on top, write-up scrolling underneath it.
+   The split is sized to fill the viewport exactly, so the page itself never
+   scrolls and the write-up column is the only thing that does. That keeps
+   the media view — and the fixed navbar — in sight the whole way down the
+   write-up, and the write-up's own scrollbar always reaches its last line
+   no matter how tall the screen is. */
+@media (max-width: 1300px) {
+  .main-content:has(.project-split) {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-split {
+    display: flex;
+    flex-direction: column;
+    /* align-items overrides the grid layout's `start`, which would shrink-wrap
+       both columns to the width of the thumbnail ribbon. The explicit width is
+       needed because the rule's own `margin: 0 auto` suppresses cross-axis
+       stretching, leaving the split sized to its content and overflowing
+       narrow screens. */
+    align-items: stretch;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem 1rem;
+  }
+
+  /* The rail takes the height its media needs, capped so the write-up always
+     keeps a readable share of the viewport. The write-up then flexes into
+     whatever is left — from a zero basis, so its very tall content doesn't
+     drag the rail down with it when flex distributes the shortfall. */
+  .project-media-rail {
+    position: static;
+    flex: 0 0 auto;
+    min-height: 0;
+    max-height: 50%;
+    margin-bottom: 0;
+  }
+
+  /* Free to shrink within the rail's capped height (the image inside is
+     object-fit: contain, so it just letterboxes) */
+  .media-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .project-writeup {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--theme-rgb), 0.5) transparent;
+  }
+
+  .project-writeup::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .project-writeup::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.5);
+    border-radius: 3px;
+  }
+
+  .project-writeup::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .media-thumb {
+    width: 96px;
+  }
+}
+
+/* Clear the vertically-stacked fixed navbar so the stage isn't tucked
+   under it (nav links go column below 768px) */
+@media (max-width: 768px) {
+  .project-split {
+    padding-top: 4rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .project-split {
+    padding-top: 6.5rem;
+  }
 }
