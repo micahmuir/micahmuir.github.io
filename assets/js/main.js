@@ -547,6 +547,56 @@ function getPagePalette() {
   return PAGE_PALETTES['default'];
 }
 
+// Fixed-position elements sit outside mobile pinch-zoom: the browser scales
+// and pans ordinary page content around them while a `position: fixed` layer
+// stays put at its native size, so a full-viewport background canvas visually
+// drifts apart from (and can appear to move opposite to) the content it's
+// meant to track. Counter that with a matching CSS transform driven by the
+// Visual Viewport API, so the canvas rides the same pinch-zoom as everything
+// else instead of staying anchored to the layout viewport.
+//
+// The transform alone keeps it aligned at any zoom level, in or out, but
+// its box is still only innerWidth x innerHeight — zoomed OUT past 1:1 the
+// visual viewport shows more page than that box covers once shrunk down,
+// leaving bare margin at the far edges. `onResize`, if given, is the sim's
+// own resize() — called (debounced, so a pinch gesture doesn't thrash GL
+// buffer reallocation on every touch event) after growing the box to the
+// current visual-viewport size, so the sim's internal resolution settles to
+// match and the coverage gap closes once the gesture stops.
+function syncFixedToVisualViewport(el, onResize) {
+  var vv = window.visualViewport;
+  if (!vv) return;
+  el.style.transformOrigin = '0 0';
+
+  function applyTransform() {
+    el.style.transform = 'scale(' + vv.scale + ') translate(' + (-vv.offsetLeft) + 'px, ' + (-vv.offsetTop) + 'px)';
+  }
+
+  var settleTimer = null;
+  function scheduleResettle() {
+    if (!onResize) return;
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(function() {
+      if (vv.scale === 1) {
+        // No pinch-zoom in play (desktop, or mobile at 1:1): the CSS
+        // 100vw/100lvh box tracks the viewport by itself. An inline px size
+        // would go stale on the next browser-zoom step and make the whole
+        // field lurch sideways until the next resettle — so clear it.
+        el.style.width = '';
+        el.style.height = '';
+      } else {
+        el.style.width = vv.width + 'px';
+        el.style.height = vv.height + 'px';
+      }
+      onResize();
+    }, 150);
+  }
+
+  vv.addEventListener('resize', function() { applyTransform(); scheduleResettle(); });
+  vv.addEventListener('scroll', function() { applyTransform(); scheduleResettle(); });
+  applyTransform();
+}
+
 // --- Manager: one background visual per page ---
 function initBackgroundVisuals() {
   // Photo-first pages (photography portfolio) provide their own full-black
@@ -621,6 +671,7 @@ function createWatercolorVisual() {
   canvas.style.filter = 'blur(' + SIM.blurCSS + ')';
   canvas.style.opacity = SIM.canvasOpacity;
   document.body.appendChild(canvas);
+  syncFixedToVisualViewport(canvas, function() { resize(); });
   var ctx = canvas.getContext('2d');
 
   var scale = SIM.resolutionScale;
@@ -1096,6 +1147,7 @@ function createInkBoundaryVisual() {
   var canvas = document.createElement('canvas');
   canvas.id = 'ink-canvas';
   document.body.appendChild(canvas);
+  syncFixedToVisualViewport(canvas, function() { resize(); });
 
   var gl = canvas.getContext('webgl', { alpha: false, antialias: false, depth: false, stencil: false }) ||
            canvas.getContext('experimental-webgl', { alpha: false, antialias: false, depth: false, stencil: false });
@@ -1794,7 +1846,17 @@ function createInkBoundaryVisual() {
     var scale = Math.min(SIM.maxScale, SIM.maxSimDim / Math.max(cssW, cssH));
     var w = Math.max(1, Math.round(cssW * scale));
     var h = Math.max(1, Math.round(cssH * scale));
-    if (w === simW && h === simH) return;
+    if (w === simW && h === simH) {
+      // Browser zoom preserves the viewport aspect ratio, so once maxSimDim
+      // caps the buffer the dims come out unchanged — but the CSS box did
+      // change, so the CSS->sim mapping must still be refreshed or the ink
+      // injects offset from the panes (drifting left/right with zoom level)
+      if (scale !== simScale) {
+        simScale = scale;
+        remapPlaced();
+      }
+      return;
+    }
 
     var oldW = simW, oldH = simH, oldScale = simScale;
     var oldTexA = texA, oldTexB = texB, oldFboA = fboA, oldFboB = fboB;
