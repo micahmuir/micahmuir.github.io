@@ -4,26 +4,31 @@ Notion export -> portfolio project page converter.
 
 Takes a Notion HTML export (ZIP, extracted folder, or single .html file) and
 produces a themed project page for the site while preserving the Notion page's
-content and layout (columns, figures, captions). The site stylesheet already
-styles Notion's .column-list / .column / figure.image / figcaption markup, so
-the Notion body is kept intact and only wrapped in the site chrome.
+content and layout (columns, figures, captions, callouts, toggles, code
+blocks, tables). The site stylesheet already styles Notion's exported markup,
+so the Notion body is kept intact and only wrapped in the site chrome.
 
 What it does:
   1. Extracts the ZIP (including nested ZIPs) to a temp folder.
   2. Finds the main page (shallowest, then largest HTML file).
-  3. Copies every referenced image/asset into the output folder with the
+  3. Strips Notion page chrome (cover image, page icon, properties table)
+     while keeping the page body and its layout intact.
+  4. Copies every referenced image/asset into the output folder with the
      Notion UUID stripped from the filename; rewrites src/href to match.
-  4. Converts HEIC/HEIF images to PNG (requires pillow-heif).
-  5. Replaces YouTube embeds/bookmarks/auto-links with responsive iframes.
-  6. Rewrites links between exported subpages; each subpage becomes its own
+  5. Converts HEIC/HEIF images to JPEG (requires pillow-heif).
+  6. Replaces YouTube embeds/bookmarks/auto-links with responsive iframes;
+     uploaded video files (.mp4/.webm/.mov) become playable rail media.
+  7. Rewrites links between exported subpages; each subpage becomes its own
      themed HTML file alongside the main page.
-  7. Builds a split-view media rail: a sticky main stage + thumbnail ribbon
+  8. Builds a split-view media rail: a sticky main stage + thumbnail ribbon
      beside a scrollable write-up column (stacked vertically on narrow
-     screens). Video embeds move out of the flow into the rail; image figures
-     stay inline in the write-up (scaled proportionally) and are listed in the
-     ribbon as well. Pages with no media fall back to the classic centered
+     screens). Videos move out of the flow into the rail; image figures stay
+     inline in the write-up (scaled proportionally) and are listed in the
+     ribbon as well. Ribbon thumbnails are downscaled copies (when Pillow is
+     available) and inline images lazy-load, so pages stay fast even with
+     large photos. Pages with no media fall back to the classic centered
      layout.
-  8. Writes everything to <site>/personal_projects/<slug>_project/ or
+  9. Writes everything to <site>/personal_projects/<slug>_project/ or
      <site>/professional_projects/<slug>_project/ and prints a ready-to-paste
      card snippet for projects.html.
 
@@ -56,6 +61,12 @@ HEX32 = r'[0-9a-fA-F]{32}'
 DASHED_UUID = r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
 YT_ID = r'(?:youtube\.com/(?:watch\?[^"\'<>\s]*?v=|embed/|shorts/)|youtu\.be/)([A-Za-z0-9_-]{11})'
 
+RASTER_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.tif', '.tiff'}
+VIDEO_EXTS = {'.mp4', '.webm', '.m4v', '.mov'}
+THUMB_MAX = 480          # ribbon thumbnails are downscaled to fit this box
+WIDE_MIN_WIDTH = 2000    # panoramic detection: at least this many pixels wide
+WIDE_MIN_ASPECT = 2.0    # ...and at least this width/height ratio
+
 try:
     from PIL import Image
     try:
@@ -85,6 +96,11 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
       margin: 2rem 0 1rem 0;
       padding-bottom: 0.5rem;
       border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
     }
 
     .project-content ul {
@@ -321,6 +337,21 @@ def extract_body(content):
     return body.strip()
 
 
+def strip_page_chrome(body):
+    """Remove Notion page chrome that has no place on the site: the cover
+    image, page icon, and properties table that Notion exports inside the
+    page <header>. The page title <h1> and the body content are kept."""
+    body = re.sub(r'<img\b[^>]*\bclass="[^"]*\bpage-cover-image\b[^"]*"[^>]*/?>',
+                  '', body, flags=re.IGNORECASE)
+    body = re.sub(r'<div\b[^>]*\bclass="[^"]*\bpage-header-icon\b[^"]*"[^>]*>.*?</div>',
+                  '', body, flags=re.IGNORECASE | re.DOTALL)
+    body = re.sub(r'<table\b[^>]*\bclass="[^"]*\bproperties\b[^"]*"[^>]*>.*?</table>',
+                  '', body, flags=re.IGNORECASE | re.DOTALL)
+    body = re.sub(r'<p\b[^>]*\bclass="[^"]*\bpage-description\b[^"]*"[^>]*>\s*</p>',
+                  '', body, flags=re.IGNORECASE)
+    return body
+
+
 def embed_youtube(content):
     """Replace Notion YouTube embeds/bookmarks/auto-links with iframe players.
 
@@ -354,28 +385,35 @@ def embed_youtube(content):
     return content
 
 
-def tag_wide_images(content):
-    """Add the theme's wide-image class to panoramic images (>2000px wide)."""
+def add_lazy_images(content):
+    """Lazy-load inline write-up images so big pages don't fetch every photo
+    up front (the media stage manages its own loading)."""
     def repl(match):
         tag = match.group(0)
-        width = re.search(r'width:\s*([\d.]+)px', tag)
-        if width and float(width.group(1)) > 2000 and 'wide-image' not in tag:
-            if 'class="' in tag:
-                tag = tag.replace('class="', 'class="wide-image ', 1)
-            else:
-                tag = tag.replace('<img', '<img class="wide-image"', 1)
-        return tag
-    return re.sub(r'<img\b[^>]*>', repl, content)
+        if 'loading=' in tag:
+            return tag
+        closer = '/>' if tag.endswith('/>') else '>'
+        return (tag[:-len(closer)].rstrip()
+                + ' loading="lazy" decoding="async"' + closer)
+    return re.sub(r'<img\b[^>]*?/?>', repl, content)
+
+
+def media_href(block):
+    """First anchor href in a block, decoded, or ''."""
+    link = re.search(r'<a\b[^>]*href="([^"]*)"', block, re.IGNORECASE)
+    return urllib.parse.unquote(link.group(1)) if link else ''
 
 
 def extract_media(content):
     """Collect media for the split-view rail: (new_content, items).
 
-    Video embeds are REMOVED from the flow (they play in the sticky stage);
-    image figures STAY inline in the write-up (scaled proportionally by CSS)
-    but are also listed so every media item is reachable from the ribbon.
-    Items are {'type': 'youtube', 'id', 'caption'} or {'type': 'image',
-    'src', 'caption'}, in document order.
+    Videos (YouTube embeds and uploaded video files) are REMOVED from the
+    flow - they play in the sticky stage. Image figures STAY inline in the
+    write-up (scaled proportionally by CSS) but are also listed so every
+    media item is reachable from the ribbon. Items are in document order:
+      {'type': 'youtube', 'id': ..., 'caption': ...}
+      {'type': 'video', 'src': ..., 'caption': ...}   (quoted output filename)
+      {'type': 'image', 'src': ..., 'caption': ...}   (quoted output filename)
     """
     candidates = []  # (start, end, remove, item)
     for match in re.finditer(r'<figure\b[^>]*>.*?</figure>', content,
@@ -385,9 +423,16 @@ def extract_media(content):
                         re.IGNORECASE | re.DOTALL)
         caption = strip_tags(cap.group(1)) if cap else ''
         video = re.search(r'youtube\.com/embed/([A-Za-z0-9_-]{11})', block)
+        href = media_href(block)
         if video:
             candidates.append((match.start(), match.end(), True,
                                {'type': 'youtube', 'id': video.group(1),
+                                'caption': caption}))
+        elif (os.path.splitext(href)[1].lower() in VIDEO_EXTS
+              and not href.startswith(('http://', 'https://'))):
+            candidates.append((match.start(), match.end(), True,
+                               {'type': 'video',
+                                'src': urllib.parse.quote(href),
                                 'caption': caption}))
         else:
             img = re.search(r'<img\b[^>]*\bsrc="([^"]*)"', block)
@@ -415,28 +460,6 @@ def extract_media(content):
     return content, [item for _, _, _, item in candidates]
 
 
-def media_thumbs_html(items):
-    """Render media items as ribbon thumbnail buttons for SPLIT_PAGE_TEMPLATE."""
-    thumbs = []
-    for item in items:
-        caption = html_lib.escape(item['caption'], quote=True)
-        if item['type'] == 'youtube':
-            thumbs.append(
-                '          <button class="media-thumb is-video" type="button" '
-                f'data-type="youtube" data-id="{item["id"]}" data-caption="{caption}">\n'
-                f'            <img src="https://img.youtube.com/vi/{item["id"]}/mqdefault.jpg"'
-                ' alt="" loading="lazy">\n'
-                '          </button>')
-        else:
-            src = html_lib.escape(item['src'], quote=True)
-            thumbs.append(
-                '          <button class="media-thumb" type="button" '
-                f'data-type="image" data-src="{src}" data-caption="{caption}">\n'
-                f'            <img src="{src}" alt="" loading="lazy">\n'
-                '          </button>')
-    return '\n'.join(thumbs)
-
-
 class NotionConverter:
     def __init__(self, site_root=SITE_ROOT, category='personal', name=None, force=False):
         self.site_root = Path(site_root)
@@ -448,6 +471,8 @@ class NotionConverter:
         self.asset_map = {}     # resolved source Path -> output filename
         self.html_map = {}      # resolved source Path -> output filename
         self.uuid_map = {}      # 32-hex uuid -> resolved source html Path
+        self.image_dims = {}    # output filename -> (width, height)
+        self.thumb_map = {}     # output filename -> ribbon thumb URL
         self.used_names = set()
         self.warnings = []
         # Called when the output folder already exists and --force wasn't
@@ -512,7 +537,7 @@ class NotionConverter:
         convert_heic = suffix in ('.heic', '.heif') and HEIC_SUPPORT
         name = clean_component(source.name)
         if convert_heic:
-            name = os.path.splitext(name)[0] + '.png'
+            name = os.path.splitext(name)[0] + '.jpg'
         elif suffix in ('.heic', '.heif'):
             self.warn(f"{source.name}: browsers cannot display HEIC. "
                       "Install pillow-heif to convert (pip install pillow-heif).")
@@ -521,14 +546,45 @@ class NotionConverter:
         dest = self.out_dir / name
         if convert_heic:
             with Image.open(source) as img:
-                if img.mode not in ('RGB', 'RGBA'):
-                    img = img.convert('RGB')
-                img.save(dest, 'PNG', optimize=True)
+                img.convert('RGB').save(dest, 'JPEG', quality=90, optimize=True)
         else:
             shutil.copy2(source, dest)
 
+        if Image and dest.suffix.lower() in RASTER_EXTS:
+            try:
+                with Image.open(dest) as img:
+                    self.image_dims[name] = img.size
+            except Exception:
+                pass
+
         self.asset_map[source] = name
         return name
+
+    def ribbon_thumb(self, src):
+        """Small thumbnail URL for a full-size image URL, generating
+        <name>_thumb.jpg in the output folder when Pillow is available.
+        Falls back to the full image."""
+        name = urllib.parse.unquote(src)
+        if name in self.thumb_map:
+            return self.thumb_map[name]
+
+        result = src
+        path = self.out_dir / name
+        if Image and path.suffix.lower() in RASTER_EXTS and path.is_file():
+            try:
+                with Image.open(path) as img:
+                    if max(img.size) > THUMB_MAX * 1.25:
+                        img.thumbnail((THUMB_MAX, THUMB_MAX))
+                        thumb_name = self.unique_name(
+                            os.path.splitext(name)[0] + '_thumb.jpg')
+                        img.convert('RGB').save(self.out_dir / thumb_name,
+                                                'JPEG', quality=82, optimize=True)
+                        result = urllib.parse.quote(thumb_name)
+            except Exception as error:
+                self.warn(f"Could not thumbnail {name}: {error}")
+
+        self.thumb_map[name] = result
+        return result
 
     # ----------------------------------------------------------------- links
 
@@ -564,6 +620,64 @@ class NotionConverter:
 
         return re.sub(r'\b(src|href)="([^"]*)"', repl, content)
 
+    # ------------------------------------------------------------- rendering
+
+    def tag_wide_images(self, content):
+        """Add the theme's wide-image class to panoramic images. Uses the real
+        pixel size when known (imported raster assets); falls back to the
+        inline display width Notion exported."""
+        def repl(match):
+            tag = match.group(0)
+            if 'wide-image' in tag:
+                return tag
+            src = re.search(r'\bsrc="([^"]*)"', tag)
+            dims = src and self.image_dims.get(urllib.parse.unquote(src.group(1)))
+            if dims:
+                wide = (dims[0] >= WIDE_MIN_WIDTH
+                        and dims[0] >= WIDE_MIN_ASPECT * dims[1])
+            else:
+                width = re.search(r'width:\s*([\d.]+)px', tag)
+                wide = bool(width and float(width.group(1)) > WIDE_MIN_WIDTH)
+            if wide:
+                if 'class="' in tag:
+                    tag = tag.replace('class="', 'class="wide-image ', 1)
+                else:
+                    tag = tag.replace('<img', '<img class="wide-image"', 1)
+            return tag
+        return re.sub(r'<img\b[^>]*>', repl, content)
+
+    def media_thumbs_html(self, items):
+        """Render media items as ribbon thumbnail buttons for SPLIT_PAGE_TEMPLATE."""
+        thumbs = []
+        for item in items:
+            caption = html_lib.escape(item['caption'], quote=True)
+            if item['type'] == 'youtube':
+                thumbs.append(
+                    '          <button class="media-thumb is-video" type="button" '
+                    f'data-type="youtube" data-id="{item["id"]}" data-caption="{caption}">\n'
+                    f'            <img src="https://img.youtube.com/vi/{item["id"]}/mqdefault.jpg"'
+                    ' alt="" loading="lazy">\n'
+                    '          </button>')
+            elif item['type'] == 'video':
+                src = html_lib.escape(item['src'], quote=True)
+                if src.lower().endswith('.mov'):
+                    self.warn(f"{urllib.parse.unquote(item['src'])}: .mov playback "
+                              "depends on the codec; prefer .mp4 (H.264) uploads.")
+                thumbs.append(
+                    '          <button class="media-thumb is-video" type="button" '
+                    f'data-type="video" data-src="{src}" data-caption="{caption}">\n'
+                    f'            <video src="{src}#t=0.1" preload="metadata" muted playsinline></video>\n'
+                    '          </button>')
+            else:
+                src = html_lib.escape(item['src'], quote=True)
+                thumb = html_lib.escape(self.ribbon_thumb(item['src']), quote=True)
+                thumbs.append(
+                    '          <button class="media-thumb" type="button" '
+                    f'data-type="image" data-src="{src}" data-caption="{caption}">\n'
+                    f'            <img src="{thumb}" alt="" loading="lazy">\n'
+                    '          </button>')
+        return '\n'.join(thumbs)
+
     # ------------------------------------------------------------ conversion
 
     def convert(self, input_path):
@@ -575,7 +689,9 @@ class NotionConverter:
                 temp_dir = Path(tempfile.mkdtemp(prefix='notion_export_'))
                 print(f"Extracting {input_path.name}...")
                 self.extract_zip(input_path, temp_dir)
-                self.root = temp_dir
+                # resolve() so choose_main's relative_to() can't trip over
+                # Windows short paths / symlinked temp dirs
+                self.root = temp_dir.resolve()
             elif input_path.is_dir():
                 self.root = input_path
             elif input_path.suffix.lower() in ('.html', '.htm'):
@@ -631,14 +747,16 @@ class NotionConverter:
                 page_title = (title if page == main_html
                               else extract_title(content, out_name.rsplit('.', 1)[0]))
                 body = extract_body(content)
+                body = strip_page_chrome(body)
                 body = embed_youtube(body)
                 body = self.rewrite_refs(body, page.parent)
-                body = tag_wide_images(body)
+                body = self.tag_wide_images(body)
                 body, media_items = extract_media(body)
+                body = add_lazy_images(body)
                 if media_items:
                     themed = (SPLIT_PAGE_TEMPLATE
                               .replace('{{TITLE}}', html_lib.escape(page_title))
-                              .replace('{{THUMBS}}', media_thumbs_html(media_items))
+                              .replace('{{THUMBS}}', self.media_thumbs_html(media_items))
                               .replace('{{CONTENT}}', body))
                     note = f" (split view, {len(media_items)} media item(s))"
                 else:
@@ -657,25 +775,22 @@ class NotionConverter:
 
     def print_summary(self, main_name):
         rel = f"/{self.category}_projects/{self.out_dir.name}/{main_name}"
-        main_file = self.out_dir / main_name
-        thumb = re.search(r'<img\b[^>]*src="([^"]*)"',
-                          main_file.read_text(encoding='utf-8'))
+        page_html = (self.out_dir / main_name).read_text(encoding='utf-8')
+        thumb = re.search(r'<img\b[^>]*src="([^"]*)"', page_html)
         if thumb and thumb.group(1).startswith(('http://', 'https://')):
             thumb_url = thumb.group(1)   # e.g. a YouTube ribbon thumbnail
         elif thumb:
-            thumb_url = (f"/{self.category}_projects/{self.out_dir.name}/"
-                         f"{urllib.parse.unquote(thumb.group(1))}")
+            thumb_url = urllib.parse.quote(
+                f"/{self.category}_projects/{self.out_dir.name}/"
+                f"{urllib.parse.unquote(thumb.group(1))}")
         else:
             thumb_url = "/assets/images/333_logo.png"
-        title = re.search(r'<title>(.*?) - Micah Muir</title>',
-                          main_file.read_text(encoding='utf-8'))
+        title = re.search(r'<title>(.*?) - Micah Muir</title>', page_html)
 
         grid_id = ('personalProjects' if self.category == 'personal'
                    else 'professionalProjects')
-        thumb_quoted = (thumb_url if thumb_url.startswith(('http://', 'https://'))
-                        else urllib.parse.quote(thumb_url))
         snippet = f'''          <a href="{urllib.parse.quote(rel)}" class="card">
-            <div class="card-image" style="background-image: url('{thumb_quoted}');"></div>
+            <div class="card-image" style="background-image: url('{thumb_url}');"></div>
             <h3 class="card-title">{title.group(1) if title else 'Project'}</h3>
             <p class="card-description">TODO: one-line description.</p>
           </a>'''

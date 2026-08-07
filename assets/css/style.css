@@ -1555,6 +1555,229 @@ figure.link-to-page a:hover {
   color: #0a0a0b !important;
 }
 
+/* =======================================================================================
+   NOTION BLOCK SUPPORT
+   Notion HTML exports ship their own stylesheet that the converter drops, so
+   the block types below need site styling to survive the trip: callouts,
+   toggles, code blocks, quotes, tables, to-do lists, and text highlights.
+======================================================================================= */
+
+/* Callout blocks: icon + text in a soft panel */
+figure.callout {
+  display: flex !important;
+  gap: 0.75rem;
+  align-items: flex-start;
+  text-align: left !important;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0 !important;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  background: rgba(var(--theme-rgb), 0.08);
+}
+
+figure.callout p {
+  margin-bottom: 0.5rem;
+}
+
+figure.callout p:last-child {
+  margin-bottom: 0;
+}
+
+span.icon img {
+  width: 1.1em !important;
+  height: 1.1em !important;
+  display: inline-block !important;
+  margin: 0 !important;
+  vertical-align: -0.15em;
+  box-shadow: none !important;
+}
+
+/* Toggle blocks: suppress the template's ▸ bullet (the disclosure triangle
+   is the marker) and indent the revealed content */
+.project-content ul.toggle {
+  padding-left: 0;
+}
+
+.project-content ul.toggle > li {
+  padding-left: 0;
+}
+
+.project-content ul.toggle > li::before {
+  content: none;
+}
+
+.project-content details {
+  margin: 0.75rem 0;
+}
+
+.project-content summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.project-content details > *:not(summary) {
+  margin-left: 1.5rem;
+}
+
+/* Code blocks */
+.project-content pre.code {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  text-align: left;
+}
+
+.project-content pre.code code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  background: none;
+  color: var(--text-light);
+  white-space: pre;
+}
+
+/* Inline code */
+.project-content code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  background: rgba(var(--theme-rgb), 0.12);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+}
+
+/* Quote blocks */
+.project-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 3px solid var(--theme-color);
+  color: var(--text-medium);
+  font-size: 1.05rem;
+}
+
+/* Simple tables */
+.project-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+.project-content th,
+.project-content td {
+  border: 1px solid var(--surface-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.project-content th {
+  background: rgba(var(--theme-rgb), 0.12);
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* To-do lists: suppress the ▸ bullet, draw the exported checkbox divs */
+.project-content ul.to-do-list {
+  padding-left: 0;
+}
+
+.project-content ul.to-do-list > li {
+  padding-left: 0;
+}
+
+.project-content ul.to-do-list > li::before {
+  content: none;
+}
+
+.project-content .checkbox {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 0.45em;
+  vertical-align: -0.1em;
+  border: 1px solid var(--surface-border);
+  border-radius: 3px;
+}
+
+.project-content .checkbox.checkbox-on {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+}
+
+.project-content .to-do-children-checked {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Text highlights (Notion colors map onto the page accent) */
+.project-content mark[class*="highlight-"] {
+  background: rgba(var(--theme-rgb), 0.3);
+  color: inherit;
+  padding: 0 0.15em;
+  border-radius: 2px;
+}
+
+/* Bookmark cards (non-YouTube links pasted as previews) */
+figure a.bookmark {
+  display: flex !important;
+  align-items: stretch;
+  text-align: left !important;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius-small);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+}
+
+figure a.bookmark:hover {
+  border-color: rgba(var(--theme-rgb), 0.6);
+}
+
+.bookmark-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+}
+
+.bookmark-title {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.25rem;
+}
+
+.bookmark-description {
+  font-size: 0.85rem;
+  color: var(--text-medium);
+}
+
+.bookmark-href {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 0.4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+img.icon.bookmark-icon {
+  width: 1em !important;
+  height: 1em !important;
+  display: inline-block !important;
+  margin: 0 0.35em 0 0 !important;
+  vertical-align: -0.15em;
+  box-shadow: none !important;
+}
+
+img.bookmark-image {
+  flex: 0 0 30%;
+  max-width: 30% !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
 /* True black backgrounds on every page — OLED friendly; the particle
    canvas carries the per-page accent color instead of a tinted body */
 .page-about,
@@ -2059,6 +2282,7 @@ figure.link-to-page a:hover {
 }
 
 .media-stage iframe,
+.media-stage video,
 .media-stage img {
   position: absolute;
   inset: 0;
@@ -2067,7 +2291,8 @@ figure.link-to-page a:hover {
   border: 0;
 }
 
-.media-stage img {
+.media-stage img,
+.media-stage video {
   object-fit: contain;
 }
 
@@ -2150,11 +2375,13 @@ body.stage-fullscreen-open {
               transform var(--transition-fast);
 }
 
-.media-thumb img {
+.media-thumb img,
+.media-thumb video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 
 .media-thumb:hover {
