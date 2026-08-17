@@ -608,13 +608,40 @@ function initBackgroundVisuals() {
   // stage — skip the background entirely so nothing animates behind the photos
   if (document.querySelector('.stage')) return;
 
-  // Theme test: the About page gets the liquid ink-boundary sim; if WebGL is
-  // unavailable it falls through to the watercolor canvas like every other page
-  if (document.body.classList.contains('page-about')) {
-    if (createInkBoundaryVisual()) return;
+  // The About page keeps the liquid ink-boundary sim behind a "fun mode"
+  // switch at the bottom of the bio pane. Off (the default): the page runs
+  // the same watercolor canvas as every other page. On: the ink sim takes
+  // over live, no reload — and if WebGL is unavailable it quietly falls
+  // back to watercolor and the switch snaps back off.
+  var FUN_KEY = 'funModeEnabled';
+  var toggle = document.getElementById('fun-mode-checkbox');
+  var visual = null;
+
+  function funSaved() {
+    try { return localStorage.getItem(FUN_KEY) === '1'; } catch (err) { return false; }
   }
 
-  createWatercolorVisual();
+  function start(fun) {
+    if (fun && document.body.classList.contains('page-about')) {
+      visual = createInkBoundaryVisual();
+      if (visual) return;
+    }
+    visual = createWatercolorVisual();
+  }
+
+  start(!!toggle && funSaved());
+
+  if (!toggle) return;
+  // Reflect what actually started, not the saved flag — WebGL may have
+  // fallen back to watercolor (the sim sets ink-active only once running)
+  toggle.checked = document.body.classList.contains('ink-active');
+  toggle.addEventListener('change', function() {
+    try { localStorage.setItem(FUN_KEY, toggle.checked ? '1' : '0'); } catch (err) {}
+    if (visual) visual.stop();
+    visual = null;
+    start(toggle.checked);
+    toggle.checked = document.body.classList.contains('ink-active');
+  });
 }
 
 // =======================================================================================

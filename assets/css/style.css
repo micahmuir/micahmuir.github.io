@@ -1809,6 +1809,124 @@ img.bookmark-image {
   /* blur is set from JS SIM settings */
 }
 
+/* =======================================================================================
+   FUN MODE TOGGLE — a quiet little switch at the bottom of the About bio pane.
+   Off (default): the About page looks like every other page. On: the liquid
+   ink sim takes over the whole page (see initBackgroundVisuals in main.js).
+   It gives no hint of what it does — that's the point.
+======================================================================================= */
+.fun-mode-row {
+  clear: both;            /* step below the floated headshot on short viewports */
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.fun-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+/* The real checkbox is invisible but still focusable for keyboards */
+.fun-mode-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fun-mode-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+  transition: color var(--transition-fast);
+}
+
+/* The label names the destination, not the current state: on the plain page
+   it offers "Fun mode" (flip it on to get there); with the ink running it
+   offers "Boring mode" (flip it off to go back) */
+.fun-mode-label .when-on {
+  display: none;
+}
+
+.fun-mode-toggle input:checked ~ .fun-mode-label .when-off {
+  display: none;
+}
+
+.fun-mode-toggle input:checked ~ .fun-mode-label .when-on {
+  display: inline;
+}
+
+/* A tiny spark rides the "Fun mode" invitation — the way back gets none */
+.fun-mode-toggle input:not(:checked) ~ .fun-mode-label::after {
+  content: ' \2726';
+  color: rgb(var(--theme-rgb));
+}
+
+.fun-mode-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--surface-border-strong);
+  transition: background var(--transition-medium), border-color var(--transition-medium),
+              box-shadow var(--transition-medium);
+}
+
+.fun-mode-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-medium);
+  /* Overshoot ease: the knob lands with a small, satisfying bounce */
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background var(--transition-medium);
+}
+
+.fun-mode-toggle:hover .fun-mode-label {
+  color: var(--text-medium);
+}
+
+.fun-mode-toggle:hover .fun-mode-switch {
+  border-color: rgba(var(--theme-rgb), 0.45);
+  box-shadow: 0 0 12px rgba(var(--theme-rgb), 0.2);
+}
+
+.fun-mode-toggle input:focus-visible + .fun-mode-switch {
+  box-shadow: 0 0 0 3px rgba(var(--theme-rgb), 0.35);
+}
+
+.fun-mode-toggle input:checked + .fun-mode-switch {
+  background: rgba(var(--theme-rgb), 0.85);
+  border-color: rgba(var(--theme-rgb), 0.9);
+}
+
+.fun-mode-toggle input:checked + .fun-mode-switch::after {
+  transform: translateX(18px);
+  background: #101012;
+}
+
+/* While the ink sim runs, --theme-rgb flips to the palette's cream, so the
+   switch re-tints itself: cream track, charcoal knob, on dark pane ink.
+   Just lift the label a touch for legibility on the charcoal. */
+.page-about.ink-active .fun-mode-label {
+  color: rgba(242, 234, 217, 0.75);
+}
+
+.page-about.ink-active .fun-mode-toggle:hover .fun-mode-label {
+  color: rgba(242, 234, 217, 0.95);
+}
+
 /* About-page theme test: while the ink sim runs (body.ink-active) it paints
    the pane interiors itself, per-pixel continuous with the edge bleed — so
    the CSS panes carry NO surface of their own. No background, border, shadow,
