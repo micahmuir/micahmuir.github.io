@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chladni Plate Demo - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '\25B8';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon (first thumb loads on page load) -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="j_7EeqCTrwI" data-caption="">
+            <img src="https://img.youtube.com/vi/j_7EeqCTrwI/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="3c69d96e-b8a1-802b-b713-e5e2a08a1167" class="page sans"><header><h1 class="page-title" dir="auto">Chladni Plate Demo</h1></header><div class="page-body"><p id="3c69d96e-b8a1-8035-817e-c2f4df9a91a1" class="" dir="auto">As a one-off weekend project, I 3D printed a series of square and circular plates of PETG with space for a central embedded magnet. The plates were suspended with regular hair ties at each corner. Underneath the magnet, I ran a 50N electromagnet with a flyback diode and mosfet switches to modulate the magnetic field to produce controlled vibration. It was a lot of fun piping the hz modifier in from Touchdesigner to hunt down each plates harmonics. <br/><br/>As a proof of concept, I have intentions to use this as a module in a larger installation. </p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">&larr; Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

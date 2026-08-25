@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Projection Mapping - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '\25B8';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon (first thumb loads on page load) -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="ytpllJccHts" data-caption="">
+            <img src="https://img.youtube.com/vi/ytpllJccHts/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="NGeER6sxBN8" data-caption="Quick view of the hardware involved. The camera box up there was an early version of my bear head project , with the mini projector sitting between it and the Amcrest camera. The only hardware actually used is the projector and the Arducam ToF camera.">
+            <img src="https://img.youtube.com/vi/NGeER6sxBN8/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="3c69d96e-b8a1-8011-8d22-ee2320e9913a" class="page sans"><header><h1 class="page-title" dir="auto">Live Projection Mapping </h1></header><div class="page-body"><p id="3c69d96e-b8a1-8088-8c36-f80e8658b5c5" class="" dir="auto">This was an experiment I did using TouchDesigner and a downward facing ToF camera. When an object reaches a certain height above the table, I masked everything below that threshold and ran edge detection to bound the projected images. It’s slow, with parallax error, but with 30 fps ToF camera running in real time with visual generation, it was an acceptable proof of concept.</p><p id="3c69d96e-b8a1-8070-8388-ea02c839f1b7" class="" dir="auto">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">&larr; Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
