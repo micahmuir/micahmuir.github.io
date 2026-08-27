@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Companion Stairlight - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '▸';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon (first thumb loads on page load) -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="VXFYuCdimaI"
+                  data-caption="The companion stairlight following movement up and down the stairs">
+            <img src="https://img.youtube.com/vi/VXFYuCdimaI/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="stairlight1.jpg"
+                  data-caption="TFL03 rangefinder overlooking the stairwell">
+            <img src="stairlight1.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="stairlight3.jpg"
+                  data-caption="Sensor-side electronics: Arduino Nano and 2.4 GHz radio in a 3D-printed enclosure">
+            <img src="stairlight3.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="stairlight6.jpg"
+                  data-caption="LED controller: Teensy 4.1 with native ethernet module and screw-terminal power distribution">
+            <img src="stairlight6.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="stairlight4.jpg"
+                  data-caption="Low-profile enclosure mounted with sticky putty — no holes drilled">
+            <img src="stairlight4.jpg" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            <h1>Companion Stairlight</h1>
+            <p>I created a sensor-driven WS2812B led strip that illuminates the occupied section of stairway.</p>
+
+            <h2 id="background">Background and Motivation</h2>
+            <p>This project was born of frustration. Our very old, strangely wired house has the stairwell light switch at the bottom of the stairs. Late at night, that meant walking down in the dark, turning on the light, doing the thing, then turning it off and heading back up in darkness again. Usually with full arms, which meant putting everything down just to flip a switch. It was a pain, so I built a stair light that follows you automatically.</p>
+
+            <h2 id="execution">Execution</h2>
+            <div class="column-list">
+              <div style="width:50%" class="column">
+                <p>I had an old TFL03 lensed infrared rangefinder from a previous project.</p>
+                <p>This sensor claims lidar, but it&rsquo;s not actually a laser light source. Still, it has centimeter level resolution at a range of 160 meters. Huge overkill for the application, but the rangefinding component of this project is pretty sensor agnostic.</p>
+                <figure class="image"><a href="stairlight3.jpg"><img src="stairlight3.jpg" alt="Sensor enclosure with Arduino Nano and 2.4 GHz radio"></a><figcaption>Sensor-side electronics: Arduino Nano and 2.4 GHz radio</figcaption></figure>
+                <p>The enclosure held a radio transciever, but I also included a native ethernet module with a teensy 4.1 which, again, is huge overkill for the simple stair project, but I wanted this solution to be a building block for larger and more complicated light installations.</p>
+                <figure class="image"><a href="stairlight6.jpg"><img src="stairlight6.jpg" alt="Teensy 4.1 LED controller with ethernet module"></a><figcaption>Teensy 4.1 LED controller with native ethernet module</figcaption></figure>
+              </div>
+              <div style="width:50%" class="column">
+                <figure class="image"><a href="stairlight1.jpg"><img src="stairlight1.jpg" alt="TFL03 rangefinder mounted above the stairwell"></a><figcaption>TFL03 rangefinder overlooking the stairwell</figcaption></figure>
+                <p>The rangefinder reports readings over UART, which I used a arduino nano with a 2.4GHz radio chip to communicate with the led microcontroller. The gap was only a few feet, but I didn&rsquo;t want any extra wires dragging on the floor between the sensor and stairs.</p>
+                <p>I 3d printed a low-profile enclosure that was light enough to be mounted with sticky putty. I&rsquo;m a renter, so I wanted to avoid drilling any holes I didn&rsquo;t have to.</p>
+                <figure class="image"><a href="stairlight4.jpg"><img src="stairlight4.jpg" alt="Low-profile enclosure mounted on the stair rail"></a><figcaption>Low-profile enclosure mounted with sticky putty</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">← Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLAM Bot (D.A.R.L.A) - Micah Muir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <style>
+    /* Minimal project-specific styling - rely on main CSS for layout preservation */
+    .project-content h2 {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(var(--theme-rgb), 0.4);
+    }
+
+    .project-content h3 {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+
+    .project-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+
+    .project-content li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .project-content li::before {
+      content: '\25B8';
+      color: var(--theme-color);
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+  </style>
+</head>
+<body class="page-projects">
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="../../index.html">About</a></li>
+        <li><a href="../../resume.html">Resume</a></li>
+        <li><a href="../../projects.html">Projects</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="project-split">
+
+      <!-- Media rail: main stage + thumbnail ribbon (first thumb loads on page load) -->
+      <div class="project-media-rail">
+        <div class="media-stage"></div>
+        <p class="media-stage-caption"></p>
+        <div class="media-ribbon">
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="G4C81cOFR3Q" data-caption="Basic SLAM mapping with SLAM toolbox and Nav2">
+            <img src="https://img.youtube.com/vi/G4C81cOFR3Q/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb is-video" type="button" data-type="youtube" data-id="Sq7X3cGSFw4" data-caption="Testing a “startled” response behaviour">
+            <img src="https://img.youtube.com/vi/Sq7X3cGSFw4/mqdefault.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="image.png" data-caption="Darla has access to my suite of  MQTT sensors to interact with.">
+            <img src="image_thumb.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="image%201.png" data-caption="Behaviour tree node editor example">
+            <img src="image%201_thumb.jpg" alt="" loading="lazy">
+          </button>
+          <button class="media-thumb" type="button" data-type="image" data-src="image%202.png" data-caption="Interface for drawing on the front led matrix, and the spectrometer reading graph.">
+            <img src="image%202_thumb.jpg" alt="" loading="lazy">
+          </button>
+        </div>
+      </div>
+
+      <!-- Scrollable write-up column -->
+      <div class="project-writeup">
+        <div class="paper-panel">
+          <div class="project-content">
+            <article id="39d9d96e-b8a1-8014-b157-e1d37dc579f7" class="page sans"><header><h1 class="page-title" dir="auto">SLAM Bot (D.A.R.L.A)</h1></header><div class="page-body"><p id="3c99d96e-b8a1-8089-8c32-ecf4a750efc9" class="" dir="auto">
+</p><p id="39d9d96e-b8a1-8093-b45b-c620df474072" class="" dir="auto">Daringly Asisine Research in Locomotion and Autonomy, </p><p id="3c99d96e-b8a1-80a7-b4b6-c6367cb2014a" class="" dir="auto">or, </p><p id="3c99d96e-b8a1-80d5-a6f2-ef4c9002954d" class="" dir="auto">Delusional Anthropomorphizing Really Lowers Apprehension.</p><p id="3c89d96e-b8a1-801b-8958-e1916d14bad1" class="" dir="auto">I wanted a robot to test out sensor interactions and use in my future touchdesigner installations, so I built one. I wanted something that was unmistakably a robot, but could still generate an emotional response in a human. I wanted someone who isn’t deeply connected to machines to pick up the controller or view a faceless Darla in autonomous mode, and say “hey that’s cute!”<br/><br/>The wheeled platform started as a hacked hoverboard motor set with Odrive controllers, but I quickly found the 90 cpr resolution of my hoverboard motors was woefully inaccurate for the sort of slow, controlled, high torque movement I was aiming for. Sure, they were crazy powerful and really fast, but I wanted a platform that would ultimately be safe and comfortable to operate indoors. Ultimately, after a failed attempt to install my own absolute encoder, I caved and procured 4x M0601 AIO hub motors. While less powerful than my original wheels, the four working together were more than enough to power and move my platform. <br/></p><p id="3c99d96e-b8a1-80c9-a546-eda837d0397a" class="" dir="auto">The onboard Pi serves a console page as a control interface, but one can also use an xbox controller for rc mode. <br/><br/></p><p id="3c99d96e-b8a1-808c-821a-d2c87ca4031e" class="" dir="auto">The system highlights:</p><ul id="3c99d96e-b8a1-80fd-a835-d3cbe233d725" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Raspberry pi 5 main computer</li></ul><ul id="3c99d96e-b8a1-8050-80ad-d8ccf4f3f135" class="bulleted-list" dir="auto"><li style="list-style-type:disc">ESP32-S3 with W5500 Ethernet adaptor</li></ul><ul id="3c99d96e-b8a1-806c-84bf-d73e466c8994" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Dual C1 Slamtec lidars</li></ul><ul id="3c99d96e-b8a1-8054-8052-fdd5d35cf556" class="bulleted-list" dir="auto"><li style="list-style-type:disc">9 dof IMU unit </li></ul><ul id="3c99d96e-b8a1-8062-a8fc-ec742bf8d885" class="bulleted-list" dir="auto"><li style="list-style-type:disc">ADB interface with the onboard projector for touchdesigner integration</li></ul><ul id="3c99d96e-b8a1-809f-87c7-d9ebdb7a40e5" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Onboard led matrix and spectrometer for color/projection based triggers</li></ul><ul id="3c99d96e-b8a1-80d4-a07a-cab20c31153e" class="bulleted-list" dir="auto"><li style="list-style-type:disc">LiFePO4 battery - LiPos would work better, but with my available tools and desire to have this little robot indoors around people, this was the safer choice</li></ul><ul id="3c99d96e-b8a1-8097-bb22-e8e163416af2" class="bulleted-list" dir="auto"><li style="list-style-type:disc">Built in ROS console, map viewer, behaviour tree editor, and network manager</li></ul><figure id="3c99d96e-b8a1-80cc-a85d-f8f3d07e963a" class="image" data-notion-image="image.png" dir="ltr"><a href="image.png"><img style="width:703.9791870117188px" src="image.png" loading="lazy" decoding="async"/></a><figcaption>Darla has access to my suite of  MQTT sensors to interact with.</figcaption></figure><p id="3c99d96e-b8a1-80a0-a7fe-e3a57c2ed5bd" class="" dir="auto">SLAM is provided by the SLAM toolbox, with two Slamtec C1 lidars covering eachother’s scan occlusions, and depth imaging by the arducam ToF camera in the front.</p><figure id="3c99d96e-b8a1-8042-9c76-e42a3417f66a" class="image" data-notion-image="image%201.png" dir="ltr"><a href="image%201.png"><img class="wide-image" style="width:2532px" src="image%201.png" loading="lazy" decoding="async"/></a><figcaption>Behaviour tree node editor example</figcaption></figure><p id="3c99d96e-b8a1-806f-b7b9-d3264f3c769e" class="" dir="auto">I also created a rudimentary behaviour tree editor. Since the device can speak to so many sensors at the same time, I’m viewing it as a tool to quickly model and test sensor interactions for spatial installations. </p><figure id="3c99d96e-b8a1-805f-8ff2-dd5f1c403540" class="image" data-notion-image="image%202.png" dir="ltr"><a href="image%202.png"><img class="wide-image" style="width:2517px" src="image%202.png" loading="lazy" decoding="async"/></a><figcaption>Interface for drawing on the front led matrix, and the spectrometer reading graph.</figcaption></figure><p id="3c99d96e-b8a1-8081-a51e-cbd2312917e8" class="" dir="auto">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span>
+          </div>
+        </div>
+
+        <!-- Back to Projects -->
+        <div class="text-center mt-3">
+          <a href="../../projects.html" class="btn btn-secondary">&larr; Back to Projects</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Main JavaScript -->
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/project-split.js"></script>
+
+  <!-- JavaScript for active navigation -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-links a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === '../../projects.html') {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
