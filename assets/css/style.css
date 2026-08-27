@@ -1846,20 +1846,9 @@ img.bookmark-image {
   transition: color var(--transition-fast);
 }
 
-/* The label names the destination, not the current state: on the plain page
-   it offers "Fun mode" (flip it on to get there); with the ink running it
-   offers "Boring mode" (flip it off to go back) */
-.fun-mode-label .when-on {
-  display: none;
-}
-
-.fun-mode-toggle input:checked ~ .fun-mode-label .when-off {
-  display: none;
-}
-
-.fun-mode-toggle input:checked ~ .fun-mode-label .when-on {
-  display: inline;
-}
+/* The label reads "Fun mode" in both states — the switch position says
+   whether it's on. (Naming the plain page anything like "boring" undersells
+   the professional content, so the way back stays unlabeled.) */
 
 /* A tiny spark rides the "Fun mode" invitation — the way back gets none */
 .fun-mode-toggle input:not(:checked) ~ .fun-mode-label::after {

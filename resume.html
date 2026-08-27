@@ -23,13 +23,14 @@
       position: relative;
     }
     
-    /* Fixed geometry: marker column is 130px wide, the vertical line runs at
-       x = 136px (in the gap before the content panel), and every dot centers
+    /* Fixed geometry: marker column is 200px wide (sized for full date
+       ranges like "Sept 2022 – Oct 2023"), the vertical line runs at
+       x = 206px (in the gap before the content panel), and every dot centers
        on that same x. Nothing depends on content height, so alignment is
        identical at every page width. */
     .timeline-date-marker {
       flex-shrink: 0;
-      width: 130px;
+      width: 200px;
       text-align: right;
       position: relative;
       padding-right: 26px;   /* keeps the date chip clear of the line and dots */
@@ -50,7 +51,7 @@
       background: var(--theme-color);
       border: 3px solid #000000;
       border-radius: 50%;
-      left: 128px;           /* dot center at x = 136px, on the line */
+      left: 198px;           /* dot center at x = 206px, on the line */
       top: 16px;             /* dot center at y = 24px, level with the chip */
       z-index: 2;
       box-shadow: 0 0 12px rgba(var(--theme-rgb), 0.6);
@@ -60,7 +61,7 @@
     .timeline-item:first-child .timeline-date-marker::after {
       width: 26px;
       height: 26px;
-      left: 123px;           /* same center x = 136px */
+      left: 193px;           /* same center x = 206px */
       top: 11px;             /* same center y = 24px */
       box-shadow: 0 0 22px rgba(var(--theme-rgb), 0.55);
     }
@@ -74,7 +75,7 @@
         rgba(var(--theme-rgb), 0.2) 100%);
       top: 24px;
       bottom: 20px;
-      left: 134.5px;         /* line center at x = 136px */
+      left: 204.5px;         /* line center at x = 206px */
       border-radius: 3px;
       z-index: 1;
       box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.3);
@@ -272,6 +273,27 @@
   <!-- Main Content -->
   <main class="main-content">
 
+    <!-- Contact + Education -->
+    <section class="section" style="padding-bottom: 0;">
+      <div class="container" style="max-width: 1000px; display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem 3rem; flex-wrap: wrap;">
+        <div>
+          <h1 style="margin-bottom: 0.4rem; font-size: 2rem;">Micah Muir Thomas</h1>
+          <p style="color: var(--text-medium); margin-bottom: 0;">
+            Mechanical Design Engineer &middot; Portland, OR<br>
+            <a href="mailto:micah.muir@gmail.com" style="color: var(--theme-color); text-decoration: none;">micah.muir@gmail.com</a>
+            &nbsp;&middot;&nbsp;
+            <a href="https://www.linkedin.com/in/micah-thomas-09249586/" target="_blank" rel="noopener noreferrer" style="color: var(--theme-color); text-decoration: none;">LinkedIn</a>
+          </p>
+        </div>
+        <div style="text-align: right; font-size: 0.9rem; color: var(--text-medium); line-height: 1.5; background: #101013; border: 1px solid var(--surface-border); border-radius: var(--border-radius); padding: 0.9rem 1.3rem;">
+          <p style="margin: 0 0 0.35rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--theme-color);">Education</p>
+          <p style="margin: 0; font-weight: 600; color: var(--secondary-color);">B.S. Mechanical Engineering</p>
+          <p style="margin: 0;">Minor in Studio Art</p>
+          <p style="margin: 0;"><a href="https://www.scu.edu/" target="_blank" rel="noopener" style="color: var(--theme-color); text-decoration: none;">Santa Clara University</a> &middot; 2013&ndash;2018</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Timeline -->
     <section class="section">
       <div class="container">
@@ -279,7 +301,7 @@
           <!-- Current Position -->
           <div class="timeline-item">
             <div class="timeline-date-marker">
-              <div class="timeline-date">Present</div>
+              <div class="timeline-date">Oct 2023 &ndash; Present</div>
             </div>
             <div class="timeline-content">
               <h2 class="job-title">Mechanical Design Engineer</h2>
@@ -287,8 +309,8 @@
               <p class="location">Ridgefield, WA</p>
               <ul class="job-description">
                 <li>Worked with small team developing and deploying a robotic full system solution for inbound product</li>
-                <li>Designed superstructure and provided continuous improvement for a dual arm palletizing system <a href="/professional_projects/combiner_project/Palletizing Robot.html" target="_blank" rel="noopener">more...</a></li>
-                <li>Designed, tested, and deployed a majority FDM-printed vacuum end effector for 6DoF pick/place operations for 25 kg cardboard boxes <a href="/professional_projects/gripper_project/3D Printed Vacuum Gripper.html" target="_blank" rel="noopener">more...</a></li>
+                <li>Designed superstructure and provided continuous improvement for a dual arm palletizing system <a href="/professional_projects/combiner_project/palletizing-robot.html" target="_blank" rel="noopener">more...</a></li>
+                <li>Designed, tested, and deployed a majority FDM-printed vacuum end effector for 6DoF pick/place operations for 25 kg cardboard boxes <a href="/professional_projects/gripper_project/3d-printed-vacuum-gripper.html" target="_blank" rel="noopener">more...</a></li>
                 <li>Designed and implemented prototype 7-camera 3d scanning tunnel for product measurement and classification</li>
               </ul>
               <div class="video-container">
@@ -300,14 +322,14 @@
           <!-- Sherpa Design -->
           <div class="timeline-item">
             <div class="timeline-date-marker">
-              <div class="timeline-date">Oct 2023</div>
+              <div class="timeline-date">Sept 2022 &ndash; Oct 2023</div>
             </div>
             <div class="timeline-content">
               <h2 class="job-title">Mechanical Design Engineer</h2>
               <h3 class="company"><a href="https://sherpa-design.com/" target="_blank" rel="noopener">Sherpa Design</a></h3>
               <p class="location">Portland, OR</p>
               <ul class="job-description">
-                <li>Built software tools to capture and visualise output from multisensor wearable device</li>
+                <li>Built software tools to capture and visualize output from multisensor wearable device</li>
                 <li>Developed <a href="https://projectveet.com/" target="_blank" rel="noopener">ultralight hardware</a> for VR/AR style innovation, with particular attention to time-of-flight integration</li>
                 <li>Designed and prototyped 3000 PSI CNC washing robot for complex 3D printed support removal</li>
               </ul>
@@ -317,7 +339,7 @@
           <!-- Plover -->
           <div class="timeline-item">
             <div class="timeline-date-marker">
-              <div class="timeline-date">Sept 2022</div>
+              <div class="timeline-date">Nov 2020 &ndash; Sept 2022</div>
             </div>
             <div class="timeline-content">
               <h2 class="job-title">Design Engineer</h2>
@@ -337,14 +359,14 @@
           <!-- 333 LLC -->
           <div class="timeline-item">
             <div class="timeline-date-marker">
-              <div class="timeline-date">Nov 2020</div>
+              <div class="timeline-date">Apr 2020 &ndash; Nov 2020</div>
             </div>
             <div class="timeline-content">
               <h2 class="job-title">Shop Engineer</h2>
               <h3 class="company">333 LLC</h3>
               <p class="location">Hood River, OR</p>
               <ul class="job-description">
-                <li>Retrofitted vintage CNC plasma table with an modern, modular motion control system</li>
+                <li>Retrofitted vintage CNC plasma table with a modern, modular motion control system</li>
                 <li>Designed engineering assemblies and fabrication drawings for residential structure and metal art sculptures</li>
               </ul>
             </div>
@@ -353,11 +375,11 @@
           <!-- Trillium Engineering -->
           <div class="timeline-item">
             <div class="timeline-date-marker">
-              <div class="timeline-date">Apr 2020</div>
+              <div class="timeline-date">Summers 2016 &amp; 2017</div>
             </div>
             <div class="timeline-content">
               <h2 class="job-title">Mechanical Engineering Intern</h2>
-              <h3 class="company">Trillium Engineering LLC</h3>
+              <h3 class="company"><a href="https://www.trilliumeng.com/" target="_blank" rel="noopener">Trillium Engineering LLC</a></h3>
               <p class="location">Hood River, OR</p>
               <ul class="job-description">
                 <li>Assisted in design, testing, and assembly of high-performance drone mounted stabilized imaging systems</li>
@@ -366,6 +388,39 @@
               </ul>
             </div>
           </div>
+
+          <!-- SCU Electrochemical Lab -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">July 2015 &ndash; Apr 2016</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Undergraduate Research Assistant</h2>
+              <h3 class="company">Santa Clara University Electrochemical Lab</h3>
+              <p class="location">Santa Clara, CA</p>
+              <ul class="job-description">
+                <li>Utilized <a href="https://simvascular.github.io/" target="_blank" rel="noopener">SimVascular</a> software to construct patient-specific models of coronary artery system to optimize bypass graft surgery</li>
+                <li>Conducted finite element analysis of hemodynamic flow, post-processed with ParaView software</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- De Saisset Museum -->
+          <div class="timeline-item">
+            <div class="timeline-date-marker">
+              <div class="timeline-date">Feb 2015 &ndash; Dec 2016</div>
+            </div>
+            <div class="timeline-content">
+              <h2 class="job-title">Collections Assistant</h2>
+              <h3 class="company"><a href="https://www.scu.edu/desaisset/" target="_blank" rel="noopener">De Saisset Museum</a></h3>
+              <p class="location">Santa Clara, CA</p>
+              <ul class="job-description">
+                <li>Responsible for accessioning/deaccessioning works, vault atmospheric control, collection database management, and secure transportation/conditioning of high-value museum pieces</li>
+                <li>Reduced cost of database overhaul project from an anticipated $50,000 over several years to under $2,000 through software/mechanical automation</li>
+              </ul>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
